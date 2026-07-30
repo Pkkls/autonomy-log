@@ -16,6 +16,7 @@ Read-only tools for a directory tree that got out of hand. Standard library only
   - Reports commits that exist nowhere else, distinguishing a repository with no remote at all from a branch merely untracked. The first version conflated the two and produced a false alarm on a repository that was in fact behind its remote.
   - Survives unreadable directories instead of aborting the whole report.
 - **`dupescan.py`** — byte-identical files ranked by reclaimable space, grouped by size then partial hash before hashing in full.
+- **`notecheck.py`** — auditor for a directory of markdown notes: dead wiki links, a `name:` that drifted from its filename, paths to things that moved, credentials pasted into a note. Run against a real vault it found 28 dead links out of 39, caused by three naming conventions coexisting. Its own path detection needed two fixes, both the same class of bug it exists to find: stopping a match at the first space broke every directory named like `02 - Projects`, and prose mentioning a path shape was read as a path.
 - **`secretscan.py`** — credential scanner over full git history, not just the checkout. Masks matches, counts placeholders instead of reporting them, anchors patterns so they cannot match inside a base64 blob. Exit 1 on a finding, 2 on an unreadable path.
 - CI on six combinations: Linux, Windows, macOS crossed with Python 3.9 and 3.13. The scanner runs against its own repository on every push.
 
@@ -24,6 +25,16 @@ Receives official platform webhooks, verifies their RSA signature, deduplicates,
 
 ### [kick-core](https://github.com/Pkkls/kick-core) — public, MIT
 Dependency-free client for a streaming platform's current realtime gateway, for use in browser extensions. Handles token fetch, subscription, ping, and reconnection with a fresh token.
+
+### [claw-display](https://github.com/Pkkls/claw-display) — public, MIT
+Turns a 240x240 SPI panel on a RISC-V board into an always-on status screen. The board has no framebuffer and no DRM, so the display is driven entirely from userspace over spidev with three GPIO lines.
+
+- **`clawdisp.py`** — daemon rotating three pages (system, network, services), with thresholds that turn amber then red so an abnormal screen is recognisable without reading it. Anything written to a message file takes the screen for five minutes, then rotation resumes. That file is the interface: whoever holds SSH holds the display.
+- **`show.py`** — one-shot rendering: text with a title bar, an image, colour bars to prove the SPI link, backlight off.
+- **`say.sh`** — pushes text from another machine in one command, base64-encoded because quotes and accents do not survive four nested shells.
+- **`S97clawdisp`** — init script that refuses to start when another process owns the panel, rather than producing `get gpio line failed` with no explanation.
+- The driver and pin map are read from the vendor app already on the board rather than reimplemented, so a pin change stays in one place.
+- Rendering is testable off-device, which matters because on the board the daemon owns the panel and nothing else can draw.
 
 ### [autonomy-log](https://github.com/Pkkls/autonomy-log) — public, MIT
 This repository. Ledger of errors, engineering write-up, denser analysis, and the record of what changed in the agent afterwards.

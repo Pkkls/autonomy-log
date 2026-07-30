@@ -14,6 +14,8 @@ The interesting part is not that the agent shipped things. It is where it was wr
 
 **[LEDGER.md](LEDGER.md)** is the raw material both are built on: every error, in order, with its detection path and cost. Read it if you distrust the narratives, which you should.
 
+**[CHANGELOG.md](CHANGELOG.md)** is the inventory: every artifact produced or modified, in order, with a link so each claim can be checked rather than believed.
+
 **[WHAT-CHANGED.md](WHAT-CHANGED.md)** is the follow-through: which rules entered the agent's persistent memory, what was applied immediately, and what was deliberately left alone. A post-mortem is worth what it changes.
 
 ## The one-line version

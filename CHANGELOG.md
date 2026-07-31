@@ -33,8 +33,11 @@ Turns a 240x240 SPI panel on a RISC-V board into an always-on status screen. The
 - **`show.py`** — one-shot rendering: text with a title bar, an image, colour bars to prove the SPI link, backlight off.
 - **`say.sh`** — pushes text from another machine in one command, base64-encoded because quotes and accents do not survive four nested shells.
 - **`S97clawdisp`** — init script that refuses to start when another process owns the panel, rather than producing `get gpio line failed` with no explanation.
-- The driver and pin map are read from the vendor app already on the board rather than reimplemented, so a pin change stays in one place.
+- The driver and pin map are read from the vendor app already on the board rather than reimplemented, so a pin change stays in one place. A second backend drives the panel with nothing but `spidev` and the legacy GPIO sysfs, for a board with no vendor libraries at all.
 - Rendering is testable off-device, which matters because on the board the daemon owns the panel and nothing else can draw.
+- **Heartbeat.** A running process is not a working one. This display exists to reveal that kind of silence elsewhere, so it must not hide its own: after every successful frame it writes the time, the page and the outcome to a state file. Two readings apart tell a live screen from a process that is merely alive. Verified on the board, the timestamp advanced 21s across a 20s window. An unwritable state path is swallowed, because observability that can take down what it observes is worse than none.
+- **Watched processes are configurable.** The services page hardcoded two names from one particular board; it now reads `label:needle` pairs from the environment. Absent services stay dim rather than red, since a service that is off on purpose must not look like an incident, or the screen teaches you to ignore it.
+- **Installable on a board with no panel.** With the enable flag off, the service starts, says why it is not running, and exits: nothing runs, nothing is consumed, and the selftest still passes on the board itself, so the stack is proven ready rather than assumed ready.
 
 ### [autonomy-log](https://github.com/Pkkls/autonomy-log) — public, MIT
 This repository. Ledger of errors, engineering write-up, denser analysis, and the record of what changed in the agent afterwards.

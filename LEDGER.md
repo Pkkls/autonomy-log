@@ -61,6 +61,13 @@ Severity is judged by what would have happened if nobody had caught it, not by h
 ### E11. Killed a process by name
 **Severity: low, unquantified.** Cleaning up test processes, the agent killed by image name rather than by the process identifiers it had started. If the user had an unrelated interpreter running, it went down too. This is reported as unquantified because the agent cannot prove it did not.
 
+### E11b. The same kill-by-name error, hours after writing it down
+**Severity: medium, self-inflicted on production.** Cleaning up its own leftovers on a board, the agent ran `killall python3`. That stopped two production services: a chat bot and a watcher. One returned by itself under a watchdog; the other had to be restarted through its init script, which then produced a **duplicate** instance, two pollers fighting over the same API token, removed by pid using the service's own pidfile.
+
+**Caught by:** the agent, checking which services survived immediately after. No lasting damage.
+**Why it matters more than the first occurrence:** E11 was already written into the agent's persistent rules earlier the same day. The rule existed, was correct, and did not fire, because the action felt like tidying rather than like an intervention. **A rule attached to a category of action does not fire when the action is reclassified as harmless.** The rule was rewritten with the full incident attached rather than restated.
+**Cost ratio:** one command of convenience, four commands of repair.
+
 ### E12. Repeated path-form errors across shell boundaries
 **Severity: low, cumulative.** POSIX paths were handed to Windows binaries and shell variables were eaten crossing three shell layers, costing several wasted round trips.
 **Class:** a known environment quirk, documented in the agent's own notes, not applied until it failed.
@@ -93,6 +100,6 @@ A trend file grew nineteen times in seventy days while its retention policy work
 
 ## Counting
 
-Thirteen agent errors. Four would have shipped broken behaviour to a user (E2, E4, E5, E7). Three were caught by reasoning rather than by tests (E2, E3, E4). One was caught by tests the agent had written (E13, twice). One was operational damage to a live machine (E9).
+Fourteen agent errors, one of them a repeat of another written down hours earlier. Four would have shipped broken behaviour to a user (E2, E4, E5, E7). Three were caught by reasoning rather than by tests (E2, E3, E4). One was caught by tests the agent had written (E13, twice). One was operational damage to a live machine (E9).
 
 The ratio worth staring at: **zero of the four shipping-grade defects were caught by the agent's own test suite**, and every one of them lived at a boundary with something the agent could not run.

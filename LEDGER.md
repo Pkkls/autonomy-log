@@ -144,6 +144,15 @@ Underneath sat the representational collapse from D1, one call further up: the f
 
 **What this says about fixing things:** the guard was placed where the bug was *observed*, not where the failure *enters the world*. Anything downstream of that point still consumes the same undifferentiated zero. The sibling bot in the same collection had the unguarded version of all of it, including overwriting a multi-megabyte analysis with an empty one and returning a failure code from `main()` that nothing read, so a refusing run would still have exited zero.
 
+### D1c. A fix that would have deployed cleanly and done nothing
+The same bot's other implementation, the one that actually sends the daily message, had a prepared fix waiting: flag the run as aborted, store the row, and let readers skip it. Correct in isolation.
+
+The eleven zero rows already in the database all carry `aborted = 0`. The binary that wrote them, the one still running, never set the flag. Filtering the baseline on the flag alone would have passed its tests, deployed without incident, and left every reader still treating those zeros as valuations.
+
+The clause that does the work is `total_items > 0`. **A flag is only as trustworthy as the version that wrote the row**, and a schema column is not evidence that anything ever populated it. The item count, by contrast, has been written by every version there has ever been.
+
+Two smaller things surfaced in the same fix. Its warning message claimed no snapshot had been recorded while the code recorded one, so the report about unreliable numbers was itself inaccurate. And the first test written for the filter passed without the filter: three rows inserted in the same second collided on `CURRENT_TIMESTAMP`, which resolves to whole seconds, so `ORDER BY timestamp` broke the tie arbitrarily and happened to pick the right answer. It was caught by mutating the code and watching the test not fail, which is the only reason it is not still there.
+
 ### D2. A backup verifying clean on two thirds of a machine
 Daily, encrypted, pushed, size stable for seventeen days, restore check green. The manifest described the machine as it had been months earlier. Everything added since, including a non-reproducible price history, a live session file, credentials, the DNS configuration and every maintenance script, was absent from every archive.
 

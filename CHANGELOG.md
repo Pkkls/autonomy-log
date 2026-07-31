@@ -33,7 +33,6 @@ Turns a 240x240 SPI panel on a RISC-V board into an always-on status screen. The
 - **`show.py`** — one-shot rendering: text with a title bar, an image, colour bars to prove the SPI link, backlight off.
 - **`say.sh`** — pushes text from another machine in one command, base64-encoded because quotes and accents do not survive four nested shells.
 - **`S97clawdisp`** — init script that refuses to start when another process owns the panel, rather than producing `get gpio line failed` with no explanation.
-- Payload parsing is asserted against the documented event payloads rather than an inferred shape (the E3 near-miss), a fix present in the git history but previously missing from this changelog.
 - The driver and pin map are read from the vendor app already on the board rather than reimplemented, so a pin change stays in one place. A second backend drives the panel with nothing but `spidev` and the legacy GPIO sysfs, for a board with no vendor libraries at all.
 - Rendering is testable off-device, which matters because on the board the daemon owns the panel and nothing else can draw.
 - **Heartbeat.** A running process is not a working one. This display exists to reveal that kind of silence elsewhere, so it must not hide its own: after every successful frame it writes the time, the page and the outcome to a state file. Two readings apart tell a live screen from a process that is merely alive. Verified on the board, the timestamp advanced 21s across a 20s window. An unwritable state path is swallowed, because observability that can take down what it observes is worse than none.
@@ -67,7 +66,8 @@ This repository. Ledger of errors, engineering write-up, denser analysis, and th
 
 - **Added:** `last_event_at` and `seconds_since_last_event` in `/health`, null until the first event ever arrives. A bus nobody feeds looks exactly like a healthy idle one.
 - **Added:** `examples/consumer.py`, a working SSE consumer in standard library Python with reconnection and backoff. Verified end to end against a running daemon: a signed webhook reaches the consumer, a replayed message id answers 200 without being delivered twice, and the filters hold.
-- **Added:** parsing tests backed by six documented event payloads, plus cases proving an absent broadcaster yields no match rather than a wildcard, and that a channel-filtered subscriber never receives another channel's events.
+- **Added:** parsing tests backed by six documented event payloads, plus cases proving an absent broadcaster yields no match rather than a wildcard, and that a channel-filtered subscriber never receives another channel's events. This is the E3 near-miss being closed: the payload shape had been inferred and never checked, and it was correct by luck. The fix was in the git history but missing from this changelog until an audit noticed.
+- **Fixed:** concurrent connections are now bounded, not just CPU. See the audit section below.
 
 ---
 

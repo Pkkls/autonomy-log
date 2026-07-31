@@ -33,6 +33,7 @@ Turns a 240x240 SPI panel on a RISC-V board into an always-on status screen. The
 - **`show.py`** — one-shot rendering: text with a title bar, an image, colour bars to prove the SPI link, backlight off.
 - **`say.sh`** — pushes text from another machine in one command, base64-encoded because quotes and accents do not survive four nested shells.
 - **`S97clawdisp`** — init script that refuses to start when another process owns the panel, rather than producing `get gpio line failed` with no explanation.
+- Payload parsing is asserted against the documented event payloads rather than an inferred shape (the E3 near-miss), a fix present in the git history but previously missing from this changelog.
 - The driver and pin map are read from the vendor app already on the board rather than reimplemented, so a pin change stays in one place. A second backend drives the panel with nothing but `spidev` and the legacy GPIO sysfs, for a board with no vendor libraries at all.
 - Rendering is testable off-device, which matters because on the board the daemon owns the panel and nothing else can draw.
 - **Heartbeat.** A running process is not a working one. This display exists to reveal that kind of silence elsewhere, so it must not hide its own: after every successful frame it writes the time, the page and the outcome to a state file. Two readings apart tell a live screen from a process that is merely alive. Verified on the board, the timestamp advanced 21s across a 20s window. An unwritable state path is swallowed, because observability that can take down what it observes is worse than none.
@@ -109,6 +110,17 @@ These touch production hardware and were left for the operator to apply.
 - A bot with an init script disabled at boot, occupying 224 MB while not running.
 
 ---
+
+## Independent audit
+
+Four agents that had written none of this code were asked to find real defects in it, each with a different remit, and told to prove anything they reported. This is the one mechanism the analysis in this repository argues actually works: a judge that does not share the author's beliefs. It found four things in an hour that months of self-authored tests would not have.
+
+- **kickbus, denial of service.** The RSA semaphore bounded CPU, not connections. The request body is read before a verification slot is requested, and the server set only `ReadHeaderTimeout`, so trickled bodies could hold unlimited goroutines and buffers without ever reaching the cap. Fixed with `ReadTimeout`, `IdleTimeout`, and a limiting listener that sheds excess connections; the slot is freed exactly once even on a double close, which is tested because otherwise the limit erodes silently.
+- **secretscan, silently blind.** See E14. The tool that gated every publication here was skipping a whole credential class and reporting clean. Fixed, and every published repository rescanned.
+- **kick-core, two proven defects.** Two subscriptions in the same tick opened two sockets, because the re-entrancy guard inspected a field assigned only after an await; the orphan kept delivering messages and `stop()` could never close it. Separately, a `null` inside a badge array threw out of the parser, through the frame handler, into the socket listener. Both regressions were confirmed to fail against the previous code before the fixes were kept.
+- **A false claim in a README.** kick-core stated a service worker was the one place it could run, while relying on timers that do not survive a worker being torn down. The limitation is now documented rather than implied away.
+
+One of the four findings was itself wrong, and checking it mattered: see E15.
 
 ## Agent memory
 

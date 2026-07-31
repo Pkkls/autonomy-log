@@ -164,6 +164,21 @@ The clause that does the work is `total_items > 0`. **A flag is only as trustwor
 
 Two smaller things surfaced in the same fix. Its warning message claimed no snapshot had been recorded while the code recorded one, so the report about unreliable numbers was itself inaccurate. And the first test written for the filter passed without the filter: three rows inserted in the same second collided on `CURRENT_TIMESTAMP`, which resolves to whole seconds, so `ORDER BY timestamp` broke the tie arbitrarily and happened to pick the right answer. It was caught by mutating the code and watching the test not fail, which is the only reason it is not still there.
 
+### D1d. The same collapse, third instance, same program
+Chasing why nobody noticed the outage for eleven days, the cause turned out to be a session cookie that expired on 20 July at 17:02, twenty-four hours after it was issued. The last good scan was that morning. Every 429 since was a symptom.
+
+The program could have said so from day one. It computes the cookie's expiry and warns when it is close. Three things stopped the message landing:
+
+- An expired cookie rendered as **"expires in -11 day(s)"**. Arithmetically correct, and it reads as a formatting glitch rather than as the reason nothing works.
+- A cookie that could not be parsed produced **no warning at all**, because the expiry helper returned "could not determine" and the caller only warns when it *can* determine. Unreadable and healthy shared an answer.
+- The repeated-failure escalation blamed an IP throttle, contradicting the cookie line beside it. **Two alarms that disagree are read as noise**, and noise is the state this whole report is about.
+
+The middle one is the finding. This is the third appearance of the same collapse in one program: D1 was an empty inventory indistinguishable from an unreachable one, D1b was the report layer repeating it, and this is the credential check doing it a third time, in code written *after* D1 was diagnosed and fixed.
+
+**Fixing an instance does not fix a pattern.** The lesson from D1 was recorded as a rule about that bot's snapshot, so it was applied to that bot's snapshot. A collapse between "absent" and "fine" is a property of a *type*, and it will reappear at every boundary where that type is produced until someone goes looking for the shape rather than the incident.
+
+A related honesty note: the agent's own persistent memory asserted the cookie "contains no JWT", which sent the search toward a format problem. It decodes perfectly. It is simply out of date. The note was written from a plausible inference and stored as an observation, and it cost part of an evening pointed the wrong way.
+
 ### D2. A backup verifying clean on two thirds of a machine
 Daily, encrypted, pushed, size stable for seventeen days, restore check green. The manifest described the machine as it had been months earlier. Everything added since, including a non-reproducible price history, a live session file, credentials, the DNS configuration and every maintenance script, was absent from every archive.
 

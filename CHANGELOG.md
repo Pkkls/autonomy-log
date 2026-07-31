@@ -149,3 +149,12 @@ A follow-up session on one project, added here because it invalidated a claim th
 ### Corrected
 
 - The one-line summary in the README. "Contact with the world catches it" was the lesson of session 1 and is not sufficient.
+
+### Session 2, later the same day
+
+A sweep across the rest of the machine, applying the attribution rule to work that had been reported as fine.
+
+- **D1b: the flagship finding's fix was half a fix.** The inventory bot's guard protected the database and not the report. Two Telegram messages went out announcing a portfolio worth nothing, the day the log was published.
+- **A latent copy of the same defect** in the sibling bot, which additionally overwrote its analysis file and swallowed its own exit code. Both fixed, both with a test confirmed to fail against the previous behaviour.
+- **E18: the credential gate failed open a third time**, piped through `tail` inside a chain that ignored its exit code. It printed a real finding and was not read.
+- **Verified rather than assumed:** the board display is drawing (heartbeat three seconds old), the weekly backup produced 581 real records, the second board's display is disabled by design and not by accident. One suspected defect turned out to be correct behaviour, which is the point of checking before acting.

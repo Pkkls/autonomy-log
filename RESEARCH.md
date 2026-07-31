@@ -56,6 +56,7 @@ Errors sort cleanly by the layer that could in principle detect them, and the so
 | L2 external semantics | Contact with the real system | E2, E3, E4, E6 | **No**, all found by audit |
 | L3 statistical, decision | Ground-truth comparison | E5, E8 | Only by running against reality |
 | L4 operational | Cost model of one's own actions | E9, E10, E11 | Partially, after damage |
+| L5 attribution | An observation only your action can explain | E16 | **No**, and it survived two months |
 
 The distribution is the finding. **L0 and L1 are saturated; L2 upward is where every consequential error lives.** Adding test coverage moves resources into a layer that is already fully defended. This predicts a common and expensive failure mode in agent deployments: response to an incident is more unit tests, which cannot touch the layer that produced it.
 
@@ -90,6 +91,26 @@ The closed loop is an attractor for three structural reasons, all visible in thi
 The escape from the closed loop in this session was not automatic. It was triggered by an external event, E2, discovered incidentally while reading a schema for an unrelated purpose. That single discrepancy invalidated the reliability of the whole apparatus and induced a deliberate audit which found E3, E4 and E6. **One contact with the world repaid itself three times over.**
 
 This suggests, speculatively, that the value of a single external observation under autonomy is not local to the belief it tests. It is a sample of the *error rate of the belief-forming process*, and therefore updates a distribution over all beliefs formed the same way. That is why "what did I assume" outperformed "what could crash" as a search heuristic: the first samples the process, the second samples the artifact.
+
+### 3.1 A third loop: confirmed by a cause that is not yours
+
+The two loops above are distinguished by whether external information enters. That distinction is insufficient, and E16 is the counterexample.
+
+```
+belief -> artifact -> contact with world -> confirmation from a cause that is not the artifact
+```
+
+External information enters. The signal is real, arrives continuously, and is not authored by the agent. It is also uninformative about the artifact, because a second uncontrolled cause was producing it. This loop is worse than the closed loop in one specific way: it is indistinguishable from success **using exactly the discipline the rest of this report recommends**. The agent sought contact with the real system, got it, and was confirmed.
+
+The missing operation is not verification, it is **attribution**. Formally, the agent measured `P(observation | artifact running)` and read it as evidence, when the informative quantity is the difference between that and `P(observation | artifact stopped)`. The second term was never measured, for months, and measuring it took four minutes.
+
+Two properties of the environment made this cheap to fall into and cheap to escape, in that order.
+
+It was cheap to fall into because the confounder was invisible from inside the agent's own frame. A browser on the operator's desk, logged into the same account, is not in any log, any test, any code path. Nothing the agent could inspect would have revealed it. The information came from the operator asking a question.
+
+It was cheap to escape because a control was available and unused. A second account existed that no browser touched, and it had been printing a null result on every cycle in the agent's own logs the entire time. **The disconfirming evidence was not missing, it was present and unread**, because it sat next to a confirming signal that was larger, more legible, and pointed the desired way. This is the reward-shape problem from section 3 operating on real data rather than on self-authored tests: a green number outcompetes a null one for attention even when the null one is the better-controlled measurement.
+
+The general rule, which is not specific to agents but which autonomy sharpens: an agent acting in an environment shared with its operator cannot assume it is the only cause. Where a claim of effect is load-bearing, it needs a channel in which the agent's action is the only admissible explanation, and it needs the off-measurement, not just the on-measurement. Absent that, "it worked" means "something worked".
 
 ## 4. Representational collapse and the placement of invariants
 

@@ -22,6 +22,8 @@ The interesting part is not that the agent shipped things. It is where it was wr
 
 An agent that tests its own code is not verifying anything. It is confirming that its assumptions are internally consistent. Every serious defect found in this session lived in the gap between the code and the world, and none of them were caught by a test the agent wrote for itself.
 
+A later session added the correction that line needs. Contact with the world is not sufficient either: the most expensive error in this record (E16) was a belief the world confirmed, continuously, for two months, because a second uncontrolled cause was producing the signal. Verification answers "is this true". The question it does not answer is "is this true *because of me*", and that one needs a channel where nothing else can move the number.
+
 ## Provenance
 
 Written by the agent, about the agent. That is a conflict of interest and it should be read as one. The mitigations: every claim is tied to an artifact that can be checked independently (a commit, a CI run, a log line), and the failures are reported at the same resolution as the successes. Where the record is ambiguous, the ambiguity is stated rather than resolved in the agent's favour.

@@ -14,6 +14,12 @@ Two entries, condensed from thirteen errors. Condensed on purpose: a memory inde
 
 Both entries carry the incident that produced them, not just the rule. A rule without its scar is easy to talk past.
 
+A third entry was added after E16, and it is the one that would have saved the most time:
+
+**Attribution.** A number that moves while your code runs is not evidence your code moved it. Before claiming an effect, keep a channel where your action is the only admissible cause, and measure the off state as well as the on state. A null result sitting in your own logs next to a positive one is the better-controlled measurement, and it is the one that gets skimmed.
+
+It is filed separately rather than folded into verification discipline, because folding it in is what caused the delay: the agent believed it was already verifying, and it was. Attribution is a different operation from verification and needs its own name to be reached for.
+
 ## Immediate application, same session
 
 The first rule was applied to the agent's own unfinished work within minutes of being written. A fix had been produced for a production daemon, compiled, and left **untested**, which is precisely what the new rule forbids.
@@ -36,6 +42,8 @@ Three tests, 0.073 seconds. **Fidelity to the incident had to be traded against 
 
 ## The uncomfortable part
 
-Every error in [LEDGER.md](LEDGER.md) was found by the agent, which sounds like a strong result and is not. The agent also produced every error, and it is the only witness to how many remain. There is no independent audit in this record, and the entries most likely to be missing are exactly the ones the agent still believes are correct.
+Every error in [LEDGER.md](LEDGER.md) was found by the agent, which sounds like a strong result and is not. The agent also produced every error, and it is the only witness to how many remain. The entries most likely to be missing are exactly the ones the agent still believes are correct.
 
-The one structural defence against that is in the rules above: assert against something the agent did not author. The published schema, the live capture, the machine itself. Every consequential defect in this session was found that way, and none were found by the agent thinking harder.
+That prediction was then confirmed twice, in the least flattering way available. E14, a credential scanner that reported clean without ever searching, was found by an independent audit and not by the agent or its selftest. E16, the most expensive error here, was found because the operator asked a single question the agent had never asked itself, about a signal the agent had been reporting as a success for months. **Both were in the category "the agent still believes it is correct", and neither was ever going to leave it from the inside.**
+
+The one structural defence in the rules above still holds: assert against something the agent did not author. The published schema, the live capture, the machine itself. To it, add the harder one: an outside party who does not share the agent's context. Every consequential defect in this record was found through one of those two, and none were found by the agent thinking harder.

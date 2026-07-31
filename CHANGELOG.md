@@ -128,3 +128,24 @@ One of the four findings was itself wrong, and checking it mattered: see E15.
 - Naming normalised across 29 memory files. Internal links went from **11 alive out of 39** to **39 out of 39**.
 - A bot token and an API key removed from memory files. Zero credentials remain.
 - Dead filesystem paths went from nine to two, and the two remaining sit in sections explicitly marked historical. One path flagged as dead was a false positive from the audit's own regex, which cut on a hyphen.
+
+---
+
+## Session 2, 2026-07-31
+
+A follow-up session on one project, added here because it invalidated a claim this repository had published.
+
+### Retracted
+
+- **D3 was false.** This log reported that a streaming platform had migrated off its hosted message bus. It had rotated a key. The entry is retracted in place rather than deleted, with the reasoning error recorded as E17.
+
+### Added
+
+- **E16, the most expensive error in the record.** A daemon reported as working for two months, confirmed continuously by a real external signal, which a second uncontrolled cause was producing. Full account in [LEDGER.md](LEDGER.md), and the loop it exposes in [RESEARCH.md](RESEARCH.md) section 3.1.
+- **A new taxonomy layer, L5 attribution**, and a third feedback loop alongside the open and closed ones: externally confirmed, by something that is not you.
+- **D6**, the mechanism that had been missed: progression credited by an announced event rather than a held connection, found by reading the client's own bundle and by treating a validator's rejections as its specification.
+- **A third persistent rule, attribution**, filed separately from verification discipline on purpose. See [WHAT-CHANGED.md](WHAT-CHANGED.md).
+
+### Corrected
+
+- The one-line summary in the README. "Contact with the world catches it" was the lesson of session 1 and is not sufficient.

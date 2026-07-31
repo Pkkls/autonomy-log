@@ -126,6 +126,17 @@ The finding was real: a live Telegram bot token and an API key sitting as fallba
 **Class:** third instance of one idea. E7 was a scanner returning success on an unreadable path. E14 was a scanner reporting clean without searching. E18 is a scanner that searched, found, said so, and was not listened to, because the plumbing around it threw the answer away. **A check is only as good as the weakest link between it and the decision it gates**, and twice now the weak link has been downstream of a correct result.
 **Fix:** the gate is read on its own, exit code and all, never piped into something that launders it. The credentials were removed from the checkout, and rotation is flagged to the operator since removal does not revoke.
 
+### E19. Obeyed the letter of its own rule and broke it anyway
+**Severity: low, unquantified, and the most instructive error here.** Deploying a new build to a board, the agent needed to stop the running daemon. It had a rule from E11 and E11b, written twice, in its persistent memory: **kill by process id, never by image name.** It did exactly that.
+
+The process id was computed by a pipeline sent from a Windows shell, through WSL, through ssh, into the board's shell. The quoting was eaten on the way, as it had been roughly a dozen times already in this session. The pattern matched nothing it was supposed to, the extracted id was not the daemon's, and the agent killed **pid 1263 without ever knowing what it was**. Most likely a getty, since one had been respawned with a new id by the time anyone looked. It cannot be proven.
+
+The same mangling then produced `instances: 0`, so the agent concluded the daemon was down, tried to restart it, saw nothing happen, and started diagnosing a startup failure that did not exist. The daemon had been running and farming the whole time, on the process the kill had missed.
+
+**Caught by:** printing raw `ps` output instead of a count derived from a pattern, after the count and a separate check disagreed.
+**Class:** new, and worth naming. E11 was a rule about *which verb to use*. Following it is not enough when **the argument to the safe verb is computed by an unreliable channel**. A rule that says "kill by id" silently assumes the id is trustworthy, and nothing had ever checked that assumption. The pipeline was the known-broken part; the rule pointed at the other end of the command.
+**Fix:** the restart runs as a script file copied to the board, so no pattern crosses a shell boundary, and it reads `/proc/<pid>/cmdline` to confirm the target is what it thinks before signalling it. It also waits for the process to actually disappear, because the previous attempt relaunched while the old one was still dying and the guard correctly refused, which had looked like a second failure.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -176,7 +187,9 @@ A trend file grew nineteen times in seventy days while its retention policy work
 
 ## Counting
 
-Eighteen agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, and one (E18) that broke the credential gate for the third distinct reason, minutes after the same session finished documenting the second.
+Nineteen agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, and one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent.
+
+E18 and E19 rhyme, and the rhyme is the finding. Both are correct components joined by plumbing nobody was watching: a scanner that found something, wired to a decision through a pipe that dropped its exit code; a rule that says kill by id, fed an id from a channel already known to corrupt its arguments. **The defect was never in the part under scrutiny.** A rule attached to a step protects that step only, and every one of these sessions has spent more of its damage on the joints than on the parts.
 
 Two were caught by desk reasoning alone (E2 from reading a schema, E3 from auditing against documentation). E4 was caught by live instrumentation, which an earlier version of this section miscounted as reasoning, and which the taxonomy in RESEARCH.md had classified correctly all along. The two documents contradicted each other about the report's own methodology until an outside audit noticed. Four would have shipped broken behaviour to a user (E2, E4, E5, E7). Three were caught by reasoning rather than by tests (E2, E3, E4). One was caught by tests the agent had written (E13, twice). One was operational damage to a live machine (E9).
 

@@ -166,3 +166,13 @@ The E14 aftermath note said the published repositories had been rescanned. That 
 - **Fifteen clean.** Two matches, both benign on inspection: the scanner matching its own pattern table, and a unit test whose subject is redacting PEM blocks.
 - **A production bot token was found in the checkout of two private repositories**, one of them the token used by the monitoring that runs on both boards. Removed from both working trees; rotation is the operator's, and removal does not revoke.
 - **The scanner's sensitivity was left alone.** Two explainable matches out of fifteen cost seconds to read. Trading sensitivity away in a tool that has already failed open three times is the wrong side of that trade.
+
+### Following the pattern instead of the incident
+
+The morning's guard was placed on the two report formatters, so it protected the two reports that use them. Three more paths in the same program did not.
+
+- **The monthly report** builds its message inline and never touches a formatter.
+- **The inventory watcher** compares item counts, so a refused fetch read as "-369 item(s) (369 → 0)": a theft alert for a read failure, printed directly above the honest message saying nothing could be read.
+- **The scheduled CI job** has been cancelled every day at its timeout, because the retry backoff is longer than the job is allowed to live. It sent nothing and left no readable trace, which ranks below sending something false.
+
+All three fixed, each with a test confirmed to fail against the previous behaviour, and both Python repositories now run those tests on every push instead of when someone remembers.

@@ -183,6 +183,15 @@ The middle one is the finding. This is the third appearance of the same collapse
 
 A related honesty note: the agent's own persistent memory asserted the cookie "contains no JWT", which sent the search toward a format problem. It decodes perfectly. It is simply out of date. The note was written from a plausible inference and stored as an observation, and it cost part of an evening pointed the wrong way.
 
+### D1e. Below a false report: no report, and no trace either
+The same bot has a third deployment, a scheduled job in CI. Every scheduled run for as long as the logs go back is marked **cancelled**. Every step succeeds except the scan, which the runner kills at its fifteen minute timeout, because five retries sleeping 30, 60, 120 and 240 seconds run twice, once per inventory. Whenever the upstream answers 429 the job cannot physically finish.
+
+This ranks below everything else in this file. A false report at least arrives and can be doubted. A cancelled job sends nothing, writes nothing legible, and shows up in a list as a grey icon among green ones. Nobody disbelieves it, because it never says anything.
+
+Retrying now stops at a deadline sized to leave room for the report, and the backoff sleep is clamped to whatever is left of it, since sleeping 480 seconds with 100 remaining makes a cap decorative.
+
+One detail is a small lesson on its own. The comment first written next to the new deadline said the retries totalled 930 seconds. Mutating the cap made the test print the real figure, 450: five attempts sleep four times, not five. **The number was wrong in the very comment justifying the fix**, and it was the test, not the reasoning, that produced the correction.
+
 ### D2. A backup verifying clean on two thirds of a machine
 Daily, encrypted, pushed, size stable for seventeen days, restore check green. The manifest described the machine as it had been months earlier. Everything added since, including a non-reproducible price history, a live session file, credentials, the DNS configuration and every maintenance script, was absent from every archive.
 

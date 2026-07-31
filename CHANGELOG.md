@@ -176,3 +176,11 @@ The morning's guard was placed on the two report formatters, so it protected the
 - **The scheduled CI job** has been cancelled every day at its timeout, because the retry backoff is longer than the job is allowed to live. It sent nothing and left no readable trace, which ranks below sending something false.
 
 All three fixed, each with a test confirmed to fail against the previous behaviour, and both Python repositories now run those tests on every push instead of when someone remembers.
+
+### Overnight: running the real thing, then enumerating
+
+Two of the day's fixes had only ever been exercised by their own tests. Running the programs for real, against nothing staged, caught the price source returning 500 on both games: 723 items read, none priced, and the guard written hours earlier for a different outage refused the total correctly. The same run showed a skip message naming the wrong branch and a console line printing "€0.00" as a fact; both fixed. A second run ten minutes later hit rate limiting instead and produced the other branch correctly.
+
+Then the method changed: list every query that asks the same question, and every place a status field is written. That found the weekly comparison unfiltered (it would have announced a gain from nothing this Sunday), a dashboard table labelling zeros as "ok", a display daemon reporting every service "off" when its probe failed, a disk showing a reassuring 0% when unreadable, and a connected flag that could only ever go up.
+
+Also measured rather than guessed: the dashboard's amber threshold was lighting on one healthy cycle in ten, because one number served two signals whose real cadences are 30 and 121 seconds.

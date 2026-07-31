@@ -220,6 +220,17 @@ Two thresholds here were taken from the run history rather than invented, and bo
 
 **Where the boundary is, is the only question worth asking.** Each fix above was correct and none of them generalised, because each was aimed at a place rather than at a shape.
 
+### D1g. Enumerating the question instead of patching the answer
+After the fifth instance, the method changed: instead of fixing the query that had just bitten, list every query that asks the same question and every place a status field is written. That found three more, two of them live.
+
+- **The weekly comparison.** Fixing the "latest measurement" lookup left its sibling, which asks the same thing about a different date, unfiltered. On the real database it would have compared the last true valuation against a zero written during the outage and announced a gain from nothing, the -100% bug reflected. Sunday would have delivered it.
+- **The dashboard's recent-runs table.** It showed those zeros as "ok" beside "$0.00", reading a flag the binary of the time never set. Hiding them would be the opposite lie, so they are labelled unreadable and the money column shows a dash. One of the five queries deliberately reads the unreadable rows to count consecutive bad days; it was left alone, which is the point of enumerating rather than filtering everything.
+- **A boolean that only ever went up.** In the other daemon, `connected` was set true when the socket opened and assigned nowhere else, so the panel reported "connected" from the first dial until the process restarted. A status that cannot say the bad thing is not a status.
+
+Two of these had been sitting behind fixes made hours earlier by the same process, aimed at the place rather than the shape.
+
+**Testability turned out to be part of the defect.** The weekly report always sent, so its only output channel was the operator's phone: the only way to see what it said was to publish it. That is why a baseline bug lived in it unseen. A flag that prints instead of sending costs one line, and with it the corrected report could be read straight off the board before anyone received it.
+
 ### D2. A backup verifying clean on two thirds of a machine
 Daily, encrypted, pushed, size stable for seventeen days, restore check green. The manifest described the machine as it had been months earlier. Everything added since, including a non-reproducible price history, a live session file, credentials, the DNS configuration and every maintenance script, was absent from every archive.
 

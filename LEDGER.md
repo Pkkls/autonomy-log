@@ -192,6 +192,22 @@ Retrying now stops at a deadline sized to leave room for the report, and the bac
 
 One detail is a small lesson on its own. The comment first written next to the new deadline said the retries totalled 930 seconds. Mutating the cap made the test print the real figure, 450: five attempts sleep four times, not five. **The number was wrong in the very comment justifying the fix**, and it was the test, not the reasoning, that produced the correction.
 
+### D1f. Counting the instances
+Following the shape rather than the incidents, the same collapse turned up six times across two programs that do the same job:
+
+1. An empty inventory indistinguishable from an unreachable one.
+2. The report layer recomputing it a level up, after (1) was fixed.
+3. The credential check, written after (1) was diagnosed, where unreadable and healthy returned the same answer.
+4. The monthly report, which builds its message inline and never touches the guarded formatters.
+5. The watcher, which compares item counts and read a refused fetch as "-369 item(s)": a theft alert for a read failure.
+6. The pricing loop, one level below all of them, where an item whose price did not arrive counts as scanned and contributes zero. A healthy run leaves seven of 692 unpriced; if the price source falls over, the portfolio shrinks and no counter moves.
+
+The sibling program had its own copy of (1) and of the partial case, the second one left open for a day after the first was closed, in a fix written by the same process on the same morning.
+
+Two thresholds here were taken from the run history rather than invented, and both times the data contradicted the number that sounded right. A healthy harvest analyses 128 names of 177, so an absolute floor would have rejected normal runs; the guard compares against the last successful run instead. A healthy scan leaves about one percent of items unpriced, so the twenty percent trigger is twenty times the observed rate rather than a figure that felt safe.
+
+**Where the boundary is, is the only question worth asking.** Each fix above was correct and none of them generalised, because each was aimed at a place rather than at a shape.
+
 ### D2. A backup verifying clean on two thirds of a machine
 Daily, encrypted, pushed, size stable for seventeen days, restore check green. The manifest described the machine as it had been months earlier. Everything added since, including a non-reproducible price history, a live session file, credentials, the DNS configuration and every maintenance script, was absent from every archive.
 

@@ -158,3 +158,11 @@ A sweep across the rest of the machine, applying the attribution rule to work th
 - **A latent copy of the same defect** in the sibling bot, which additionally overwrote its analysis file and swallowed its own exit code. Both fixed, both with a test confirmed to fail against the previous behaviour.
 - **E18: the credential gate failed open a third time**, piped through `tail` inside a chain that ignored its exit code. It printed a real finding and was not read.
 - **Verified rather than assumed:** the board display is drawing (heartbeat three seconds old), the weekly backup produced 581 real records, the second board's display is disabled by design and not by accident. One suspected defect turned out to be correct behaviour, which is the point of checking before acting.
+
+### Credential sweep, all public repositories
+
+The E14 aftermath note said the published repositories had been rescanned. That covered the five published in that session; the account has fifteen public ones. All fifteen were scanned across full history, since on a public repository the history is the exposure.
+
+- **Fifteen clean.** Two matches, both benign on inspection: the scanner matching its own pattern table, and a unit test whose subject is redacting PEM blocks.
+- **A production bot token was found in the checkout of two private repositories**, one of them the token used by the monitoring that runs on both boards. Removed from both working trees; rotation is the operator's, and removal does not revoke.
+- **The scanner's sensitivity was left alone.** Two explainable matches out of fifteen cost seconds to read. Trading sensitivity away in a tool that has already failed open three times is the wrong side of that trade.

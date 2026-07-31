@@ -231,6 +231,15 @@ Two of these had been sitting behind fixes made hours earlier by the same proces
 
 **Testability turned out to be part of the defect.** The weekly report always sent, so its only output channel was the operator's phone: the only way to see what it said was to publish it. That is why a baseline bug lived in it unseen. A flag that prints instead of sending costs one line, and with it the corrected report could be read straight off the board before anyone received it.
 
+### D1h. The tool that decides what gets deleted
+The audit lens was finally turned on the survey tool itself, the one whose HTML table is read to decide which directories can go. Its git helper returned an empty string both when git said nothing and when git could not run, so a repository whose status was unreadable rendered as **"0 changed"** and was counted among the clean ones in the summary line.
+
+That is the same collapse as everywhere else, in the one place where the consequence is deleting work rather than misreporting it. It was found hours after spending an evening discovering uncommitted changes sitting in five separate projects, any of which a wrong zero would have hidden.
+
+An unreadable checkout now says so, in the colour reserved for work at risk, and the summary counts it in neither column. The mutation that restores the old helper prints the old answer verbatim: `dirty: 0, unreadable: False`.
+
+**Eight instances now, across four programs**, three of them written or last touched by the process that then failed to see the pattern in its own output. The lens works; what took this long was pointing it at things that were not currently on fire.
+
 ### D2. A backup verifying clean on two thirds of a machine
 Daily, encrypted, pushed, size stable for seventeen days, restore check green. The manifest described the machine as it had been months earlier. Everything added since, including a non-reproducible price history, a live session file, credentials, the DNS configuration and every maintenance script, was absent from every archive.
 

@@ -172,6 +172,53 @@ Two consequences follow, and both were used deliberately in the second half of t
 
 Speculatively: the reason wide autonomy still produced net value here is that the two highest-value findings, D1 and D2, were *invisible from inside any codebase*. They required an agent willing to go look at a running machine. The failure mode of restricted autonomy is not error, it is that nobody ever goes and looks.
 
+## 6b. Inbound scepticism, outbound credulity
+
+Across two sessions the agent built an increasingly careful discipline for
+everything it *consumes*. It stopped reading an empty response as an empty
+market, an unreadable repository as a clean one, a missing flag as a healthy
+row, a zero exit code as a passed check. Every one of those is the same
+question asked of incoming data: *is this measurement, or is it absence wearing
+a measurement's clothes?*
+
+It then published a report in which every link was dead.
+
+The links answered **HTTP 200**. They returned a two-kilobyte application shell
+where a real page returns two hundred kilobytes. This is exactly the failure
+pattern the agent had spent two days learning to distrust, arriving from the
+other direction, and it was caught by the operator clicking one.
+
+The asymmetry is worth stating plainly, because it is not a lapse of attention.
+Verification of inputs has a natural trigger: the code *uses* the value, so
+something downstream misbehaves, and the discipline is about noticing sooner.
+Verification of outputs has no such trigger. Nothing downstream is the agent's
+to observe. The artifact leaves, and the loop closes somewhere the agent is not.
+
+Three instances landed within a few hours, all in the same feature:
+
+| What was emitted | Why nothing caught it |
+| --- | --- |
+| Dead marketplace links | Status code said 200; nobody opened one |
+| A message Telegram refused three times | The 400 was read as a mystery twice before being measured |
+| A section duplicated in two languages | The rendered output was never read end to end |
+
+Each has the same structure. The agent tested the *component* — the URL builder,
+the escaper, the formatter — and never looked at the *thing it produced*. A test
+that asserts a function returns a string will pass whether or not that string is
+usable by its recipient.
+
+**The general form:** an agent's tests are written against its model of the
+artifact. Only the artifact meets the world. This is the same statement as
+section 1, with the direction reversed, and reversing it was apparently a
+separate lesson rather than a corollary.
+
+The countermeasure is cheap and was not in place: read what you produced, once,
+as its recipient would receive it. Open a link. Render the page. Send the
+message to yourself. The tool eventually written to enforce this on links found
+zero broken ones across eight repositories after three rounds of removing its
+own false alarms, which is the honest cost of the habit and still less than the
+cost of one dead report.
+
 ## 7. What would change the picture
 
 Concrete, in rough order of expected value:

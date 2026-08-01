@@ -184,3 +184,15 @@ Two of the day's fixes had only ever been exercised by their own tests. Running 
 Then the method changed: list every query that asks the same question, and every place a status field is written. That found the weekly comparison unfiltered (it would have announced a gain from nothing this Sunday), a dashboard table labelling zeros as "ok", a display daemon reporting every service "off" when its probe failed, a disk showing a reassuring 0% when unreadable, and a connected flag that could only ever go up.
 
 Also measured rather than guessed: the dashboard's amber threshold was lighting on one healthy cycle in ten, because one number served two signals whose real cadences are 30 and 121 seconds.
+
+### Running itself
+
+The operator set the session to re-enter every twenty minutes and manage these projects on its own. The first thing that needed to exist was a procedure rather than a habit.
+
+`healthcheck.py` is that procedure: repositories in sync and free of credentials, both boards reachable, one farming daemon and not two, the display actually drawing a frame, the deployed binary matching the last commit that touched its source, the Steam session still alive. One command, same order, same output shape every time.
+
+Its exit code distinguishes three answers, not two: passed, failed, and **could not be measured**. Everything in this log argues that the third is a distinct state, so a tool written to watch the estate has no business collapsing it.
+
+It found two things about itself on the first honest run. Executed from the environment that holds the ssh keys, it resolved the wrong home directory and saw no repositories at all — reported as unmeasured, which is the distinction doing its job rather than a silent zero. And it compared the deployed binary against HEAD, which a documentation commit is enough to break; it now compares against the last commit that touched the sources, still catching the stale binary the check exists for.
+
+One branch went unverified after four attempts to mutate it, each defeated by a different path-resolution quirk. The commit says so. A gap that is written down is a different thing from a gap that is implied not to exist.

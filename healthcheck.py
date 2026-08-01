@@ -161,6 +161,48 @@ def check_secrets(res):
 
 # --- board checks ------------------------------------------------------------
 
+def classify_cookie(out):
+    """(status, detail) for the Steam session, from the scanner's dry run.
+
+    Written as its own function so it can be interrogated directly. The first
+    version of this lived inline and ended with `else: OK, "valide"`, meaning
+    any output it did not recognise was reported as a healthy session: a binary
+    that crashed, a flag that disappeared, a wording change, an empty pipe. The
+    failure it exists to catch is a session that expired quietly and let eleven
+    days of reports go out wrong. A check for a silent failure must not have a
+    silent success.
+
+    Recognised is fine, unrecognised is unmeasured, and the two never share a
+    return value.
+    """
+    if "EXPIRED" in out:
+        return FAIL, "expire, aucune mesure possible"
+    if "expires in about" in out:
+        left = out.split("expires in about", 1)[1].split("—")[0].strip()
+        return OK, f"{left} restantes"
+    return UNKNOWN, f"sortie non reconnue: {out.strip()[:50] or '(vide)'}"
+
+
+def selftest():
+    """Prove the classifier separates the cases. Run with --selftest."""
+    cases = [
+        ("cookie expire",      "steamLoginSecure EXPIRED — re-export needed", FAIL),
+        ("cookie valide",      "session expires in about 19 h — 723 items",   OK),
+        ("sortie vide",        "",                                            UNKNOWN),
+        ("binaire plante",     "panic: runtime error: index out of range",    UNKNOWN),
+        ("flag disparu",       "Usage: csrust-monitor [--scan] [--weekly]",   UNKNOWN),
+        ("libelle change",     "session valid for 19 more hours",             UNKNOWN),
+    ]
+    bad = 0
+    for label, out, want in cases:
+        got, detail = classify_cookie(out)
+        mark = "  ok  " if got == want else " FAIL "
+        if got != want:
+            bad += 1
+        print(f"{mark} {label:<16} attendu {want:<4} obtenu {got:<4} {detail[:40]}")
+    print(f"\n{len(cases)} cas, {bad} en echec")
+    return 1 if bad else 0
+
 def ssh(board, remote_cmd, timeout=45):
     host, key = BOARDS[board]
     return run(["ssh", "-o", "ConnectTimeout=15", "-o", "BatchMode=yes",
@@ -174,8 +216,14 @@ def check_boards(res):
         if code is None or code != 0:
             res.add(UNKNOWN, board, f"injoignable: {out.strip()[:60]}")
             continue
+        # Un ssh qui rend 0 sans rien ecrire n'a pas prouve que la carte
+        # repond : indexer a l'aveugle levait une exception et emportait tout
+        # le rapport, y compris les controles deja passes.
         lines = out.split()
-        res.add(OK, board, f"{lines[0]} joignable")
+        if not lines:
+            res.add(UNKNOWN, board, "code 0 mais sortie vide")
+        else:
+            res.add(OK, board, f"{lines[0]} joignable")
 
     # clawd doit tourner en UN exemplaire et avoir gagne de l'XP recemment.
     code, out = ssh("claw", "ps | grep -c '[c]lawd-riscv64'; "
@@ -210,7 +258,7 @@ def check_boards(res):
     # jours pendant qu'une version d'avant tournait.
     rc, head = run(["git", "log", "-1", "--format=%h", "--",
                     "*.go", "go.mod", "go.sum"], cwd=repo)
-    if code is None or code != 0 or rc != 0:
+    if code is None or code != 0 or rc != 0 or not out.strip():
         res.add(UNKNOWN, "csrust", "version non mesurable")
     else:
         deployed = out.strip().split()[-1]
@@ -224,12 +272,9 @@ def check_boards(res):
                             "./csrust-monitor-riscv64 --scan --dry-run 2>&1 | head -4")
     if code is None or code != 0:
         res.add(UNKNOWN, "cookie steam", "non mesurable")
-    elif "EXPIRED" in out:
-        res.add(FAIL, "cookie steam", "expire, aucune mesure possible")
-    elif "expires in about" in out:
-        res.add(OK, "cookie steam", out.split("expires in about", 1)[1].split("—")[0].strip() + " restantes")
     else:
-        res.add(OK, "cookie steam", "valide")
+        status, detail = classify_cookie(out)
+        res.add(status, "cookie steam", detail)
 
 
 def main():
@@ -238,7 +283,11 @@ def main():
     ap.add_argument("--repos", action="store_true")
     ap.add_argument("--boards", action="store_true")
     ap.add_argument("--json", action="store_true", help="sortie machine")
+    ap.add_argument("--selftest", action="store_true",
+                    help="verifie que les controles distinguent leurs cas")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
     everything = not (args.repos or args.boards)
 
     res = Result()

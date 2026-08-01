@@ -89,14 +89,24 @@ class Result:
         return 1 if self.failed else (2 if self.unknown else 0)
 
 
-def run(args, cwd=None, timeout=60):
-    """Returns (returncode, stdout+stderr) or (None, reason) if it could not run."""
+def run(args, cwd=None, timeout=60, merge_stderr=True):
+    """Returns (returncode, output) or (None, reason) if it could not run.
+
+    Merging stderr into stdout is convenient when the output is read by a human
+    and poison when it is counted. `git diff --name-only` under a forced
+    line-ending setting prints one conversion warning per file, on stderr, and
+    the merged stream turned twenty-three warnings into twenty-three filenames.
+    Anything that counts lines passes merge_stderr=False.
+    """
     try:
         p = subprocess.run(args, cwd=cwd, capture_output=True, text=True,
                            timeout=timeout)
     except (OSError, subprocess.SubprocessError) as err:
         return None, str(err)
-    return p.returncode, (p.stdout or "") + (p.stderr or "")
+    out = p.stdout or ""
+    if merge_stderr:
+        out += p.stderr or ""
+    return p.returncode, out
 
 
 # --- repository checks -------------------------------------------------------
@@ -116,8 +126,21 @@ def check_repos(res):
         head = out.strip()
 
         # Non commite (hors fichiers non suivis, qui sont souvent du bruit).
-        code, out = run(["git", "status", "--porcelain"], cwd=path)
-        dirty = len([l for l in out.splitlines() if l and not l.startswith("??")]) if code == 0 else None
+        #
+        # Compare le contenu a HEAD, pas l'etat que `status` deduit du cache :
+        # et surtout, force le reglage de fin de ligne avec lequel le depot a
+        # ete checkoute. Les checkouts vivent sur un disque Windows avec
+        # core.autocrlf=true, donc CRLF sur disque et LF dans les blobs. Un git
+        # lance depuis WSL n'herite pas de ce reglage, hache les octets bruts,
+        # et declare modifie chaque fichier de chaque depot : 102 fichiers
+        # annonces comme "du travail qui disparait si le disque disparait",
+        # pour un seul reel. Un chiffre qui depend du shell qui pose la
+        # question ne mesure pas le depot, et noie la vraie modification parmi
+        # cent fausses. Avec le reglage force, les deux git donnent le meme
+        # compte, y compris le 1 authentique.
+        code, out = run(["git", "-c", "core.autocrlf=true", "diff",
+                         "--name-only", "HEAD"], cwd=path, merge_stderr=False)
+        dirty = len([l for l in out.splitlines() if l.strip()]) if code == 0 else None
 
         # Ecart avec le distant, seulement si une branche amont existe.
         code, upstream = run(["git", "rev-parse", "--short", "@{u}"], cwd=path)

@@ -153,6 +153,15 @@ E18, recorded earlier the same session, is a credential gate piped through `tail
 
 **What that stronger check then found:** the dashboard's amber threshold was 180 seconds for both the watch event and the XP gain. Measured from the board's own history, gains arrive 121 seconds apart at the median and 241 at the ninetieth percentile, so amber lit on roughly one healthy cycle in ten, while the same threshold was far too loose for an event posted every 30 seconds. A warning colour that appears during normal operation trains the reader to ignore it, which is precisely what this dashboard was built to prevent. The thresholds now come from the measurement.
 
+### E21. A mutation test that mutated nothing
+**Severity: none, and it is the technique's own blind spot.** Mutation testing has carried a lot of weight in this session: change the fix, watch the test fail, keep the test. Twice in a row a mutation reported a guard as untested. The guard was fine; the substitution had matched nothing and written the file back unchanged, so the "mutated" run was the original code passing its own test.
+
+Both times the conclusion drawn was about the test. It was about the probe.
+
+**Caught by:** counting the occurrences of the target string before and after the edit and printing whether it had actually changed. With that in place the mutation killed the test immediately, on two separate assertions.
+**Class:** the same shape as the `grep` false negatives earlier the same day, and as E18 and E20: a step in the verification chain silently did nothing, and its silence was read as a measurement. **A tool used to check other tools is not exempt from being checked.** Mutation testing answers "would this test notice", and it can only answer it if the mutation happened.
+**Fix:** the mutation asserts that it changed the file before the test is run. One line, and without it the technique quietly degrades into running the suite twice.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -263,7 +272,7 @@ A trend file grew nineteen times in seventy days while its retention policy work
 
 ## Counting
 
-Twenty agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent, and one (E20) that broke the same plumbing rule as E18 within hours of writing it down, on a check whose input did not even exist.
+Twenty-one agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent, one (E20) that broke the same plumbing rule as E18 within hours of writing it down, on a check whose input did not even exist, and one (E21) in which the mutation testing this session leans on reported twice that a guard was untested, having silently failed to mutate anything.
 
 E18 and E19 rhyme, and the rhyme is the finding. Both are correct components joined by plumbing nobody was watching: a scanner that found something, wired to a decision through a pipe that dropped its exit code; a rule that says kill by id, fed an id from a channel already known to corrupt its arguments. **The defect was never in the part under scrutiny.** A rule attached to a step protects that step only, and every one of these sessions has spent more of its damage on the joints than on the parts.
 

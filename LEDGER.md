@@ -207,6 +207,16 @@ Two causes, both known and both already written down somewhere in this repositor
 
 A smaller one rode along: the new French movers section was added without removing the English block it replaced, so the same price moves were listed twice, once in euros and once labelled in dollars. Nobody had read the rendered message end to end.
 
+### E26. Three tightenings before a checker was worth reading
+**Severity: none, and it is the counterweight to E24.** After shipping dead links, the obvious move was a tool that checks them. Its first run over everything published returned six failures, of which **four were its own false alarms**: three CI badges, which are SVGs of two kilobytes and entirely healthy, and a short page carrying a canonical link, which is a redirect rather than an empty shell. A fifth batch came from `${item.icon_url}` in an href, which is a template hole and not a URL.
+
+Two thirds noise on the first run. This log has argued repeatedly that in a monitoring tool a false positive costs more than a miss, and the tool written to enforce that lesson opened by breaking it.
+
+**What the tightenings were:** the empty-shell test applies to pages and not to images; a page that points elsewhere is redirecting, not empty; a code template is not a link; and a file git ignores is not published, so its links are nobody's business.
+
+**Caught by:** reading all six findings before believing any of them, which is the same act that turned two earlier "discoveries" today into nothing.
+**Kept, not smoothed over:** a rule that needed three corrections before it was usable is worth recording as such. The end state is twenty links across eight repositories, none broken, and a check that runs in CI so the next dead link is caught by a machine rather than by the operator clicking one.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -317,7 +327,7 @@ A trend file grew nineteen times in seventy days while its retention policy work
 
 ## Counting
 
-Twenty-five agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent, one (E20) that broke the same plumbing rule as E18 within hours of writing it down, on a check whose input did not even exist, one (E21) in which the mutation testing this session leans on reported twice that a guard was untested, having silently failed to mutate anything, two (E22, E23) that landed within an hour of each other on a question the operator asked directly, and two more (E24, E25) in the feature built to answer it.
+Twenty-six agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent, one (E20) that broke the same plumbing rule as E18 within hours of writing it down, on a check whose input did not even exist, one (E21) in which the mutation testing this session leans on reported twice that a guard was untested, having silently failed to mutate anything, two (E22, E23) that landed within an hour of each other on a question the operator asked directly, two more (E24, E25) in the feature built to answer it, and one (E26) in the tool written to stop E24 happening again, which opened with a two-thirds false-positive rate.
 
 E22 deserves the last word. The agent searched a live inventory for a phrase, found nothing, and reported nothing was there. Four items were. The phrase it searched for was one it had made up; the real one differs by two words. That is the failure this entire document is about, committed the morning after the rule was written down, published, and stored in the memory that loads at the start of every session. **It fired against tools all day and did not fire against a string the agent had invented itself.** The correction offered first was also wrong, blaming a language setting that had nothing to do with it.
 

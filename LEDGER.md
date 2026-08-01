@@ -377,7 +377,11 @@ That measurement returned a finding nobody had asked for. **A verifier's exit co
 
 A third rule was written for the case where staging the whole tree sweeps in someone else's work, and dropped. It fired on 117 commands that were almost all fine, because whether that command is dangerous depends on what the repository holds at that moment and not on anything in the text. Shipping it would have taught its reader to skim past the other two. **A guard is not free to be approximately right: the cost of a false alarm is the credibility of every true one.**
 
-What this does not do is make anyone better. It is a net, placed where the same three shapes keep arriving.
+Installing it settled a question that had been reasoned about rather than tested. A hook that exits zero writes to the transcript; only a hook that exits two sends its text back to the model. Warned, the faulty command ran, returned its misleading empty output, and nothing at all reached the process that wrote it: the warning reaches the person who is not reading every command. Refused, the same command came back with the rule and the cause attached. **A guard whose output the guarded party never sees is decoration**, and the only way to find that out was to run one command under each setting.
+
+The rate it will actually interrupt at is worth stating plainly, because it is not small. Across 124 sessions it fires in 5. Across the day it was written, it fires 95 times in 1078 commands, one in eleven, and those 95 are not noise: 61 are a test suite piped into a pager and then chained straight into a commit, so a red run would have committed exactly like a green one, and 34 are loops that came back empty. The concentration is the finding. This shape is not rare; it was rarely noticed.
+
+What this does not do is make anyone better. It is a net, placed where the same shapes keep arriving. It can also be walked around: nothing stops the guarded process from writing `| cat | tail` to slip under the pattern without fixing anything. A guard only works on someone willing to be stopped.
 
 ### D4. Credentials committed in a private repository
 Two bot tokens in the current checkout, not merely in history. Private, so not a public leak, but a private repository is one setting away from public and history rewriting never un-leaks anything.

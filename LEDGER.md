@@ -185,6 +185,28 @@ Whether an item is held is a fact about the item. Whether it can be priced is a 
 **Caught by:** reading the rendered report against the known answer of four, rather than trusting the change that had just been tested.
 **Class:** the rule was known, published, and had just been applied. Knowing a pattern is not the same as recognising an instance of it, which is E11b's lesson in a different domain.
 
+### E24. Shipped links without opening one
+**Severity: low, user-facing, and entirely avoidable.** Rebuilding a report so it names items rather than just totalling them, the agent linked every item to a marketplace search URL it had constructed by reading the site's URL shape. Every link was dead. The operator clicked one and said so.
+
+They were not obviously dead: the URL answers **HTTP 200** with a 2145-byte application shell that renders nothing. Checking the status code would have confirmed the mistake rather than caught it. The working alternative returns 213 KB of actual listings, so the two are distinguishable in one request by anything other than the status line.
+
+**Class:** the same shape as the empty-feed and unreadable-repository cases this log is built on, with the agent on the wrong side of it: **200 is not "it works"**, exactly as "no output" is not "nothing found". The rule had been applied to every service the program consumes and to none of the links it emits.
+
+**What makes it worse than a broken link:** the whole point of the change was to make the report actionable. A list of names that cannot be opened is a list of names.
+
+### E25. Three sends refused before the cause was measured
+**Severity: medium, the report stopped arriving.** The rebuilt report grew from a few hundred characters to about 17500, and Telegram refused it three times with a bare 400.
+
+Two causes, both known and both already written down somewhere in this repository:
+
+- **An unescaped ampersand in a link.** One item is called "Dreams & Nightmares Case". URL-escaping leaves `&` alone, correctly, and a bare `&` inside an HTML attribute ends the parse. The comment above the escaping helper said exactly this, an hour before it happened; the escape had been applied to the visible text and not to the href beside it.
+- **A splitter that cut every 4000 bytes.** Past the limit it landed inside a tag and inside a multibyte character at once. The sibling Python bot hit this in June and fixed it by splitting on line breaks. The report content was ported; the delivery fix that content requires was not.
+
+**Caught by:** measuring the message (17557 bytes against a 4096 limit) instead of guessing at the 400 for a third time.
+**Class:** porting a feature without porting the constraints it lives under. Both failures were solved problems in code sitting twenty metres away.
+
+A smaller one rode along: the new French movers section was added without removing the English block it replaced, so the same price moves were listed twice, once in euros and once labelled in dollars. Nobody had read the rendered message end to end.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -295,7 +317,7 @@ A trend file grew nineteen times in seventy days while its retention policy work
 
 ## Counting
 
-Twenty-three agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent, one (E20) that broke the same plumbing rule as E18 within hours of writing it down, on a check whose input did not even exist, one (E21) in which the mutation testing this session leans on reported twice that a guard was untested, having silently failed to mutate anything, and two (E22, E23) that landed within an hour of each other on a question the operator asked directly.
+Twenty-five agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent, one (E20) that broke the same plumbing rule as E18 within hours of writing it down, on a check whose input did not even exist, one (E21) in which the mutation testing this session leans on reported twice that a guard was untested, having silently failed to mutate anything, two (E22, E23) that landed within an hour of each other on a question the operator asked directly, and two more (E24, E25) in the feature built to answer it.
 
 E22 deserves the last word. The agent searched a live inventory for a phrase, found nothing, and reported nothing was there. Four items were. The phrase it searched for was one it had made up; the real one differs by two words. That is the failure this entire document is about, committed the morning after the rule was written down, published, and stored in the memory that loads at the start of every session. **It fired against tools all day and did not fire against a string the agent had invented itself.** The correction offered first was also wrong, blaming a language setting that had nothing to do with it.
 

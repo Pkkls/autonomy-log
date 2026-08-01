@@ -208,3 +208,16 @@ The operator asked whether the inventory bot sees items bought in the last seven
 Underneath the wrong answers was a real defect, which is why they mattered. Held items carry `marketable = 0` and were dropped from the inventory outright, so a purchase vanished for a week and returned as an unexplained jump. They are now kept, counted, valued, and shown with Steam's own unlock date, while permanently non-marketable items stay excluded.
 
 One more thing surfaced while measuring: the report has been labelling euros as dollars since the switch to bulk pricing that morning. Introduced by the same session that then failed to notice it for six hours.
+
+### A report that says something, and everything that broke on the way
+
+The board's daily message said a total and nothing else. The bot it replaced named the holdings, ranked what was worth selling, and flagged what was wrong with what was held. All of that is back, ported from the Python engines rather than rewritten: per-game split, evolution on four horizons, overnight movers, sell scores, the anti-trap verdicts and their thresholds, supply-decay holds, top 25 per game, every item linked.
+
+Four things broke on the way, and each was a solved problem sitting nearby.
+
+- **Every link was dead.** The marketplace search URL answers 200 with an empty application shell, so the status code confirms the mistake rather than catching it. None had been opened before shipping; the operator found them. Two hundred kilobytes versus two, distinguishable in one request.
+- **Three sends refused with a bare 400.** An item named "Dreams & Nightmares Case" put a raw ampersand inside an href, which ends an HTML parse. The escaping helper's own comment had said so an hour earlier, applied to the text and not to the link beside it.
+- **The splitter cut mid-tag.** At 17500 characters against a 4096 limit it fires every time, and it cut on byte offsets, landing inside tags and inside multibyte characters. The sibling bot fixed this in June by splitting on lines. The content was ported without the constraint it lives under.
+- **The market indicator was measuring nothing**, in the original. It divided the preferred price by the suggested price, and the preferred price *is* the suggested price whenever one exists: a ratio of 1.0 everywhere and a light that was green regardless. Measuring the real undercut turned it permanently red instead, so the verdict was dropped and the figure kept until there is history to calibrate against.
+
+Also corrected: "Hier +915 EUR (+175%)" compared against a measurement from twelve days earlier, because no valid snapshot exists in between. The figure was right, the word was not.

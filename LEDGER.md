@@ -162,6 +162,29 @@ Both times the conclusion drawn was about the test. It was about the probe.
 **Class:** the same shape as the `grep` false negatives earlier the same day, and as E18 and E20: a step in the verification chain silently did nothing, and its silence was read as a measurement. **A tool used to check other tools is not exempt from being checked.** Mutation testing answers "would this test notice", and it can only answer it if the mutation happened.
 **Fix:** the mutation asserts that it changed the file before the test is run. One line, and without it the technique quietly degrades into running the suite twice.
 
+### E22. Concluded absence from a search that was looking for the wrong string
+**Severity: medium, and the operator caught it.** Asked whether the inventory bot sees items bought in the last seven days, the agent queried the live inventory for Steam's trade-hold notice, found the phrase nowhere across 1259 items, and reported that nothing was currently held.
+
+Four items were held. The notice reads **"Tradable/Marketable After 5 Aug @ 5:00am"**. The search was for `"Tradable After"`, which does not occur.
+
+The operator replied "FAUX !!!" and pasted three of them.
+
+**Class:** the same shape as the `grep` false negatives and E21, in the one place it had been named a day earlier: **a probe that returns nothing is not evidence of nothing**. The difference here is that the agent had already written that rule down, published it, and stored it in memory that morning. It fired against tooling and did not fire against a substring it had invented itself.
+
+**The correction was also wrong.** The first explanation offered was that the API had answered in French, since the operator's Steam is French and the cookie says so. It had not: the request passed `l=english` and the response was English. The real cause was the substring, and blaming the locale was a second confident answer produced without checking.
+
+**What the mistake was covering:** the deduction attached to it was right. Those four items carry `marketable = 0`, and the scanner dropped every such item, so a purchase was invisible for a week and then arrived as an unexplained jump the day the hold lifted. Being wrong about "are any held right now" hid a real defect behind a reassuring answer.
+
+**Fixes:** held items are kept, counted, valued and named with Steam's own date; permanently non-marketable items are still excluded, because a held purchase and a bound skin are different things. The matcher is deliberately loose on "After", and the test asserts against the verbatim sentence, so restoring the narrow pattern fails it.
+
+### E23. Re-merged two states an hour after separating them everywhere else
+**Severity: low, caught by looking at the output.** The first version of the trade-hold counter incremented only when the item also had a price. Three of the four held items are stickers too new for the price feed to list, so the report announced **"1 item on trade hold"** while four were held.
+
+Whether an item is held is a fact about the item. Whether it can be priced is a fact about the market. This program had spent the previous two days pulling exactly that pair apart in six other places, and the agent merged them again sixty minutes later, in code written to fix a bug of the same family.
+
+**Caught by:** reading the rendered report against the known answer of four, rather than trusting the change that had just been tested.
+**Class:** the rule was known, published, and had just been applied. Knowing a pattern is not the same as recognising an instance of it, which is E11b's lesson in a different domain.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -272,7 +295,11 @@ A trend file grew nineteen times in seventy days while its retention policy work
 
 ## Counting
 
-Twenty-one agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent, one (E20) that broke the same plumbing rule as E18 within hours of writing it down, on a check whose input did not even exist, and one (E21) in which the mutation testing this session leans on reported twice that a guard was untested, having silently failed to mutate anything.
+Twenty-three agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent, one (E20) that broke the same plumbing rule as E18 within hours of writing it down, on a check whose input did not even exist, one (E21) in which the mutation testing this session leans on reported twice that a guard was untested, having silently failed to mutate anything, and two (E22, E23) that landed within an hour of each other on a question the operator asked directly.
+
+E22 deserves the last word. The agent searched a live inventory for a phrase, found nothing, and reported nothing was there. Four items were. The phrase it searched for was one it had made up; the real one differs by two words. That is the failure this entire document is about, committed the morning after the rule was written down, published, and stored in the memory that loads at the start of every session. **It fired against tools all day and did not fire against a string the agent had invented itself.** The correction offered first was also wrong, blaming a language setting that had nothing to do with it.
+
+What makes it worth the space is what it was hiding. The deduction resting on the false observation was correct: those items were being dropped from the inventory entirely, so every purchase went missing for a week and then arrived as an unexplained jump. A comfortable wrong answer to "is anything held right now" kept a real defect out of view, and it took the operator answering "FAUX" to move it.
 
 E18 and E19 rhyme, and the rhyme is the finding. Both are correct components joined by plumbing nobody was watching: a scanner that found something, wired to a decision through a pipe that dropped its exit code; a rule that says kill by id, fed an id from a channel already known to corrupt its arguments. **The defect was never in the part under scrutiny.** A rule attached to a step protects that step only, and every one of these sessions has spent more of its damage on the joints than on the parts.
 

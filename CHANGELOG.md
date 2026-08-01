@@ -196,3 +196,15 @@ Its exit code distinguishes three answers, not two: passed, failed, and **could 
 It found two things about itself on the first honest run. Executed from the environment that holds the ssh keys, it resolved the wrong home directory and saw no repositories at all — reported as unmeasured, which is the distinction doing its job rather than a silent zero. And it compared the deployed binary against HEAD, which a documentation commit is enough to break; it now compares against the last commit that touched the sources, still catching the stale binary the check exists for.
 
 One branch went unverified after four attempts to mutate it, each defeated by a different path-resolution quirk. The commit says so. A gap that is written down is a different thing from a gap that is implied not to exist.
+
+### Asked a direct question, answered it wrong three times
+
+The operator asked whether the inventory bot sees items bought in the last seven days, which Steam holds before they can be traded or sold.
+
+- **The search found nothing because it was looking for the wrong words.** Steam writes "Tradable/Marketable After 5 Aug @ 5:00am"; the query was for "Tradable After". Four items were held. The answer given was that none were, and it took "FAUX !!!" and three pasted item names to move it.
+- **The first correction was also wrong**, blaming a French locale that had nothing to do with it. The request had asked for English and received English.
+- **The counter then counted the wrong thing.** Held items were only tallied if they also had a price, so three stickers too new to be listed went uncounted and the report announced one hold out of four. Being held is a fact about the item; being priceable is a fact about the market. Those two had been pulled apart in six other places over the previous two days.
+
+Underneath the wrong answers was a real defect, which is why they mattered. Held items carry `marketable = 0` and were dropped from the inventory outright, so a purchase vanished for a week and returned as an unexplained jump. They are now kept, counted, valued, and shown with Steam's own unlock date, while permanently non-marketable items stay excluded.
+
+One more thing surfaced while measuring: the report has been labelling euros as dollars since the switch to bulk pricing that morning. Introduced by the same session that then failed to notice it for six hours.

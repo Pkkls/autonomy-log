@@ -162,6 +162,19 @@ Both times the conclusion drawn was about the test. It was about the probe.
 **Class:** the same shape as the `grep` false negatives earlier the same day, and as E18 and E20: a step in the verification chain silently did nothing, and its silence was read as a measurement. **A tool used to check other tools is not exempt from being checked.** Mutation testing answers "would this test notice", and it can only answer it if the mutation happened.
 **Fix:** the mutation asserts that it changed the file before the test is run. One line, and without it the technique quietly degrades into running the suite twice.
 
+### E27. Third instance of the same empty check, minutes after reading the warning against it
+**Severity: none, and it was still the right answer, which is the worrying part.** Auditing a backup manifest against the machine it describes, the agent asked the board which of thirteen paths existed, with a shell loop over a variable. Every one came back absent, including four it had listed itself moments earlier from a directory listing.
+
+The loop variable arrived empty. Passing a single-quoted `$f` through `wsl.exe` strips it, so the test run thirteen times was `[ -e "" ]`, which is false, thirteen times. The output was well formed, plausible, and measured nothing.
+
+Four of the thirteen paths really were gone, so the conclusion drawn from it happened to be correct. That is worse than being wrong: an identical printout would have appeared if all thirteen existed, and the conclusion was acted on before anything distinguished the two cases. **A broken check does not usually error. It answers.**
+
+The warning is written in the script the agent was editing at that moment, at line 120, in the comment explaining why that script feeds its remote commands over stdin: `wsl.exe mangles inline single-quoted '$f', stdin does not`. It had been read, in full, in the same session, a few minutes before.
+
+**Caught by:** noticing that a path listed as present by `ls` seconds earlier was reported absent, and that the absent lines had no filename in them.
+**Fix:** the paths were passed to `ls` as explicit arguments, with no shell variable anywhere. That run separated the four genuinely missing from the nine present, and turned up a tenth thing nobody had asked about.
+**Class:** E20, E21, E27. Three instances of a verification step that silently did nothing while producing a confident answer, all within the same body of work, each caught by reading the output rather than the summary. The common thread is not carelessness about checking; every one of these *was* a check, deliberately written. It is that a check is itself a program, and nothing was checking the checkers.
+
 ### E22. Concluded absence from a search that was looking for the wrong string
 **Severity: medium, and the operator caught it.** Asked whether the inventory bot sees items bought in the last seven days, the agent queried the live inventory for Steam's trade-hold notice, found the phrase nowhere across 1259 items, and reported that nothing was currently held.
 
@@ -302,12 +315,21 @@ That is the same collapse as everywhere else, in the one place where the consequ
 
 An unreadable checkout now says so, in the colour reserved for work at risk, and the summary counts it in neither column. The mutation that restores the old helper prints the old answer verbatim: `dirty: 0, unreadable: False`.
 
-**Eight instances now, across four programs**, three of them written or last touched by the process that then failed to see the pattern in its own output. The lens works; what took this long was pointing it at things that were not currently on fire.
+**Nine instances now, across five programs**, three of them written or last touched by the process that then failed to see the pattern in its own output. The ninth is in D2b, and it is the one with teeth: a backup script reading "the key is not here" as "there is no key yet", where the consequence is not a wrong number on a screen but an archive nobody can open. The lens works; what took this long was pointing it at things that were not currently on fire.
 
 ### D2. A backup verifying clean on two thirds of a machine
 Daily, encrypted, pushed, size stable for seventeen days, restore check green. The manifest described the machine as it had been months earlier. Everything added since, including a non-reproducible price history, a live session file, credentials, the DNS configuration and every maintenance script, was absent from every archive.
 
 A backup that fails loudly gets fixed. A backup that succeeds on a stale scope is trusted until the day it is needed.
+
+### D2b. Why the scope went stale, and the recovery path that would have destroyed the archive
+The scope was audited again against the live machine. It had drifted in both directions: four paths in the manifest no longer existed on the board, and nine live ones were covered by nothing, including the file holding the bot's credentials and the account file of a farmer whose sessions cannot be regenerated. The credentials had been moved out of the program and into their own file in May, for good reasons; the manifest kept describing the machine as it had been before that.
+
+The mechanism is worth more than the list. The remote side skips a path that is not there, in silence. So a manifest that has stopped describing the machine prints exactly like one that still does, and the drift costs nothing visible until a restore. Absent and backed-up now print differently, and the four dead entries were removed rather than left to make that report cry wolf. The archive went from twenty-three files to thirty-two, verified by decrypting the last one made before the change and the one made after, and counting both.
+
+**The larger find was in the recovery path.** The script generated a fresh encryption key whenever the keyfile was not found. A missing keyfile has two meanings: nothing to lose yet, or the key is missing *from here*, which is what happened when the script was run from a shell where the Windows path to it does not resolve. In the second case it would have encrypted every future backup with a key that opens none of the existing archives, printed success, and kept doing so daily until someone tried to restore. The keyfile survived by luck, not by design. It now refuses when archives exist, and still generates on an empty series; both branches were exercised.
+
+The same collapse as D1 and its seven relatives, in the one program whose entire purpose is to still be correct on the worst day. **A tool that protects against loss has to be read as capable of causing it.**
 
 ### D3. RETRACTED. A realtime protocol migration that did not happen
 This entry claimed a public streaming platform had moved off its hosted message bus, on the evidence that an application key returned "not in this cluster" on every region. The key had been rotated. The platform still uses that bus. See E17.
@@ -327,7 +349,9 @@ A trend file grew nineteen times in seventy days while its retention policy work
 
 ## Counting
 
-Twenty-six agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent, one (E20) that broke the same plumbing rule as E18 within hours of writing it down, on a check whose input did not even exist, one (E21) in which the mutation testing this session leans on reported twice that a guard was untested, having silently failed to mutate anything, two (E22, E23) that landed within an hour of each other on a question the operator asked directly, two more (E24, E25) in the feature built to answer it, and one (E26) in the tool written to stop E24 happening again, which opened with a two-thirds false-positive rate.
+Twenty-six agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent, one (E20) that broke the same plumbing rule as E18 within hours of writing it down, on a check whose input did not even exist, one (E21) in which the mutation testing this session leans on reported twice that a guard was untested, having silently failed to mutate anything, two (E22, E23) that landed within an hour of each other on a question the operator asked directly, two more (E24, E25) in the feature built to answer it, one (E26) in the tool written to stop E24 happening again, which opened with a two-thirds false-positive rate, and one (E27) that repeated E20 and E21 a third time, minutes after reading the written warning against it in the file it was editing.
+
+Twenty-seven, and the distribution says more than the total. Three of them (E20, E21, E27) are one defect repeated: a verification step that quietly did nothing and returned a confident answer. Add the gate that failed open (E18), the checker that opened at a two-thirds false-positive rate (E26), and the id read through a channel known to corrupt it (E19), and **six of the twenty-seven are in the checking apparatus rather than in the work being checked. Six of the last ten.** An agent that writes its own tests grades its own homework, and these are the marks it gave itself.
 
 E22 deserves the last word. The agent searched a live inventory for a phrase, found nothing, and reported nothing was there. Four items were. The phrase it searched for was one it had made up; the real one differs by two words. That is the failure this entire document is about, committed the morning after the rule was written down, published, and stored in the memory that loads at the start of every session. **It fired against tools all day and did not fire against a string the agent had invented itself.** The correction offered first was also wrong, blaming a language setting that had nothing to do with it.
 

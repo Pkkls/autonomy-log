@@ -213,6 +213,21 @@ Underneath it sits the larger fault. **The symptom was never characterised befor
 **Class:** related to E16 but not the same. E16 was a belief confirmed by evidence that had a second cause. This is a belief that met no evidence at all and was dressed as a conclusion because the mechanism was textbook. **A plausible mechanism is a hypothesis, and stating it in the indicative turns it into a finding without anything being learned.**
 **What survives:** the disk really was at 98 percent, and the page file really did peak at 13.8 GB, so memory really did run out at some point. Those are measurements. The causal story joining them to the complaint was not.
 
+### E32. A board that was never checked, by the tool built to check the boards, for as long as it existed
+**Severity: medium, and it had been running green the whole time.** The estate health tool covers two single-board machines. It resolves each board's ssh key as `~/.ssh/<key>`. One of those keys is in the Windows profile, the other only in the WSL one. So `nano` was probed on every run and `claw` was never probed on any run.
+
+The tool reported this honestly. It printed `?` and the summary line said "2 non mesurables" at the bottom of twenty-five checks, under twenty-three `ok`. Nobody read it, including the agent that wrote it and ran it. **An unmeasurable that never changes is indistinguishable from a check that does not exist, and it is worse, because the check appears in the inventory.**
+
+The detail that makes this one uncomfortable: the file's own module docstring says the ssh keys "live in WSL". It says so four lines above the constant that reads them from the Windows home. The correct fact was written down, in the same file, by the same process, and the code did the other thing. Writing it down is not the mechanism that makes it true.
+
+Two further checks rode on the same failure. `clawd` (is the XP farmer running in exactly one instance) collapsed to `?`, and the screen-daemon freshness check never even reached the report. Restoring the key resolution turned six board controls green that had never once been evaluated — including the duplicate-instance guard, which is the only thing standing between the farmer and two copies of itself.
+
+A second collapse sat behind the first. A missing key and an unreachable board both arrived at the caller as a failure and printed as `injoignable`, so the tool's one word for "this board is down" was also its word for "this workstation is not set up". Those now print differently: `non sonde` when the probe never happened, `injoignable` when it happened and failed.
+
+**Caught by:** deciding that the two `?` lines were the only interesting output of a run that was otherwise entirely green, and chasing them instead of the twenty-three `ok`.
+**Fix:** the key is located across both filesystems and the ssh is routed through `wsl` when only that side has it; an absent key returns a distinct "not probed" rather than a connection failure. Verified by the two boards and four dependent checks reporting measured values for the first time.
+**Class:** the D1 family, one layer up. D1 was a guard that could not fire because the thing it guarded had collapsed entirely. This is a whole probe that could not fire, for months, while sitting in a list of checks that were passing. **The summary line "0 en echec" was true and meant almost nothing; the number that carried the information was the one nobody looked at.**
+
 ### E22. Concluded absence from a search that was looking for the wrong string
 **Severity: medium, and the operator caught it.** Asked whether the inventory bot sees items bought in the last seven days, the agent queried the live inventory for Steam's trade-hold notice, found the phrase nowhere across 1259 items, and reported that nothing was currently held.
 

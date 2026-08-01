@@ -223,20 +223,75 @@ def selftest():
         if got != want:
             bad += 1
         print(f"{mark} {label:<16} attendu {want:<4} obtenu {got:<4} {detail[:40]}")
-    print(f"\n{len(cases)} cas, {bad} en echec")
+
+    # E32: chaque cle declaree doit etre localisable quelque part. Une cle
+    # introuvable a fait passer une carte pour injoignable pendant des mois.
+    for board, (_host, key) in BOARDS.items():
+        kind, path = _key_path(key)
+        ok = kind is not None
+        bad += 0 if ok else 1
+        print(f"{'  ok  ' if ok else ' FAIL '} cle {board:<12} "
+              f"{kind or 'INTROUVABLE'} {path}")
+
+    # Et une cle qui n'existe nulle part doit se dire introuvable, pas se taire.
+    kind, why = _key_path("cle_qui_n_existe_pas")
+    ok = kind is None and "introuvable" in why
+    bad += 0 if ok else 1
+    print(f"{'  ok  ' if ok else ' FAIL '} cle absente     {kind} {why}")
+
+    print(f"\n{len(cases) + len(BOARDS) + 1} cas, {bad} en echec")
     return 1 if bad else 0
+
+SSH_OPTS = ["-o", "ConnectTimeout=15", "-o", "BatchMode=yes"]
+
+
+def _key_path(key):
+    """Where this key actually is, or (None, why).
+
+    The two boards were never symmetric and the script assumed they were.
+    `nano_key` exists in the Windows profile, `claw_key` only in the WSL one,
+    so `~/.ssh/<key>` found the first and missed the second. The docstring at
+    the top of this file already said the keys "live in WSL"; the code read
+    them from the Windows home anyway, and the claw reported `?` on every run
+    since the tool was written. Nobody read the `?`.
+
+    Returns ("native", path) when a plain ssh can use it, ("wsl", path) when
+    only the WSL filesystem has it, or (None, reason).
+    """
+    local = os.path.expanduser(f"~/.ssh/{key}")
+    if os.path.exists(local):
+        return "native", local
+    wsl_path = f"/home/kil/.ssh/{key}"
+    if os.path.exists(wsl_path):          # already running inside WSL
+        return "native", wsl_path
+    code, _ = run(["wsl", "test", "-f", wsl_path], timeout=20)
+    if code == 0:
+        return "wsl", wsl_path
+    return None, f"cle {key} introuvable (ni Windows ni WSL)"
+
 
 def ssh(board, remote_cmd, timeout=45):
     host, key = BOARDS[board]
-    return run(["ssh", "-o", "ConnectTimeout=15", "-o", "BatchMode=yes",
-                "-i", os.path.expanduser(f"~/.ssh/{key}"), f"root@{host}",
-                remote_cmd], timeout=timeout)
+    kind, path = _key_path(key)
+    if kind is None:
+        # Une cle absente n'est pas une carte injoignable. Les confondre, c'est
+        # rapporter une panne materielle pour un probleme de poste de travail,
+        # et c'est exactement la collapse que ce depot documente.
+        return None, path
+    argv = ["ssh"] if kind == "native" else ["wsl", "ssh"]
+    return run(argv + SSH_OPTS + ["-i", path, f"root@{host}", remote_cmd],
+               timeout=timeout)
 
 
 def check_boards(res):
     for board in BOARDS:
         code, out = ssh(board, "hostname && date +%s")
-        if code is None or code != 0:
+        if code is None:
+            # La sonde n'a pas eu lieu (cle absente, ssh absent). Ce n'est pas
+            # un diagnostic sur la carte.
+            res.add(UNKNOWN, board, f"non sonde: {out.strip()[:60]}")
+            continue
+        if code != 0:
             res.add(UNKNOWN, board, f"injoignable: {out.strip()[:60]}")
             continue
         # Un ssh qui rend 0 sans rien ecrire n'a pas prouve que la carte

@@ -186,6 +186,22 @@ The uncommitted-work count, which answers "what disappears if the disk does", re
 **Fix:** the session classifier is its own function with `--selftest` over six cases, and mutating it back to the old branch turns four of them red, which is what makes the six worth keeping. The file count forces the line-ending setting and reads stdout alone. Both verified twice in a row and against Windows git on all ten repositories.
 **Class:** the first half is D1's collapse, in the tool written to detect D1's collapse. The second half is E18 and E20's plumbing, a third time: a diagnostic stream folded into a data stream and then counted. **Neither fault was in a check that was missing. Both were in checks that ran, passed, and printed a number.** The estate had been green for hours on a measurement that was 98 percent invented.
 
+### E29. Swept someone else's uncommitted work into a commit about something else
+**Severity: low, and the history is what pays.** Refreshing a configuration mirror from the machine it describes, the staging step was `git add -A`. It picked up a 128-line rewrite of an unrelated file that had been sitting uncommitted since before the session began. Nothing was lost and nothing broke; the commit message describes seven configuration files and says nothing about the eighth change it carries.
+
+**Caught by:** reading the commit's own diffstat afterwards, which is one step later than it should have been.
+**Fix declared rather than applied:** splitting it means rewriting a commit already pushed, so it was reported and left to the operator to decide.
+**What it cost beyond the commit:** an attempt to turn it into a rule failed honestly. Staging everything is correct whenever the whole tree is yours, which is nearly always: the pattern fired on 117 of 5084 real commands, almost all of them fine. Whether it is dangerous depends on what the repository holds at that instant, which no amount of reading the command can reveal. The rule was dropped rather than shipped at a rate that would have taught its reader to ignore the two rules that do work. See D7.
+
+### E30. A pattern that could never match, inside the guard written against patterns that never match
+**Severity: none, and it is the shortest distance yet between a lesson and its repetition.** The guard described in D7 has a rule for verifiers whose exit code is thrown away before a claim of success. The pattern behind it was assembled by a script that wrote `\b` inside a non-raw Python string, so what compiled was a literal backspace character where the word boundary belonged. It compiled cleanly. It ran against all 5084 commands. It could not match anything, ever.
+
+The measurement it produced looked entirely reasonable, which is why it survived: the other half of the rule was working, so the totals moved when the rule was tightened, and nothing in the output said that one branch was dead. Three separate attempts to fix it appeared to succeed and did not, because the replacement text carried the same escaping fault, and because `str.replace` returns the original string unchanged when it matches nothing and says so to no one.
+
+**Caught by:** the tightened rule producing exactly the same count as the loose one. Two different rules cannot give identical answers on five thousand inputs.
+**Fix:** the pattern is a raw string, the byte is gone from the file, and the check is that the compiled pattern contains no backspace and matches the historical command. Both are asserted, not observed.
+**Class:** E20, E21, E27, and now E30, in the file whose entire purpose is to catch that class. Four instances. What separates this one is speed: the file's own docstring was already explaining that writing an error down does not prevent it, in the same commit that shipped an example.
+
 ### E22. Concluded absence from a search that was looking for the wrong string
 **Severity: medium, and the operator caught it.** Asked whether the inventory bot sees items bought in the last seven days, the agent queried the live inventory for Steam's trade-hold notice, found the phrase nowhere across 1259 items, and reported that nothing was currently held.
 
@@ -352,6 +368,17 @@ The same platform grants watch-time progression on an explicit event the player 
 
 Two things made it findable once the socket theories were dead. The client bundle names its own behaviour, so searching it for what fires during playback returned the call in minutes after months of reasoning about which connection mattered. And the endpoint's validator is documentation that cannot go stale: a missing CSRF header, a flat object and a wrapped object each came back naming what was wrong, and the fourth attempt was accepted. Four requests, no guessing.
 
+### D7. Forty-seven exit codes lost upstream of something irreversible
+Asked why the documented errors were never worked on directly, the honest answer was that this ledger had only ever been an output. It was written, published, and loaded into memory at the start of every session, and it stopped nothing: E27 was committed minutes after re-reading the warning against it in the file being edited.
+
+So the errors were treated as a specification instead. Two of them have a signature visible in the command text, and a matcher for those shapes now runs outside the process that keeps making them. It was measured, not assumed: 5084 Bash commands were extracted from 617 real session transcripts and every rule run against all of them.
+
+That measurement returned a finding nobody had asked for. **A verifier's exit code was piped away and then chained into an irreversible action 47 times**, and into an explicit claim that the check had passed 19 more. E18 and E20 were not two accidents; they were the two instances that happened to be noticed. The same shape had been running all along at roughly one command in a hundred.
+
+A third rule was written for the case where staging the whole tree sweeps in someone else's work, and dropped. It fired on 117 commands that were almost all fine, because whether that command is dangerous depends on what the repository holds at that moment and not on anything in the text. Shipping it would have taught its reader to skim past the other two. **A guard is not free to be approximately right: the cost of a false alarm is the credibility of every true one.**
+
+What this does not do is make anyone better. It is a net, placed where the same three shapes keep arriving.
+
 ### D4. Credentials committed in a private repository
 Two bot tokens in the current checkout, not merely in history. Private, so not a public leak, but a private repository is one setting away from public and history rewriting never un-leaks anything.
 
@@ -362,7 +389,7 @@ A trend file grew nineteen times in seventy days while its retention policy work
 
 Twenty-six agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent, one (E20) that broke the same plumbing rule as E18 within hours of writing it down, on a check whose input did not even exist, one (E21) in which the mutation testing this session leans on reported twice that a guard was untested, having silently failed to mutate anything, two (E22, E23) that landed within an hour of each other on a question the operator asked directly, two more (E24, E25) in the feature built to answer it, one (E26) in the tool written to stop E24 happening again, which opened with a two-thirds false-positive rate, one (E27) that repeated E20 and E21 a third time, minutes after reading the written warning against it in the file it was editing, and one (E28) in the health tool itself, wrong on both of the two questions it was audited on.
 
-Twenty-eight, and the distribution says more than the total. Three of them (E20, E21, E27) are one defect repeated: a verification step that quietly did nothing and returned a confident answer. Add the gate that failed open (E18), the checker that opened at a two-thirds false-positive rate (E26), the id read through a channel known to corrupt it (E19), and the health tool that reported a hundred phantom files and a session it had never measured (E28), and **seven of the twenty-eight are in the checking apparatus rather than in the work being checked. Seven of the last eleven.** An agent that writes its own tests grades its own homework, and these are the marks it gave itself.
+Thirty, and the distribution says more than the total. Four of them (E20, E21, E27, E30) are one defect repeated: a verification step that quietly did nothing and returned a confident answer. Add the gate that failed open (E18), the checker that opened at a two-thirds false-positive rate (E26), the id read through a channel known to corrupt it (E19), and the health tool that reported a hundred phantom files and a session it had never measured (E28), and **eight of the thirty are in the checking apparatus rather than in the work being checked. Eight of the last thirteen.** An agent that writes its own tests grades its own homework, and these are the marks it gave itself.
 
 The direction of travel is the finding. The work these tools watch is in better shape than it has been; the tools watching it are where the defects now live, and they are harder to see because their output is a clean report rather than a crash. Every one of E26, E27 and E28 was caught the same way: by asking the same question through a channel that could disagree.
 

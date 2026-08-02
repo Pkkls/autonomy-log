@@ -312,6 +312,24 @@ The deployment used it, saw success, replaced the binary underneath a process th
 **Fix in procedure, applied immediately:** stop by pid, poll `/proc/<pid>` until it disappears, refuse to continue while any instance survives, and verify the deployed checksum on the board before swapping anything. Every later step of that deployment used it.
 **Class:** E11 turned inside out. There the failure was killing by name and hitting the wrong thing; here it is asking politely and hitting nothing, with the same exit code either way. **A command whose success and its no-op are the same value is not a command, it is a comment.**
 
+### E41. A probe that reported the DNS blocklist did not exist, minutes after installing it
+**Severity: none to the estate, and it is the entry this record was missing.** The closing check of the session asked the board how many domains were blocked. It answered:
+
+```
+grep: /etc/hosts.blocklist: No such file or directory
+```
+
+Read straight, that says the file replaced an hour earlier had vanished and the house was no longer blocking anything. It was written down as a live incident before anything else was run.
+
+The file was there the whole time: 2,978,616 bytes, the 99,276-domain list installed at 06:38, with `doubleclick.net` still resolving to nothing. The command had crossed Git Bash, then WSL, then ssh, then the board's shell, carrying double quotes nested inside double quotes. The outer layer consumed them, the remote shell re-split the arguments, and `grep` was handed something that was not the path. Reproduced deterministically: the nested form fails, single quotes return `99276`, base64 returns `99276`.
+
+**Every other instrument failure in this record lies toward reassurance.** A board never probed prints `?` under green. A sync check compares a repository to itself and says `sync`. An auditor that cannot read a file says `clean`. A blocklist script installs an error page and logs `OK`. This one lies the other way, and it is worth its own entry because the defence against it is different. A reassuring lie is caught by going and looking. **An alarming lie is caught by not believing your own tools first**, and it is much easier to act on, because alarm feels like diligence and the reflex is to fix the estate rather than to re-run the measurement.
+
+The failure mode is also the nastier of the two in one respect: it is not a syntax error, a stack trace, or an empty result. It is a specific, plausible, well-formed factual claim about production, from a tool that had been right all morning.
+
+**Caught by:** re-running the same question through the base64 path, which this project's own notes have prescribed for exactly this reason since before the session started, and which the failing command had skipped because it was one line.
+**Fix:** none in the estate. The rule already existed and was not followed: anything crossing the Windows, WSL and board shells goes over as base64, always, including the one-liner at the end when everything is finished.
+
 ### E22. Concluded absence from a search that was looking for the wrong string
 **Severity: medium, and the operator caught it.** Asked whether the inventory bot sees items bought in the last seven days, the agent queried the live inventory for Steam's trade-hold notice, found the phrase nowhere across 1259 items, and reported that nothing was currently held.
 

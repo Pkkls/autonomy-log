@@ -35,7 +35,7 @@ if strings.Contains(raw, `"broadcaster_user_id":"`) { ... }
 
 ### 2. The safeguard was downstream of the failure
 
-A monitoring job had an `aborted` flag for exactly the failure that hit it. The flag was set inside a loop over fetched items. The failure emptied the item list. The loop never ran. The flag was never set. The job recorded a zero and reported success, every day, for ten days.
+A monitoring job had an `aborted` flag for exactly the failure that hit it. The flag was set inside a loop over fetched items. The failure emptied the item list. The loop never ran. The flag was never set. The job recorded a zero and reported success, every day, for eleven days.
 
 This is the most transferable lesson here. **Placing a check after the thing it protects makes it invisible when that thing collapses entirely.** Partial failure gets caught, total failure sails through.
 

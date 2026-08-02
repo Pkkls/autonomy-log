@@ -84,7 +84,7 @@ This repository. Ledger of errors, engineering write-up, denser analysis, and th
 These touch production hardware and were left for the operator to apply.
 
 ### Inventory monitoring daemon
-- **Fixed:** a total failure to read inventories was indistinguishable from an empty account. The fetch logged its failure, returned an empty collection, and every downstream stage treated emptiness as data. Ten days of daily reports announced an empty portfolio, marked successful.
+- **Fixed:** a total failure to read inventories was indistinguishable from an empty account. The fetch logged its failure, returned an empty collection, and every downstream stage treated emptiness as data. Eleven days of daily reports announced an empty portfolio, marked successful.
 - **Fixed:** the existing abort flag was only ever set inside the pricing loop, which is never entered when the item list is empty. The safeguard sat downstream of the failure it was meant to catch.
 - **Changed:** the daily message distinguishes "inventory could not be read" from "scan aborted early", since the second implies a partial result that does not exist.
 - **Added:** the project's first tests. Three cases covering unreadable versus genuinely empty versus one game failing, through a stubbed transport, no network. `InventoryDelay` became a variable so tests can set it to zero; it must never be lowered in production.

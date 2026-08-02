@@ -16,6 +16,7 @@ could not be run at all. That last one is the point: "could not measure" and
 whole repository is about.
 """
 import argparse
+import base64
 import json
 import os
 import subprocess
@@ -143,14 +144,34 @@ def check_repos(res):
         dirty = len([l for l in out.splitlines() if l.strip()]) if code == 0 else None
 
         # Ecart avec le distant, seulement si une branche amont existe.
-        code, upstream = run(["git", "rev-parse", "--short", "@{u}"], cwd=path)
+        #
+        # `@{u}` est une reference LOCALE : la derniere fois que cette machine a
+        # entendu parler du distant. Sans fetch, comparer HEAD a `@{u}` compare
+        # le depot a sa propre copie de la reponse, et deux valeurs issues de la
+        # meme source ne peuvent pas se contredire. Le controle annoncait donc
+        # "sync" pour dix depots sans avoir jamais interroge un serveur.
+        #
+        # `ls-remote` demande la vraie valeur au distant et n'ecrit rien en
+        # local. Hors ligne, la reponse est "je ne sais pas", pas "sync".
+        code, upstream = run(["git", "rev-parse", "--abbrev-ref", "@{u}"], cwd=path)
         sync = "sans amont"
-        if code == 0:
-            sync = "sync" if upstream.strip() == head else f"DIVERGE({head}/{upstream.strip()})"
+        if code == 0 and "/" in upstream.strip():
+            remote, _, branch = upstream.strip().partition("/")
+            code, out = run(["git", "ls-remote", remote, "refs/heads/" + branch],
+                            cwd=path, timeout=45, merge_stderr=False)
+            if code != 0 or not out.strip():
+                sync = "distant injoignable"
+            else:
+                theirs = out.split()[0][:len(head)]
+                sync = "sync" if theirs == head else f"DIVERGE({head}/{theirs})"
 
         detail = f"{head} {sync}"
         if dirty is None:
             res.add(UNKNOWN, name, detail + " non-commite=?")
+        elif sync == "distant injoignable":
+            # Pas mesure. Surtout pas vert : c'est ce que faisait l'ancienne
+            # version, en silence, a chaque execution.
+            res.add(UNKNOWN, name, detail)
         elif dirty:
             # Du travail non commite n'est pas une panne, mais c'est ce qui
             # disparait si le disque disparait : on le dit sans crier.
@@ -304,9 +325,18 @@ def check_boards(res):
             res.add(OK, board, f"{lines[0]} joignable")
 
     # clawd doit tourner en UN exemplaire et avoir gagne de l'XP recemment.
-    code, out = ssh("claw", "ps | grep -c '[c]lawd-riscv64'; "
+    #
+    # `ps | grep -c` au milieu d'une liste separee par `;` rend le code de
+    # sortie du DERNIER element, jamais le sien. Si `ps` disparait, `grep -c`
+    # ecrit 0, la commande rend 0, et le controle annonce "arrete" : une
+    # reponse fausse et precise, produite par une mesure qui n'a pas eu lieu.
+    # `ps` est donc teste d'abord, et son echec sort avec un code reserve.
+    code, out = ssh("claw", "ps >/dev/null 2>&1 || exit 9; "
+                            "ps | grep -c '[c]lawd-riscv64'; "
                             "cat /tmp/clawdisp.state 2>/dev/null; date +%s")
-    if code is None or code != 0:
+    if code == 9:
+        res.add(UNKNOWN, "clawd", "ps indisponible sur la carte")
+    elif code is None or code != 0:
         res.add(UNKNOWN, "clawd", "non mesurable")
     else:
         parts = out.split()
@@ -411,14 +441,24 @@ def check_backup_scope(res):
 
     scripts = [p for p in manifest
                if p.startswith(("/etc/init.d/", "/usr/local/bin/"))]
-    # Une seule session ssh : la sonde fait partie du systeme, et la carte a
-    # 128 Mo. On rapatrie deux listes courtes et on decide ici.
-    remote = ("for p in " + " ".join(manifest) + "; do [ -e \"$p\" ] || "
-              "echo \"DEAD $p\"; done; "
-              "for f in " + " ".join(scripts) + "; do [ -f \"$f\" ] && "
-              "grep -oE '/etc/[A-Za-z0-9._/-]+' \"$f\"; done | sort -u | "
-              # Un chemin cite mais absent n'est pas un oubli de sauvegarde.
-              "while read p; do [ -f \"$p\" ] && echo \"REF $p\"; done")
+
+    # Les deux listes partent en base64, une entree par ligne, et sont relues
+    # avec `read -r`. Un `for p in <liste jointe par des espaces>` decoupe
+    # `/etc/my config.conf` en deux jetons : le vrai chemin n'est alors jamais
+    # teste, et le controle rapporte une entree morte qui n'existe pas tout en
+    # etant aveugle a la disparition de celle qui existe. C'est le meme
+    # decoupage par les espaces qui avait casse `02 - Projects` ailleurs.
+    def _b64(lines):
+        return base64.b64encode("\n".join(lines).encode()).decode()
+
+    remote = (
+        f"echo {_b64(manifest)} | base64 -d | while IFS= read -r p; do "
+        "[ -n \"$p\" ] && { [ -e \"$p\" ] || echo \"DEAD $p\"; }; done; "
+        f"echo {_b64(scripts)} | base64 -d | while IFS= read -r f; do "
+        "[ -f \"$f\" ] && grep -oE '/etc/[A-Za-z0-9._/-]+' \"$f\"; done "
+        # Un chemin cite mais absent n'est pas un oubli de sauvegarde.
+        "| sort -u | while IFS= read -r p; do "
+        "[ -f \"$p\" ] && echo \"REF $p\"; done")
     code, out = ssh("nano", remote)
     if code is None or code != 0:
         res.add(UNKNOWN, "backup scope", f"non sonde: {out.strip()[:50]}")

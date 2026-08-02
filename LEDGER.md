@@ -250,6 +250,38 @@ A fourth run had been included against the unmutated file, and it came back not-
 **Fix:** Windows paths, then the four runs separated into four distinct answers: green on the truth, red on the reintroduced bug, red on the dead entry, `?` on the unreadable manifest.
 **Class:** E21, the mutation test that mutated nothing, inverted. There the mutation was inert and the test passed. Here the mutation was real and the *measurement apparatus* was inert. Both produce a green check with nothing behind it, and both are invisible without a case whose expected answer is "no finding". **A test suite with no negative control cannot distinguish detection from breakage.**
 
+### E35. The document disagreed with itself about its own headline number, and both numbers were printed
+**Severity: low in effect, structural in what it exposes.** The most cited incident in this repository is the bot that reported zero as a measurement. Three files said it ran for ten days. Two said eleven. Nobody had noticed, including through several passes whose stated purpose was auditing this record for accuracy.
+
+The board settles it. Its scan log holds **eleven** `Scan complete: 0/0 items priced` lines, dated 21 to 31 July inclusive, each followed by `Report sent!`. Eleven days, eleven false reports. The two files saying eleven were counting database rows and were right; the three saying ten were repeating a summary of a summary.
+
+**What makes it worth an entry:** this is the second time the narrative documents have been caught contradicting each other on a fact both were describing, after the earlier disagreement about how E4 was detected. Both times the contradiction survived because each document is internally consistent and nobody reads them side by side against the artifact. **A number that appears in five places has five chances to drift and one source of truth, and the source of truth was a `grep` away the entire time.**
+
+**Caught by:** counting the lines on the machine rather than trusting any of the five prose copies.
+**Fix:** all five now say eleven, and D1 carries the dates and the command that produces the count, so the next reader can check it in one command instead of choosing between two paragraphs.
+
+### E36. Ten repositories reported in sync with a remote that was never contacted
+**Severity: medium, and the check had never once been able to fail.** The estate tool compares each repository's `HEAD` against `@{u}` and prints `sync` when they match. `@{u}` is a local ref: a cached record of what this machine last heard from the server. Nothing in the tool fetches. **The comparison was between the repository and its own copy of the answer, and two values from the same source cannot disagree.**
+
+Demonstrated rather than argued: a scratch clone, a second clone that pushes a commit, and the check pronounces `sync` while `ls-remote` shows the remote two commits ahead. The same repository, the same command, run again after a `fetch`, correctly reports `DIVERGE`. Nothing changed but whether the machine had asked.
+
+The practical consequence is precise. The check exists to answer "is any of this work only on this disk", and it would have answered "no, everything is pushed" for a repository whose remote had moved, forever, without any state on the machine ever becoming inconsistent.
+
+**Caught by:** a delegated adversarial pass, given one instruction: for each control, construct the case where it prints `ok` while the thing is broken. That instruction found this in the second control it examined.
+**Fix:** `ls-remote` asks the server and writes nothing locally. Offline is now `distant injoignable` reported as unmeasured, not as `sync`. Verified in both directions: red when the remote is genuinely ahead, green after the pull, on the same repository within one minute.
+**Class:** E32's twin, and arguably worse. E32 was a probe that never ran and said `?`. This one ran, every time, and produced a confident green from a tautology. **A check that compares a thing to itself is not a weak check, it is not a check.**
+
+### E37. Shipped the space-splitting bug into the checker written against silent drift
+**Severity: none, caught within the hour, and it is the third time this exact byte has done this.** The backup-scope control built the remote command by joining the manifest with spaces: `for p in /etc/passwd /etc/my config.conf`. Any path containing a space stops being a path and becomes two.
+
+Both outcomes are bad and one is invisible. The fragments produce a permanent false `DEAD` for a path that never existed, which is alarm fatigue in a report whose entire value is being short and trustworthy. And the real file is then never tested at all, so if it genuinely vanished from the board the control would not notice, while still printing a failure about something else.
+
+This repository already contains two entries about splitting on spaces: a directory literally named `02 - Projects` broke a path detector, and a merged stderr stream turned twenty-three warnings into twenty-three filenames. Both are in the same file this control was added to.
+
+**Caught by:** the same delegated adversarial pass, which mocked the ssh transport and read the command that would have been sent, rather than running it against the board where every real path happens to be space-free and it would have passed.
+**Fix:** both lists cross the wire base64-encoded, one entry per line, read back with `read -r`. Verified with a manifest entry containing spaces: one dead entry reported, under its full name.
+**Class:** E27 and E30, the errors committed inside the guard written against that error. What is new is the delivery: this was found by testing the *message* rather than the outcome. The board would have said green.
+
 ### E22. Concluded absence from a search that was looking for the wrong string
 **Severity: medium, and the operator caught it.** Asked whether the inventory bot sees items bought in the last seven days, the agent queried the live inventory for Steam's trade-hold notice, found the phrase nowhere across 1259 items, and reported that nothing was currently held.
 
@@ -310,7 +342,7 @@ Two thirds noise on the first run. This log has argued repeatedly that in a moni
 These were found, not caused. They are the reason the session was worth running.
 
 ### D1. A monitoring bot reporting zero as a measurement
-For ten days, a daily inventory bot fetched nothing, recorded a snapshot of zero items, and sent a report announcing an empty portfolio, marked as successful. The upstream API had started refusing requests. The code logged the failure, returned an empty collection, and let every downstream stage treat emptiness as data.
+For eleven days, 21 to 31 July inclusive, a daily inventory bot fetched nothing, recorded a snapshot of zero items, and sent a report announcing an empty portfolio, marked as successful. The count is eleven and not ten: the board's own scan log holds eleven `Scan complete: 0/0 items priced` lines, each followed by `Report sent!`. See E35. The upstream API had started refusing requests. The code logged the failure, returned an empty collection, and let every downstream stage treat emptiness as data.
 
 An abort flag existed for exactly this. It was only ever set inside the pricing loop, which is never entered when the item list is empty. **The safeguard sat downstream of the failure it was meant to catch.**
 
@@ -447,11 +479,13 @@ The MaixCAM board reported load 3.21 / 3.14 / 3.10, flat across all three window
 
 The processor was 83 percent idle. Summed over every named daemon, real CPU consumption since boot was under 2 percent. Nothing was swapping.
 
-Three kernel threads (`cvitask_isp_pre`, `cvitask_isp_bla`, `cvitask_isp_err`, the camera image-signal-processor workers) sat in uninterruptible sleep, unchanged across repeated samples, blocked in `_isp_snr_cfg_deq_and_fire`. Linux counts `D` state in the load average identically to runnable work. Three wedged threads on one core is a load of three, and the number matched to within measurement noise.
+Three kernel threads (`cvitask_isp_pre`, `cvitask_isp_bla`, `cvitask_isp_err`, the vendor's camera image-signal-processor workers) sat in uninterruptible sleep, unchanged across repeated samples. Linux counts `D` state in the load average identically to runnable work. Three such threads on one core is a load of three, and the number matched to within measurement noise.
 
-**The finding is not about this board.** Load average is read everywhere as a proxy for CPU pressure and it is not one: it is a count of tasks that are running *or waiting on storage or hardware*. On a machine whose peripherals can wedge, a permanently stuck driver thread produces a permanently alarming number that no amount of CPU work explains. The measurement was honest; the meaning attached to it was inherited.
+The first reading of this was that the camera pipeline had wedged, and it was nearly written down that way. It is wrong. All three threads started **258 clock ticks after boot**, 2.58 seconds, and after 1.4 days of uptime each has accumulated **zero ticks of CPU time**. They have never run. There is no `/dev/video*` on the board and no process holds a camera device. Their wait channels (`_vi_err_handler_thread`, `_isp_snr_cfg_deq_and_fire`, `_usr_pic_timer_handler`) are handler entry points: these are idle workers parked waiting for a pipeline that was never started, and the vendor parked them in uninterruptible sleep rather than interruptible.
 
-What is not established, and is written here rather than guessed: whether the ISP pipeline has been wedged since boot or hung later, and what it is blocked on. `/proc/<pid>/stack` does not exist on that kernel, and `strace` is not on the board. The load figure is explained. The stuck camera behind it is not, and is worth its own look.
+So the board is not degraded and nothing hung. **Every MaixCAM running this kernel with the camera unused reports a permanent load average of 3, from the first three seconds of its life.** Nothing on the machine can ever explain that number, because nothing on the machine is doing it.
+
+**The transferable part:** load average is read everywhere as a proxy for CPU pressure and it is not one. It counts tasks running *or* in uninterruptible sleep, and a driver thread that idles in `D` is indistinguishable in that number from three saturated cores. The measurement was honest throughout; the meaning attached to it was inherited, twice — first as "the board is overloaded", then as "the camera is wedged". Both were mechanisms proposed ahead of the measurement that would have settled them, and the settling measurement was two fields of `/proc/<pid>/stat`.
 
 ### D9. An error rate computed from a log that only records errors
 The DNS-over-TLS relay on the board keeps a log. It is 107 lines long and 106 of them contain the word `err`: read timeouts to `1.1.1.1:853`, deadlines exceeded, spread over the last several days. A ninety-nine percent failure rate on the estate's DNS path.

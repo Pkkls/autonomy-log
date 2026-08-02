@@ -257,3 +257,15 @@ Recorded because the near-misses are the method. A delegated agent reported a bo
 The headline incident ran for **eleven** days, 21 to 31 July inclusive, eleven reports sent. Three files here said ten and two said eleven, and the board's log settles it. The count is now the same in all five places and D1 carries the dates so the next reader can check it in one command (E35).
 
 One defect was introduced and caught within the hour: the new backup-scope control joined manifest paths with spaces, so an entry containing one was never tested under its own name. Found by mocking the transport and reading the message that would have been sent; the board, where every real path is space-free, would have answered green (E37).
+
+### The probe that fed the next probe
+
+An audit ran the inventory bot's regression suite. The suite imports `main`, and `main` attached a file handler to the production journal at import time, so the test wrote rate-limit warnings and an abandoned-scan line into the log a human reads, against a fabricated URL, in production's own format. An hour later a second audit read that journal's timestamp as proof a real scan was running despite a disabled scheduled task, and concluded another trigger existed. There is none. Logging setup moved under `__main__`, verified both ways. Recorded as E38.
+
+### Jobs the estate believes it runs
+
+A sweep of every non-vendor scheduled task against its own output files. The backup and the three skin-radar jobs are enabled, exit zero, and their outputs carry timestamps that agree with their last run, the backup's to the second. The inventory job has two schedulers and both are disabled, one pointing at a directory the project left months ago. And the orchestrator process the notes describe as starting at boot has no task, no registry entry, no startup shortcut and no directory: there is nothing to start. All three are reported and none were changed, because standing configuration is the operator's. Recorded as D11.
+
+### What held
+
+The webhook daemon and the gateway client were attacked on the axes that broke them before: signature verification failing open when the key cannot be fetched, wire types asserted after decoding rather than on the bytes, empty collections standing in for errors, unbounded retry, unbounded dedup. Nothing was found. Its suite runs 30 tests, all passing, checked directly rather than taken from the audit that reported it. The one structural note is that two background goroutines carry no `recover`, so a panic in either takes the process with it; no reachable trigger was demonstrated.

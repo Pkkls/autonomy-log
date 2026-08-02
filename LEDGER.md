@@ -282,6 +282,17 @@ This repository already contains two entries about splitting on spaces: a direct
 **Fix:** both lists cross the wire base64-encoded, one entry per line, read back with `read -r`. Verified with a manifest entry containing spaces: one dead entry reported, under its full name.
 **Class:** E27 and E30, the errors committed inside the guard written against that error. What is new is the delivery: this was found by testing the *message* rather than the outcome. The board would have said green.
 
+### E38. The probe wrote into the log that the next probe read as evidence
+**Severity: low, and it is the cleanest closed loop in this record.** An audit of the inventory bot ran its regression suite. The suite imports `main`, and `main` configured logging at module level, attaching a file handler to the production journal. So the test run appended to that journal a sequence of rate-limit warnings and a `Surveillance annulee: fetch echoue pour CS2, RUST`, against a fabricated URL, using the same logger name, level and format as a real incident.
+
+An hour later a second audit, of the estate's scheduled jobs, found the bot's Windows task disabled and its journal modified more recently than that task had ever run. It reported, correctly from what it could see, that some other trigger must be producing the log. There is no other trigger. **The first probe manufactured the evidence the second one reasoned from, and both were behaving properly.**
+
+The loop closed only because the fabricated URL is visible in the log line and does not exist. Had the fixture used a plausible hostname, the conclusion "an unknown scheduler is running this job" would have gone into a report and been believed, and nothing in the estate could have contradicted it.
+
+**Caught by:** reading the log content rather than accepting the delegated conclusion about the log's timestamp.
+**Fix:** logging setup moved under `__main__`. Verified in both directions: the suite now writes zero bytes to the journal, and a real invocation still writes it, confirmed by size before and after each.
+**Class:** E9 restated at the level of records rather than resources. E9 was a measurement heavy enough to disturb the machine it measured. This is a measurement that wrote into the machine's memory of itself. **The probe is part of the system, and a journal is part of the system too.** A test suite that cannot be told apart from production in the artifact a human reads is not a test suite, it is a second writer.
+
 ### E22. Concluded absence from a search that was looking for the wrong string
 **Severity: medium, and the operator caught it.** Asked whether the inventory bot sees items bought in the last seven days, the agent queried the live inventory for Steam's trade-hold notice, found the phrase nowhere across 1259 items, and reported that nothing was currently held.
 
@@ -506,6 +517,17 @@ Both tools in the triage kit whose output gets trusted before an irreversible ac
 **Fix:** unreadable notes are named on stderr and force exit 2 when nothing else is wrong; the scanner catches its own error and counts it as unscanned. Verified control-first in both directions, so `clean`, `problem` and `could not measure` now produce three exit codes rather than two.
 
 **The pattern across both:** neither tool was wrong about anything it looked at. Both were wrong about how much they had looked at, and neither had any way to say so. **An auditor without a word for "I did not read this" will use the word for "this is fine".**
+
+### D11. A service documented as running at boot, which exists nowhere
+The operator's own notes describe this workstation as starting an orchestrator process at boot. There is no scheduled task for it, no entry in the user's `Run` key, no shortcut in the startup folder, no matching directory on disk, and the single `node` process on the machine belongs to unrelated tooling. **It is not stopped, misconfigured or crashed. There is nothing to start.**
+
+Two smaller things came out of the same sweep, both about the same job. The inventory bot has *two* Windows tasks that could run it and both are disabled, one of them pointing at a sandbox output directory the project has not lived in since it was moved. So one job has two schedulers, zero of which fire, and the duplicate has been failing since June with an exit code meaning it was interrupted rather than that it failed.
+
+What makes this an environment discovery rather than a bug report is where the belief lived. The estate's healthcheck covers repositories, boards, daemons, binaries and a session cookie. It does not ask whether the things the documentation says are scheduled are scheduled. **Written-down configuration is the one part of an estate with no mechanism at all behind it, and it drifts exactly like a backup manifest, silently, in the direction of describing a machine that no longer exists.**
+
+Left alone deliberately: enabling a task, or removing an orphan, is a change to standing configuration, and the operator may have disabled it on purpose. Both are reported rather than acted on.
+
+**Verified elsewhere in the same sweep, and recorded because a null result is a result:** the three skin-radar tasks and the backup task are enabled, exit zero, and their output files carry timestamps that agree with their last run, the backup's to the second. That is the correct check, and it is the one that separates "the job ran" from "the job did something".
 
 ### D4. Credentials committed in a private repository
 Two bot tokens in the current checkout, not merely in history. Private, so not a public leak, but a private repository is one setting away from public and history rewriting never un-leaks anything.

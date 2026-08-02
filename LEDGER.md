@@ -529,6 +529,28 @@ Left alone deliberately: enabling a task, or removing an orphan, is a change to 
 
 **Verified elsewhere in the same sweep, and recorded because a null result is a result:** the three skin-radar tasks and the backup task are enabled, exit zero, and their output files carry timestamps that agree with their last run, the backup's to the second. That is the correct check, and it is the one that separates "the job ran" from "the job did something".
 
+### D12. A status screen that reports every service running, in green
+The board's display shows watched services as `label:needle` pairs and tests liveness with `needle in line` over the process list. The needle was computed as `(needle or label).strip()`: the strip runs *after* the fallback, so a needle made only of whitespace is truthy, survives the `or`, and becomes the empty string. **The empty string is a substring of every line of `ps`.** Four configuration shapes reach it, and each renders every watched row as `run`, in the healthy colour, on any machine that has any process at all.
+
+The claim this inverts is the screen's own: absent services are drawn dim rather than red, so that a deliberately-off service does not look like an incident and the reader does not learn to ignore the screen. The failure runs the other way and is worse. A screen that goes red when nothing is wrong gets ignored; a screen that goes green when everything is wrong gets believed.
+
+A second, smaller one on the same page: an unreadable load average rendered in the healthy colour, because the parse helper returns `0.0` for `"?"` and zero is a fine load. The memory and disk rows immediately above and below explicitly go amber when they do not know. Load was the single line where unknown read as normal, sitting between two lines that had already been fixed for exactly that.
+
+Neither was firing on either live board, because both boards' configurations happen to be well formed. **This is a defect that waits for a typo, in a component whose entire job is to be believed at a glance.**
+
+**Fix:** the strip precedes the fallback, a pair with no usable needle is dropped, and load gets the same treatment as its neighbours. The selftest covers the four hostile shapes plus a control that must still produce a pair.
+
+### D13. A harvest of the right size, entirely out of date
+The skin scanner caches each item's price on disk. The fresh path is capped by a time-to-live. The fallback used when the upstream fails had **no age limit at all**: it returned whatever was on disk, of any age, as a successful fetch.
+
+Follow the consequence. A dead session fails every item, so every item falls back, so all of them come back from disk, and the count is exactly normal. The two guards downstream both count items: one refuses an empty harvest, the other refuses a harvest less than half the previous one. Neither looks at freshness. So the run passes, overwrites the record everything else compares against, and sends its usual report, built entirely on prices that could be months old. Demonstrated with a cache entry aged four hundred days: the item returns, priced, not `None`.
+
+**This is the D1 family's more dangerous half.** D1 reported a zero, and a zero is visible: a portfolio worth nothing is obviously wrong. Here the shape is right, the count is right, the numbers are plausible, and nothing anywhere says the measurement did not happen. The failure is not that the value is absent. It is that a stale value and a current one have the same type, the same shape, and no accompanying date.
+
+Underneath it, the same collapse in the guard's own input. The record file was written with a call that truncates in place, and three scheduled tasks share it. A half-written file read back raises, the read swallowed it, and the reference stayed `None` — which short-circuits the partial-harvest guard to false. **One run's crash silently disarmed the next run's only remaining safeguard.**
+
+**Fix:** stale entries older than a week are dropped, items served from stale cache are counted, and a run that is more than half stale is refused with the figure. The record is written through a temporary file and an atomic rename, and a file that exists but does not parse now refuses the run instead of proceeding without a reference. Twelve checks, each paired with its control.
+
 ### D4. Credentials committed in a private repository
 Two bot tokens in the current checkout, not merely in history. Private, so not a public leak, but a private repository is one setting away from public and history rewriting never un-leaks anything.
 

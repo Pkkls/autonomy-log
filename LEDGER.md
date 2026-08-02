@@ -228,6 +228,28 @@ A second collapse sat behind the first. A missing key and an unreachable board b
 **Fix:** the key is located across both filesystems and the ssh is routed through `wsl` when only that side has it; an absent key returns a distinct "not probed" rather than a connection failure. Verified by the two boards and four dependent checks reporting measured values for the first time.
 **Class:** the D1 family, one layer up. D1 was a guard that could not fire because the thing it guarded had collapsed entirely. This is a whole probe that could not fire, for months, while sitting in a list of checks that were passing. **The summary line "0 en echec" was true and meant almost nothing; the number that carried the information was the one nobody looked at.**
 
+### E33. A defect confirmed on a metric that was measuring the operator
+**Severity: none in the end, and it consumed the most careful part of the night.** A delegated agent came back with a defect it called confirmed: a Telegram bot on the board, process alive, its log file zero bytes, its state file last written twenty-two days ago. Alive but doing nothing for three weeks, in an estate whose most expensive entry is a bot that reported zero as truth for ten days. The shape matched perfectly.
+
+The state file counts *wakes*, and a wake is logged when a human sends the bot a message. Its own history contains a twenty-day gap and a five-day gap. **The number was a measurement of how often the operator had opened Telegram, and it was read as a measurement of the bot's health.** Twenty-two days of silence from a bot nobody had messaged is the correct output.
+
+The bot was in fact fine, and proving it took two attempts. The first probe listed established TCP connections and found none to Telegram, which fit the defect story exactly. It read `/proc/net/tcp`. The board reaches Telegram over IPv6, and those connections live in `/proc/net/tcp6`, a file the probe never opened. **Had the CPU sample not already shown the process consuming time every cycle, that absence would have been published as the confirmation.** E22 was concluding absence from a search for the wrong string; this is concluding absence from a search in the wrong file, one screen after re-reading E22.
+
+**Caught by:** refusing to accept "confirmed defect" from a delegated agent without re-deriving it, then asking what the metric's expected cadence actually was before treating a flat line as a stall.
+**Fix:** none in code. The finding is retracted. The bot holds two live connections to `api.telegram.org` and its CPU time advances every polling cycle.
+**Class:** E31, arriving from a new direction. E31 explained a symptom that was never characterised. This accepted a *diagnosis* that was never characterised, from a subordinate, and delegation is what made it easy: the report arrived with evidence attached, in the vocabulary of the estate's own worst incident, which is exactly the form a wrong answer takes when it is going to be believed. **A delegated finding is a hypothesis with citations, and the citations are the part that makes it feel finished.**
+
+### E34. The control run was the only thing separating a working check from a fake one
+**Severity: none, caught in the same minute, recorded because of how close it was.** A new health control was written to compare the backup manifest against the machine. To earn its place it had to be seen going red, so it was run against three mutated manifests: the real bug reintroduced, a dead entry added, the manifest emptied.
+
+All three came back not-green. Read on their own, that is three passes and a check that works.
+
+A fourth run had been included against the unmutated file, and it came back not-green too. Every run had failed for one reason: the paths were in MSYS form and the Windows interpreter could not open any of them, so the tool answered "manifest not found" four times. **Three mutations detected and one control detected are the same output, and only the control says which one it is.** Without it the check would have been committed, believed, and would have reported the estate's backups healthy no matter what happened to them.
+
+**Caught by:** the control run, and nothing else. There was no other signal in the output.
+**Fix:** Windows paths, then the four runs separated into four distinct answers: green on the truth, red on the reintroduced bug, red on the dead entry, `?` on the unreadable manifest.
+**Class:** E21, the mutation test that mutated nothing, inverted. There the mutation was inert and the test passed. Here the mutation was real and the *measurement apparatus* was inert. Both produce a green check with nothing behind it, and both are invisible without a case whose expected answer is "no finding". **A test suite with no negative control cannot distinguish detection from breakage.**
+
 ### E22. Concluded absence from a search that was looking for the wrong string
 **Severity: medium, and the operator caught it.** Asked whether the inventory bot sees items bought in the last seven days, the agent queried the live inventory for Steam's trade-hold notice, found the phrase nowhere across 1259 items, and reported that nothing was currently held.
 
@@ -408,6 +430,35 @@ Installing it settled a question that had been reasoned about rather than tested
 The rate it will actually interrupt at is worth stating plainly, because it is not small. Across 124 sessions it fires in 5. Across the day it was written, it fires 95 times in 1078 commands, one in eleven, and those 95 are not noise: 61 are a test suite piped into a pager and then chained straight into a commit, so a red run would have committed exactly like a green one, and 34 are loops that came back empty. The concentration is the finding. This shape is not rare; it was rarely noticed.
 
 What this does not do is make anyone better. It is a net, placed where the same shapes keep arriving. It can also be walked around: nothing stops the guarded process from writing `| cat | tail` to slip under the pattern without fixing anything. A guard only works on someone willing to be stopped.
+
+### D2c. The scope drifted again, one line below the note about the last time
+The manifest that D2 fixed carries a comment explaining why it went stale: an init script had been backed up without the credentials file it sources, so the service would restore and refuse to start. The comment is dated 2026-08-01.
+
+On 2026-08-02 the same manifest contained `S97clawdisp` and not `/etc/default/clawdisp`, the file that holds the peer address, the watch list and the panel pins. Same service class, same failure, one line below the paragraph written about the previous instance, one day later.
+
+The gap was exactly one file, which is the other half of the finding. A delegated audit reported four missing paths; three of them are Python sources that live in a public repository and are correctly excluded under the manifest's stated scope of non-reproducible files only. **An over-count in a scope report is not a harmless surplus: it is three quarters of a short list turned into noise, and a list that cries wolf gets skimmed whole.**
+
+**Why it keeps happening:** adding a service to the board is one action and adding it to the manifest is another, performed later, by someone reasoning about what the service *is* rather than about what would be missing after a restore. Nothing in the system connects the two. The remote side skips an absent path in silence, so a manifest that has stopped describing the machine prints exactly like one that still does, and the archive keeps growing, which reads as coverage.
+
+**Fix:** the file was added, and the estate healthcheck now derives the comparison rather than trusting it to memory: every manifest entry must still exist on the board, and every `/etc` config referenced by a script that *is* covered must be covered too. Three regenerated files carry a named exclusion each, because an exception list without reasons becomes a second manifest that drifts. Verified against the mutations in E34, including a control run on the true manifest.
+
+### D8. A load average of three, on one core, with the processor idle
+The MaixCAM board reported load 3.21 / 3.14 / 3.10, flat across all three windows, on a single core. Flat across 1, 5 and 15 minutes means a steady consumer rather than a spike, and load 3 on one core is a machine three times oversubscribed.
+
+The processor was 83 percent idle. Summed over every named daemon, real CPU consumption since boot was under 2 percent. Nothing was swapping.
+
+Three kernel threads (`cvitask_isp_pre`, `cvitask_isp_bla`, `cvitask_isp_err`, the camera image-signal-processor workers) sat in uninterruptible sleep, unchanged across repeated samples, blocked in `_isp_snr_cfg_deq_and_fire`. Linux counts `D` state in the load average identically to runnable work. Three wedged threads on one core is a load of three, and the number matched to within measurement noise.
+
+**The finding is not about this board.** Load average is read everywhere as a proxy for CPU pressure and it is not one: it is a count of tasks that are running *or waiting on storage or hardware*. On a machine whose peripherals can wedge, a permanently stuck driver thread produces a permanently alarming number that no amount of CPU work explains. The measurement was honest; the meaning attached to it was inherited.
+
+What is not established, and is written here rather than guessed: whether the ISP pipeline has been wedged since boot or hung later, and what it is blocked on. `/proc/<pid>/stack` does not exist on that kernel, and `strace` is not on the board. The load figure is explained. The stuck camera behind it is not, and is worth its own look.
+
+### D9. An error rate computed from a log that only records errors
+The DNS-over-TLS relay on the board keeps a log. It is 107 lines long and 106 of them contain the word `err`: read timeouts to `1.1.1.1:853`, deadlines exceeded, spread over the last several days. A ninety-nine percent failure rate on the estate's DNS path.
+
+Twenty domains resolved through the local resolver, which is exactly that path, returned twenty answers. Twenty against the upstream directly returned twenty. The blocker also still blocks. **The relay logs failures and nothing else, so its log has a numerator and no denominator, and the ratio one computes from it is one hundred percent by construction.**
+
+Nothing here was broken and nothing was fixed. What was nearly produced was a second E31: a real mechanism, real evidence, a satisfying explanation for whatever might be wrong next, resting on a number that could not have come out any other way. **A log is a sample, and a log written by an error handler is a sample selected on the outcome.** Any rate read off it is a statement about the logging, not about the service.
 
 ### D4. Credentials committed in a private repository
 Two bot tokens in the current checkout, not merely in history. Private, so not a public leak, but a private repository is one setting away from public and history rewriting never un-leaks anything.

@@ -355,6 +355,100 @@ def check_boards(res):
         res.add(status, "cookie steam", detail)
 
 
+# Surchargeable pour pouvoir muter le manifeste et verifier que le controle
+# passe au rouge. E21 etait un test de mutation qui ne mutait rien.
+BACKUP_SCRIPT = os.environ.get(
+    "NANO_BACKUP_SCRIPT",
+    os.path.join(os.path.expanduser("~"), "nano-backups", "bin",
+                 "nano-backup.sh"))
+
+# Rebati par un script deja sauve, donc hors perimetre. Chaque exclusion porte
+# la raison qui la justifie : une liste d'exceptions sans motif redevient un
+# manifeste qui derive.
+REGENERATED = {
+    "/etc/hosts.blocklist":  "regenere par update-blocklist.sh",
+    "/etc/hosts.utiq":       "regenere par update-utiq.sh",
+    "/etc/resolv.conf":      "ecrit par le DHCP au boot",
+}
+
+
+def check_backup_scope(res):
+    """Does the backup manifest still describe the machine?
+
+    D2 was a backup that ran daily, encrypted, pushed, size-stable and passing
+    its restore test, over two thirds of a machine, because the manifest had
+    been written months earlier. It was fixed by hand. It then drifted twice
+    more in three days, both times the same shape: an init script is added to
+    the manifest and the config it sources is not, so the service restores and
+    cannot start.
+
+    The remote side skips a missing path in silence, so a manifest that has
+    stopped describing the machine prints exactly like one that still does.
+    Nothing downstream can see this, which is why the comparison is made here
+    against the board rather than against the archive.
+
+    Only `/etc` paths referenced by covered scripts are reported. Binaries and
+    generated blocklists live in their own repositories and are reproducible;
+    flagging them would put four permanent false alarms in a short list, and a
+    list that cries wolf gets skimmed whole.
+    """
+    if not os.path.exists(BACKUP_SCRIPT):
+        res.add(UNKNOWN, "backup scope", "nano-backup.sh introuvable")
+        return
+    with open(BACKUP_SCRIPT, encoding="utf-8", errors="replace") as fh:
+        text = fh.read()
+    _, _, rest = text.partition("MANIFEST='")
+    body, sep, _ = rest.partition("'")
+    if not sep:
+        res.add(UNKNOWN, "backup scope", "MANIFEST illisible dans le script")
+        return
+    manifest = [l.strip() for l in body.splitlines() if l.strip()]
+    if not manifest:
+        # Un manifeste vide n'est pas un manifeste sain. C'est la meme collapse
+        # que partout ailleurs dans ce depot : vide et illisible se ressemblent.
+        res.add(UNKNOWN, "backup scope", "MANIFEST vide")
+        return
+
+    scripts = [p for p in manifest
+               if p.startswith(("/etc/init.d/", "/usr/local/bin/"))]
+    # Une seule session ssh : la sonde fait partie du systeme, et la carte a
+    # 128 Mo. On rapatrie deux listes courtes et on decide ici.
+    remote = ("for p in " + " ".join(manifest) + "; do [ -e \"$p\" ] || "
+              "echo \"DEAD $p\"; done; "
+              "for f in " + " ".join(scripts) + "; do [ -f \"$f\" ] && "
+              "grep -oE '/etc/[A-Za-z0-9._/-]+' \"$f\"; done | sort -u | "
+              # Un chemin cite mais absent n'est pas un oubli de sauvegarde.
+              "while read p; do [ -f \"$p\" ] && echo \"REF $p\"; done")
+    code, out = ssh("nano", remote)
+    if code is None or code != 0:
+        res.add(UNKNOWN, "backup scope", f"non sonde: {out.strip()[:50]}")
+        return
+
+    covered = set(manifest)
+    dead, uncovered = [], []
+    for line in out.splitlines():
+        line = line.strip()
+        if line.startswith("DEAD "):
+            dead.append(line[5:])
+        elif line.startswith("REF "):
+            line = line[4:]
+            if line in covered or line in REGENERATED:
+                continue
+            # Un repertoire cite (/etc/crontabs) n'est pas un fichier oublie.
+            if not any(c.startswith(line + "/") for c in covered):
+                uncovered.append(line)
+
+    if dead:
+        res.add(FAIL, "backup scope", f"{len(dead)} entrees mortes: "
+                                      f"{', '.join(dead[:3])}")
+    elif uncovered:
+        res.add(FAIL, "backup scope", f"{len(uncovered)} config(s) citee(s) "
+                                      f"non sauvee(s): {', '.join(uncovered[:3])}")
+    else:
+        res.add(OK, "backup scope", f"{len(manifest)} entrees, toutes vivantes "
+                                    f"et leurs configs couvertes")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -374,6 +468,7 @@ def main():
         check_secrets(res)
     if everything or args.boards:
         check_boards(res)
+        check_backup_scope(res)
 
     if args.json:
         print(json.dumps([{"status": s, "name": n, "detail": d} for s, n, d in res.rows],

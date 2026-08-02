@@ -293,6 +293,25 @@ The loop closed only because the fabricated URL is visible in the log line and d
 **Fix:** logging setup moved under `__main__`. Verified in both directions: the suite now writes zero bytes to the journal, and a real invocation still writes it, confirmed by size before and after each.
 **Class:** E9 restated at the level of records rather than resources. E9 was a measurement heavy enough to disturb the machine it measured. This is a measurement that wrote into the machine's memory of itself. **The probe is part of the system, and a journal is part of the system too.** A test suite that cannot be told apart from production in the artifact a human reads is not a test suite, it is a second writer.
 
+### E39. The probe took down the daemon it was written to watch
+**Severity: real, two minutes of production downtime, and the tests were green.** The attribution measurement of D17 runs at startup, before the poll loop. The TLS client each account uses is built at the top of that loop. So the probe called into the HTTP path on a runner whose client was still `nil`, dereferenced it, and the daemon died on its first real start.
+
+Three tests shipped with that code. All three covered the pure comparison helpers: does a gain during downtime read as non-exclusive, does an unreadable state file read as unknown, does the file round-trip. Every one of them passed, then and now. **Not one of them called the only function that runs on the board.** The function with no coverage was the function with the side effects, which is the ordering that always happens when coverage follows what is easy to write.
+
+The immediate cause is dull: an object built from three fields where the working code path builds four. What makes it worth an entry is that it was written *during* a session whose entire subject is probes that lie, in a file whose own docstring says a probe that kills what it observes is worse than no probe. That sentence was in the commit that crashed the board.
+
+**Caught by:** the daemon not being there afterwards. No test, no review, no alert. The `ps` count in the deployment script, which existed only because an earlier step that night had shown a stop command silently doing nothing.
+**Fix:** the probe builds its own client and skips an account it cannot build one for; and the HTTP helper returns "no response" instead of dereferencing a nil client, so a caller that forgets loses a measurement rather than the process. A test now calls `checkAttribution` with exactly the object `main` builds. It reproduces the panic against the previous commit and passes against the fix.
+**Class:** E9 and E38 again, and worse than both. E9 was a measurement heavy enough to disturb the machine. E38 was a measurement that wrote into the record it then read. This one is a measurement that stopped the thing being measured. **The estate now has three instances of the probe damaging the system, which is enough to stop calling it a coincidence: anything added to observe production is production.**
+
+### E40. A stop command that stopped nothing and reported success
+**Severity: low alone, and it is why the first deployment silently did nothing.** The board's init script for the farming daemon has a `start` and no `stop`. Calling `stop` on it therefore matches no case, does nothing, and exits **0**.
+
+The deployment used it, saw success, replaced the binary underneath a process that was still running, called `start`, and watched the keepalive decline because a daemon was already up. Everything reported fine. The version string queried afterwards came from the file on disk, not from the running process, so even that agreed. What gave it away was `/proc/<pid>/exe` reading `/root/clawd/clawd-riscv64 (deleted)`: the old process, holding the old inode, still farming.
+
+**Fix in procedure, applied immediately:** stop by pid, poll `/proc/<pid>` until it disappears, refuse to continue while any instance survives, and verify the deployed checksum on the board before swapping anything. Every later step of that deployment used it.
+**Class:** E11 turned inside out. There the failure was killing by name and hitting the wrong thing; here it is asking politely and hitting nothing, with the same exit code either way. **A command whose success and its no-op are the same value is not a command, it is a comment.**
+
 ### E22. Concluded absence from a search that was looking for the wrong string
 **Severity: medium, and the operator caught it.** Asked whether the inventory bot sees items bought in the last seven days, the agent queried the live inventory for Steam's trade-hold notice, found the phrase nowhere across 1259 items, and reported that nothing was currently held.
 
@@ -588,6 +607,26 @@ That is D6 seen from the other end. D6 was progression credited by an announced 
 
 **Fix:** frames that are not objects are dropped. Any inbound byte stamps the channel, not just a pong, since a busy room may never go quiet enough to need one. A ping tick that finds nothing for two intervals reports `stale` and closes, which reuses the existing reconnect path instead of adding a second one.
 **Verified against the pre-fix file, not only the new one:** it raises the exact `TypeError` on the null frame and leaves the socket open through the whole dead-channel case, while the corrected file passes all thirteen checks and the repository's own suite.
+
+### D17. E16 measured at last: one account gains XP with the farmer stopped
+The most expensive entry in this record is E16: for two months the farming daemon was believed to work because XP was rising, and XP was rising for a second, uncontrolled cause. The correction that followed was a rule, written down and never built. It was built on 2026-08-02 and produced an answer on its first real use.
+
+The daemon was stopped for six minutes on the board, with its keepalive pinned off so nothing could restart it, and its own recorded totals compared on restart:
+
+| Downtime | StormRock | KPPDESTRUCTOR |
+| --- | --- | --- |
+| 6 minutes | **+12 XP** | +0 XP |
+| 3 minutes | **+4 XP** | **+4 XP** |
+
+**Both accounts gain XP while the daemon is stopped.** Rates of roughly one to two XP per minute, against logged gains of +4 per two-minute cycle while it runs. On these numbers the observed progression is consistent with the uncontrolled cause alone, and the daemon's own contribution is not established for either account. That is E16, alive, in the same project, measured rather than argued about.
+
+**The second row is why one sample is not a control.** After the first stop this entry said, in this paragraph, that KPPDESTRUCTOR was the clean channel and StormRock the contaminated one. That claim survived about four minutes. A single observation of "+0" is equally consistent with an exclusive channel and with a quiet interval in a noisy one, and only repetition separates them. The instrument was right both times; the conclusion drawn from its first reading was a guess wearing a measurement's clothes.
+
+An audit the previous night had inferred from the logs that KPPDESTRUCTOR was probably the clean control, because it gained steadily while StormRock sat at `+0 XP` and tripped a stall alert. That inference was wrong too, in the other direction. **Three different readings of the same two accounts, from logs, from one stop, and from two stops, gave three different answers**, and only the last one is a measurement of the thing anybody wanted to know.
+
+What is measured is that the number moves without the daemon, on both accounts, twice. What is *not* measured, and is written here rather than guessed, is why: a browser session left signed in, another device, or a platform-side accrual are all consistent with these rates, and this session distinguished none of them. Naming one would be E31 again. The next step is longer windows and more of them, which the instrument now makes free: every restart is a sample.
+
+**Cost of getting here:** the probe crashed the daemon on its first deployment and took the farmer down for two minutes. See E39.
 
 ### D4. Credentials committed in a private repository
 Two bot tokens in the current checkout, not merely in history. Private, so not a public leak, but a private repository is one setting away from public and history rewriting never un-leaks anything.

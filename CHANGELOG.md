@@ -303,3 +303,27 @@ A relay is launched at every logon from a path that does not exist, by `pythonw`
 ### A shared client that stayed open and stopped speaking
 
 The realtime client behind nine extensions switched on `frame.event` after parsing. `JSON.parse('null')` returns null, `null.event` threw out of the message listener with no catch anywhere above it, and the frame behind it was never delivered while the socket stayed OPEN and the state callback said nothing. It also had no liveness detection: fifty ping cycles with every pong answered and fifty with none produced byte-identical state, so a dead channel and a quiet one were the same object. Non-object frames are dropped, any inbound byte stamps the channel, and two silent ping intervals now report `stale` and close, reusing the existing reconnect. Proven against the pre-fix file, which raises the exact TypeError and holds the socket open. Recorded as D16.
+
+---
+
+## Session of 2026-08-02, afternoon: everything deployed
+
+Three days of writing fixes and not shipping them ended here. Every pending change went to the hardware it was written for, and each one was verified on the machine rather than in the repository.
+
+### The blocklist fix, live
+
+Deployed to the board and run for real: 93,156 domains became 99,276, dnsmasq stayed up, twenty resolutions through the local resolver answered, and an advertising domain still resolves to nothing. The previous script and the previous list are kept beside them.
+
+### The attribution channel, live, and what it found
+
+E16 was measured for the first time. The daemon was stopped with its keepalive pinned off and its own recorded totals compared on restart. Both accounts gain XP while it is stopped: one by twelve over six minutes, then both by four over three. The daemon's own contribution is not established for either. The first stop alone said one account was clean, and that claim survived four minutes before the second stop contradicted it, which is the entry's real lesson. Recorded as D17.
+
+### What the deployment cost, and what it exposed
+
+The probe crashed the daemon on its first start and the farmer was down for two minutes: it called the HTTP path before the TLS client was built. Three tests shipped with it, all covering the pure helpers, none calling the one function that runs on the board. Recorded as E39.
+
+Then the deployment appeared to succeed while changing nothing. The board's init script has a `start` and no `stop`, so `stop` matched no case and exited 0; the binary was replaced under a live process and the keepalive declined to start a second. Only `/proc/<pid>/exe` reading `(deleted)` gave it away. The script now stops by pid, holds the kill switch across a keepalive tick, reports what is rather than what was asked, and answers `status`. Recorded as E40.
+
+### The rest of the estate
+
+The daily inventory task is enabled again and next runs tomorrow at 08:00; all six scheduled jobs and the six cron outputs now report green. The relay's token left the source for a file outside the tree, with the old published value denied by name, constant-time comparison, and a log so that a `pythonw` process can no longer die without a word. Its autostart entry was repointed from a path deleted months ago to the real one, where it now refuses to start until a token exists, so the configuration describes the machine for the first time.

@@ -9,6 +9,7 @@ worse.
     python healthcheck.py              # everything
     python healthcheck.py --repos      # only the repository checks
     python healthcheck.py --boards     # only the two single-board machines
+    python healthcheck.py --jobs       # only the recurring scheduled work
 
 Exit code is 0 when every check passed, 1 when any failed, 2 when a check
 could not be run at all. That last one is the point: "could not measure" and
@@ -18,6 +19,7 @@ whole repository is about.
 import argparse
 import base64
 import json
+import time
 import os
 import subprocess
 import sys
@@ -498,18 +500,95 @@ def check_backup_scope(res):
                                     f"et leurs configs couvertes")
 
 
+# Taches planifiees dont ce parc depend, avec le fichier qu'elles produisent
+# et l'age au-dela duquel cette production est suspecte (en heures).
+#
+# Les deux colonnes repondent a deux questions differentes, et c'est le point :
+# `schtasks` dit si la tache a tourne et avec quel code, le fichier dit si elle
+# a FAIT quelque chose. Une tache quotidienne qui sort 0 tous les jours au
+# dessus d'une sortie vieille de deux semaines est exactement la panne autour
+# de laquelle ce depot est ecrit, et le code de sortie ne la voit pas.
+JOBS = [
+    ("NanoBackup", os.path.join(os.path.expanduser("~"), "nano-backups",
+                                "backups"), 48),
+    ("CS2SkinRadar-US", os.path.join(DOWNLOADS, "02 - Projects",
+                                     "cs2-skin-radar", "data", "latest.json"), 36),
+    ("InventoryMonitor", os.path.join(DOWNLOADS, "02 - Projects",
+                                      "inventory-monitor", "logs",
+                                      "main.log"), 36),
+]
+
+
+def _newest_mtime(path):
+    """Age en heures du fichier, ou du plus recent si `path` est un dossier."""
+    if os.path.isdir(path):
+        entries = [os.path.join(path, n) for n in os.listdir(path)]
+        entries = [e for e in entries if os.path.isfile(e)]
+        if not entries:
+            return None
+        path = max(entries, key=os.path.getmtime)
+    if not os.path.isfile(path):
+        return None
+    return (time.time() - os.path.getmtime(path)) / 3600.0
+
+
+def check_jobs(res):
+    """Les travaux recurrents sont-ils planifies, et produisent-ils quelque chose.
+
+    D11 : la configuration ecrite est la seule partie d'un parc derriere
+    laquelle il n'y a aucun mecanisme. Elle derive comme un manifeste de
+    sauvegarde, en silence, vers la description d'une machine qui n'existe
+    plus. Un travail decrit comme quotidien dont la tache est desactivee depuis
+    des mois ne produit aucun signal : personne ne recoit d'erreur, il ne se
+    passe simplement rien.
+    """
+    for name, output, max_age in JOBS:
+        code, out = run(["schtasks", "/query", "/tn", name, "/fo", "LIST", "/v"],
+                        timeout=60)
+        if code is None:
+            # Pas de schtasks : hors de Windows. Non mesure, surtout pas vert.
+            res.add(UNKNOWN, f"job/{name}", "schtasks indisponible")
+            continue
+        if code != 0:
+            res.add(FAIL, f"job/{name}", "tache absente du planificateur")
+            continue
+
+        fields = {}
+        for line in out.splitlines():
+            key, sep, val = line.partition(":")
+            if sep:
+                fields.setdefault(key.strip().lower(), val.strip())
+        state = fields.get("scheduled task state", "?")
+        result = fields.get("last result", "?")
+        age = _newest_mtime(output)
+
+        if state.lower() == "disabled":
+            res.add(FAIL, f"job/{name}", "desactivee (ne se declenchera pas)")
+        elif result not in ("0", "?"):
+            res.add(FAIL, f"job/{name}", f"dernier code {result}")
+        elif age is None:
+            res.add(FAIL, f"job/{name}", f"aucune sortie: {os.path.basename(output)}")
+        elif age > max_age:
+            # Le coeur du controle : code 0 et sortie perimee.
+            res.add(FAIL, f"job/{name}",
+                    f"code 0 mais sortie vieille de {age:.0f} h (max {max_age})")
+        else:
+            res.add(OK, f"job/{name}", f"active, code 0, sortie il y a {age:.0f} h")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--repos", action="store_true")
     ap.add_argument("--boards", action="store_true")
+    ap.add_argument("--jobs", action="store_true")
     ap.add_argument("--json", action="store_true", help="sortie machine")
     ap.add_argument("--selftest", action="store_true",
                     help="verifie que les controles distinguent leurs cas")
     args = ap.parse_args()
     if args.selftest:
         return selftest()
-    everything = not (args.repos or args.boards)
+    everything = not (args.repos or args.boards or args.jobs)
 
     res = Result()
     if everything or args.repos:
@@ -518,6 +597,8 @@ def main():
     if everything or args.boards:
         check_boards(res)
         check_backup_scope(res)
+    if everything or args.jobs:
+        check_jobs(res)
 
     if args.json:
         print(json.dumps([{"status": s, "name": n, "detail": d} for s, n, d in res.rows],

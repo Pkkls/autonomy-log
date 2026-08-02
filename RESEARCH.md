@@ -219,6 +219,24 @@ zero broken ones across eight repositories after three rounds of removing its
 own false alarms, which is the honest cost of the habit and still less than the
 cost of one dead report.
 
+## 6c. The instrument layer, and why defects concentrate there
+
+A later session did nothing but attack the estate's measuring apparatus: the health tool, the backup manifest, the note auditor, the credential scanner, and three numbers that were being read as facts. It produced nine findings. **Every one of them was in an instrument. None were in a service.**
+
+That is worth stating precisely, because the same session attacked the services too, with the same method, and they held. The inventory bots' zero-guards were exercised and fired correctly on a real rate-limit the day before. The farming daemon checks its HTTP status, computes progression from a cumulative field, refuses to count a cycle whose credentials were refused, and verifies through a different endpoint than the one it writes to. The DNS path resolved twenty domains out of twenty. The backup pipeline ran, encrypted, pushed, and its restore path validates the archive before touching the target. Those are not assumptions; they are the outcomes of attempts to break them.
+
+Meanwhile: a board that had never once been probed by the tool built to probe it, reporting `?` under a screen of green (E32). A repository-sync check comparing each repository to its own cached copy of the remote's answer, incapable of returning anything but `sync` (E36). A note auditor that answered `clean` about a file it could not open, including when that file held a credential (D10). A credential scanner whose crash exit code collided with its own "credential found" code (D10). A manifest that had stopped describing the machine, for the third time (D2c). A load average of three on an idle single-core board (D8). A ninety-nine percent error rate from a log that only records errors (D9). A twenty-two-day flat line that was measuring how often a human opened a chat client (E33). And the record itself printing two different values for its own headline number in five places (E35).
+
+Two mechanisms explain the concentration, and they compound.
+
+**An instrument is the only component with no user.** When a service breaks, something a person waits for stops arriving: a message, a report, a number that moves. When a checker breaks, it emits a green, and green is the output everyone was hoping for. The failure signal and the success signal are the same string. Nothing in the environment pushes back, so a broken instrument has an unbounded residence time, and every entry above had been wrong for weeks or months.
+
+**An instrument is the component least likely to be exercised against a failure.** Running a service means running its happy path constantly. Running a checker means running it on a healthy estate, which is the case where a correct checker and a completely inert one are indistinguishable. Producing the other case costs work: a scratch repository whose remote is pushed to, a note made unopenable, a manifest entry with a space in it. That work is skipped almost every time, precisely because the tool is "just a check".
+
+The practical consequence is a rule about acceptance, not about design: **a check has not been written until it has been seen to fail, on a case constructed for it, with a control run beside it proving the two answers differ.** Both halves matter and the second is the one that gets dropped. Three mutation runs of a new control all came back not-green and looked like three successes; the control run came back not-green too, because a path-form error meant nothing had been measured at all (E34). Three detections and one non-detection produced identical output, and only the case with a known answer of "no finding" could tell them apart.
+
+**The honest caveat**, stated because omitting it would reproduce the error this section is about: the session was aimed at instruments, so finding defects there is partly a selection effect and the nine-to-zero ratio is not an estimate of anything. What the ratio does not explain away is residence time. The service defects in this record were found in days, by the operator noticing a wrong number. The instrument defects had all survived every previous audit, including audits by the process that wrote them, and several were found only because someone finally read the two `?` lines under twenty-three `ok`s.
+
 ## 7. What would change the picture
 
 Concrete, in rough order of expected value:
@@ -229,6 +247,8 @@ Concrete, in rough order of expected value:
 - **Guard placement analysis.** For each safeguard, identify the failure it targets and confirm it is not downstream of it in the execution graph (D1).
 - **Scope-versus-reality checks for anything stateful.** Backups, manifests, allowlists: compare declared scope to observed reality on a schedule, since no self-signal can detect drift (D2).
 - **A cost model for probes.** On constrained targets, estimate the footprint of a measurement before taking it (E9).
+- **A falsification case per check, with a control beside it.** No check is accepted until it has been observed to fail on a constructed case and to pass on the true one, in the same run. Cheap, mechanical, and the only thing that separates a working instrument from an inert one (E34, §6c).
+- **A residence-time budget for instruments.** Anything that has reported the same value on every run since it was written is a candidate for never having run at all. `?` that never changes and `ok` that never changes are the same signal (E32, E36).
 
 None of these are exotic. All of them are things a careful engineer does by reflex and an agent, absent explicit structure, does not.
 

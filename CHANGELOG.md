@@ -221,3 +221,39 @@ Four things broke on the way, and each was a solved problem sitting nearby.
 - **The market indicator was measuring nothing**, in the original. It divided the preferred price by the suggested price, and the preferred price *is* the suggested price whenever one exists: a ratio of 1.0 everywhere and a light that was green regardless. Measuring the real undercut turned it permanently red instead, so the verdict was dropped and the figure kept until there is history to calibrate against.
 
 Also corrected: "Hier +915 EUR (+175%)" compared against a measurement from twelve days earlier, because no valid snapshot exists in between. The figure was right, the word was not.
+
+---
+
+## Session of 2026-08-02: turning the audit on the auditors
+
+The estate tool was run first, because it is the procedure. It returned twenty-five controls, zero failures, two unmeasurable. The two unmeasurable lines were the only interesting output, and everything below came out of reading them instead of the twenty-three green ones.
+
+### The board that was never checked
+
+One of the two single-board machines had never been probed by the tool built to probe them. Its ssh key lives only in the WSL filesystem, the tool read `~/.ssh/` from the Windows profile, and it had therefore printed `?` on every run since it was written, under a screen of green. The file's own docstring says the keys live in WSL, four lines above the code that reads them from the other home.
+
+Keys are now located across both filesystems, an absent key reads as *not probed* rather than *unreachable*, and six board controls report a measured value for the first time, including the guard against the farming daemon running as two copies. Recorded as E32.
+
+### A check that could not fail
+
+Ten repositories were reported `sync`. The comparison was `HEAD` against `@{u}`, which is a local ref recording what this machine last heard from the server. Nothing fetched. **The repository was being compared to its own copy of the answer**, and the check had never been capable of returning anything else. Shown by a scratch clone whose remote is pushed to from a second clone: `sync` before a fetch, `DIVERGE` after, same repository, same command. It now asks `ls-remote`, and offline reads as unmeasured. Recorded as E36.
+
+### Backup scope, third instance
+
+The manifest carries a comment dated the previous day explaining why it had gone stale: a service's init script backed up without the config it sources. It had happened again, one line below that comment, for the next service added. The gap was one file, not the four an audit reported: three of those are in a public repository and correctly excluded, and over-counting in a short list is noise rather than surplus.
+
+The comparison is no longer trusted to memory. Every manifest entry must still exist on the board, every `/etc` config referenced by a covered script must itself be covered, and three regenerated files carry a named exclusion each. Recorded as D2c.
+
+### Two auditors that said clean about what they had not read
+
+The note auditor dropped unreadable notes with a bare `continue`: a note holding a token, made unopenable, turned a run that had reported the credential into `clean`, exit 0. The credential scanner let its own error type escape `main`, so a repository with no commits exited 1, the code it documents as *a credential was found*, while exit 2, *could not scan*, never fired. Both now distinguish clean, problem and could-not-measure. The duplicate finder and the directory mapper were attacked the same way and held. Recorded as D10.
+
+### Three findings that were not findings
+
+Recorded because the near-misses are the method. A delegated agent reported a bot dead for twenty-two days; the metric it read counts human messages, and the bot was holding two live connections the first probe missed by reading the IPv4 table on a machine that talks IPv6 (E33). A board reporting a load average of three turned out to have three vendor kernel threads parked in uninterruptible sleep since 2.58 seconds after boot, having never consumed a single tick, on a board with no camera attached (D8). A DNS relay whose log is ninety-nine percent errors resolved twenty domains out of twenty when asked with a denominator; it logs failures and nothing else (D9).
+
+### Corrections to this record
+
+The headline incident ran for **eleven** days, 21 to 31 July inclusive, eleven reports sent. Three files here said ten and two said eleven, and the board's log settles it. The count is now the same in all five places and D1 carries the dates so the next reader can check it in one command (E35).
+
+One defect was introduced and caught within the hour: the new backup-scope control joined manifest paths with spaces, so an entry containing one was never tested under its own name. Found by mocking the transport and reading the message that would have been sent; the board, where every real path is space-free, would have answered green (E37).

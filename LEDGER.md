@@ -494,6 +494,19 @@ Twenty domains resolved through the local resolver, which is exactly that path, 
 
 Nothing here was broken and nothing was fixed. What was nearly produced was a second E31: a real mechanism, real evidence, a satisfying explanation for whatever might be wrong next, resting on a number that could not have come out any other way. **A log is a sample, and a log written by an error handler is a sample selected on the outcome.** Any rate read off it is a statement about the logging, not about the service.
 
+### D10. Two auditors that answered "clean" about things they had not read
+Both tools in the triage kit whose output gets trusted before an irreversible act were attacked with the same question: what input makes this print a reassuring result while having measured nothing?
+
+**The note auditor dropped unreadable notes with a bare `continue`.** A note it could not open vanished from the count, from the link graph, and from the credential scan. The demonstration is the uncomfortable part: a vault with a note holding a GitHub token reports the credential and exits 1; make that same note unopenable and the tool prints `clean` and exits 0. **The one file it could not read is exactly the file whose contents you know nothing about, and it was the one silently excluded from the question "is there a secret in here".**
+
+**The credential scanner let its own error type escape.** A repository with no commits, or with unreadable objects, raised `ScanError` out of `main`, and Python exits 1 on an uncaught exception. One is the code this tool documents as *a credential was found*. So every crash routed a caller to "page security now", and exit 2, which exists precisely to say "I could not scan", never fired for the two cases that need it most.
+
+**What survived the same attack, and is recorded because a null result is a result:** the duplicate finder hashes files in full after its prefix filter, so two same-size files sharing a 70 KB prefix are correctly not called identical, which matters because a false duplicate here is deletion. The directory mapper handles worktrees, `#` and spaces and non-ASCII in names, and an unreadable directory, all without dropping a row and while distinguishing "unreadable" from "empty". Those are the properties that were verified, on fixtures, not assumed.
+
+**Fix:** unreadable notes are named on stderr and force exit 2 when nothing else is wrong; the scanner catches its own error and counts it as unscanned. Verified control-first in both directions, so `clean`, `problem` and `could not measure` now produce three exit codes rather than two.
+
+**The pattern across both:** neither tool was wrong about anything it looked at. Both were wrong about how much they had looked at, and neither had any way to say so. **An auditor without a word for "I did not read this" will use the word for "this is fine".**
+
 ### D4. Credentials committed in a private repository
 Two bot tokens in the current checkout, not merely in history. Private, so not a public leak, but a private repository is one setting away from public and history rewriting never un-leaks anything.
 

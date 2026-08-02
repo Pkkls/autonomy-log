@@ -299,3 +299,7 @@ Five cron entries ran on the board with nothing verifying any of them: cron repo
 ### Configuration that describes a machine which no longer exists
 
 A relay is launched at every logon from a path that does not exist, by `pythonw`, which shows nothing when it fails. A scheduled task for the same relay points at a third absent path. Three configured launch points, none working, nothing reporting it. With the stale backup manifest and the disabled job list, that is the same drift in three different media, none of which had anything comparing them against the machine. Reported, not changed. Recorded as D15.
+
+### A shared client that stayed open and stopped speaking
+
+The realtime client behind nine extensions switched on `frame.event` after parsing. `JSON.parse('null')` returns null, `null.event` threw out of the message listener with no catch anywhere above it, and the frame behind it was never delivered while the socket stayed OPEN and the state callback said nothing. It also had no liveness detection: fifty ping cycles with every pong answered and fifty with none produced byte-identical state, so a dead channel and a quiet one were the same object. Non-object frames are dropped, any inbound byte stamps the channel, and two silent ping intervals now report `stale` and close, reusing the existing reconnect. Proven against the pre-fix file, which raises the exact TypeError and holds the socket open. Recorded as D16.

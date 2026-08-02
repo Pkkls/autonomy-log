@@ -577,6 +577,18 @@ Reported and not fixed, deliberately, because every repair here is a change to s
 
 A latent security note, calibrated rather than alarmed: the relay binds `0.0.0.0:9000`, authenticates on a hardcoded token in the source, and executes prompts on behalf of the caller. Its exposure today is nil, because it does not run and the repository is private. It is hygiene to fix before it ever starts, not an incident.
 
+### D16. Four bytes that stopped a shared client from delivering, with the socket still open
+The realtime client used by nine browser extensions parses each incoming frame and switches on `frame.event`. `JSON.parse('null')` succeeds and returns `null`, and `null.event` throws, out of the message listener, outside every `try`/`catch` in the file.
+
+What that produces is the failure this record keeps circling. The frame behind the poison one is never delivered. The state callback says nothing, because nothing calls it. `readyState` stays **OPEN**. From the consumer's side there is a healthy connection on a quiet channel. Arrays, bare numbers and strings were harmless only by luck: `.event` on those is merely `undefined` and falls through to the default branch.
+
+**The same client had no liveness detection at all.** Its only reaction to a pong was to ignore it: no timestamp, no counter, no field anywhere on the instance recording that anything had ever arrived. TCP holds a broken connection open for a long time, so `close` and `error` never fire when a peer simply goes away. The measurement is the part worth keeping: fifty ping cycles with every pong answered, and fifty with none ever answered, produced **byte-identical internal state and identical state-callback output**. There was no question a consumer could ask that separated a quiet channel from a dead one.
+
+That is D6 seen from the other end. D6 was progression credited by an announced event rather than by a held connection; this is a held connection that proves nothing, in the library nine consumers trust to tell them when it breaks.
+
+**Fix:** frames that are not objects are dropped. Any inbound byte stamps the channel, not just a pong, since a busy room may never go quiet enough to need one. A ping tick that finds nothing for two intervals reports `stale` and closes, which reuses the existing reconnect path instead of adding a second one.
+**Verified against the pre-fix file, not only the new one:** it raises the exact `TypeError` on the null frame and leaves the socket open through the whole dead-channel case, while the corrected file passes all thirteen checks and the repository's own suite.
+
 ### D4. Credentials committed in a private repository
 Two bot tokens in the current checkout, not merely in history. Private, so not a public leak, but a private repository is one setting away from public and history rewriting never un-leaks anything.
 

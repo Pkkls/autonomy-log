@@ -279,3 +279,23 @@ The skin scanner's stale-cache fallback had no age limit, unlike the fresh path 
 ### The correction that was written down and never built
 
 E16 cost two months: the farmer was believed to work because XP rose, and XP rose for a second uncontrolled cause. The fix that followed was a rule, not code. The obvious implementation sacrifices a control account nobody maintains; the window already exists for free, because every restart and outage is a period where the daemon is not running. The last total is now recorded on each successful poll, and at startup, before the first event is sent, each account's XP is read and compared against it. Four answers kept distinct: exclusive, not exclusive, nothing to compare, incoherent. The fourth exists because the test caught the first two unknowns rendering the same sentence. Cross-compiles for the board, deliberately not deployed.
+
+---
+
+## Session of 2026-08-02, morning
+
+### The DNS blocker would have installed a 404 page and called it an update
+
+`curl -s` without `-f` exits 0 on an HTTP 404 and writes the error body to the output file, and the script's whole gate was that exit code plus a non-empty check. A fourteen-byte error page passes both. A moved upstream path was therefore enough to replace 93,000 blocked domains with `404: Not Found`, reload the resolver against it, and log `OK: 0 domaines`: blocking off for the whole network, with the only record saying it went fine. Measured on the real host, 200 gives 99,276 domains and a missing path gives 0, and both passed identically. Now `-f` on the download, the candidate counted before anything is replaced, and a floor relative to the installed list. Six cases against their controls. Recorded as D14, not deployed.
+
+### Background loops that took the daemon down with them
+
+The webhook daemon's key-refresh and subscription-repair goroutines had no `recover`, so a panic in either killed webhook intake and SSE fan-out along with it. A bare `recover` would have been worse: the loop would die silently while the process stayed up and `/health` kept answering. Both are supervised now, restarting with a capped backoff and counting the panic in `/health` under the name of the loop, with the field absent until it happens. 33 tests, up from 30.
+
+### Cron on the board, and the third region of the radar
+
+Five cron entries ran on the board with nothing verifying any of them: cron reports no failure, it reports nothing. Six outputs are now compared against the cadence in the crontab, 36 hours of slack for a daily job and eight days for a weekly one. busybox has no `stat -c`, so age is tested rather than computed, with `find -mmin +N`, verified against a control on the board first. Fresh, stale, and no output at all are three answers, and the third used to be unaskable. The three skin-radar tasks are also listed separately: they share one output file, so with one enabled the file stays fresh while two thirds of the coverage is gone.
+
+### Configuration that describes a machine which no longer exists
+
+A relay is launched at every logon from a path that does not exist, by `pythonw`, which shows nothing when it fails. A scheduled task for the same relay points at a third absent path. Three configured launch points, none working, nothing reporting it. With the stale backup manifest and the disabled job list, that is the same drift in three different media, none of which had anything comparing them against the machine. Reported, not changed. Recorded as D15.

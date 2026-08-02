@@ -551,6 +551,32 @@ Underneath it, the same collapse in the guard's own input. The record file was w
 
 **Fix:** stale entries older than a week are dropped, items served from stale cache are counted, and a run that is more than half stale is refused with the figure. The record is written through a temporary file and an atomic rename, and a file that exists but does not parse now refuses the run instead of proceeding without a reference. Twelve checks, each paired with its control.
 
+### D14. An error page installed as the blocklist, logged as a success
+The board's main job is blocking advertising domains for the whole house. A weekly script downloads the list and reloads the resolver. It ran `curl -s` without `-f`.
+
+Without `-f`, curl exits **0** on an HTTP 404 and writes the response body, the error page, into the output file. The script's entire gate was that exit code plus a non-empty check. `404: Not Found` is fourteen bytes, which is not empty.
+
+So an upstream path that moves is enough to replace ninety-three thousand blocked domains with an error page, reload `dnsmasq` against it, and append `OK: 0 domaines` to the log. **Ad blocking stops completely, for every device on the network, and the only record of it says the update went fine.** Measured against the real host: the working URL answers 200 with 99,276 domains, a missing path answers 404 with 0, and both passed the old gate identically.
+
+This is the estate's signature failure in its purest form so far. The zero was not hidden by a guard placed downstream, and no collection was emptied. **The failure produced a well-formed file, of a plausible size, that simply meant nothing**, and every check the script had was a check on the transfer rather than on the content.
+
+**Caught by:** a delegated audit told to attack "a filter list that fails to load and results in blocking nothing while reporting fine", which is a description of the class rather than of the bug. It found the bug in the first script it read.
+
+**Fix:** `-f` fails the download on an error status; the candidate is counted before anything is replaced; and the floor is relative to the list already installed, because a list that halves is an incident and not an update. Absent and collapsed stay different, so a first install is not refused for having nothing to compare against. Six cases, each against its control, including a halving that must be refused and a smaller drop that must be accepted.
+
+**A harness failure worth keeping.** Two of those six first came back identical, refusing and accepting alike. The temporary copy of the script had vanished between two invocations, so the harness was running an empty file, and `sh` on an empty file exits 0. Three earlier cases had passed only because they ran in the same invocation that wrote it. The control is what showed it, again, and the harness now asserts it has more than twenty lines to execute before it claims to have tested anything.
+
+### D15. A relay configured to start in three places, none of which exist
+The workstation's `Run` key launches a relay at every logon, with `pythonw.exe`, which has no console. The path it points at does not exist: the project was moved months ago. A scheduled task for the same relay points at a **third** path, also absent, and is disabled with last result `2`, file not found.
+
+So the relay has three configured launch points and zero working ones, and has presumably never started from any of them. Nothing reports this, because `pythonw` failing to find a file writes nowhere and shows nothing, by design.
+
+The program itself has no logging channel at all: its request-log hook is overridden to `pass`, and no file is ever opened. Had it started, a taken port would raise on the bind with no handler, and it would exit leaving no trace anywhere.
+
+Reported and not fixed, deliberately, because every repair here is a change to standing configuration. What is worth stating is the shape: **this is the same drift as D2c and D11, in the third medium out of three.** A backup manifest, a scheduled-job list, and now an autostart entry. All three describe the machine as it was, all three are read by something that skips silently what it cannot find, and none of the three had anything comparing them against the machine as it is.
+
+A latent security note, calibrated rather than alarmed: the relay binds `0.0.0.0:9000`, authenticates on a hardcoded token in the source, and executes prompts on behalf of the caller. Its exposure today is nil, because it does not run and the repository is private. It is hygiene to fix before it ever starts, not an incident.
+
 ### D4. Credentials committed in a private repository
 Two bot tokens in the current checkout, not merely in history. Private, so not a public leak, but a private repository is one setting away from public and history rewriting never un-leaks anything.
 

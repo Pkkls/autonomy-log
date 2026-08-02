@@ -90,7 +90,7 @@ class Result:
         return 1 if self.failed else (2 if self.unknown else 0)
 
 
-def run(args, cwd=None, timeout=60, merge_stderr=True):
+def run(args, cwd=None, timeout=60, merge_stderr=True, env=None):
     """Returns (returncode, output) or (None, reason) if it could not run.
 
     Merging stderr into stdout is convenient when the output is read by a human
@@ -101,7 +101,8 @@ def run(args, cwd=None, timeout=60, merge_stderr=True):
     """
     try:
         p = subprocess.run(args, cwd=cwd, capture_output=True, text=True,
-                           timeout=timeout)
+                           timeout=timeout,
+                           env={**os.environ, **env} if env else None)
     except (OSError, subprocess.SubprocessError) as err:
         return None, str(err)
     out = p.stdout or ""
@@ -157,8 +158,16 @@ def check_repos(res):
         sync = "sans amont"
         if code == 0 and "/" in upstream.strip():
             remote, _, branch = upstream.strip().partition("/")
+            # GIT_TERMINAL_PROMPT=0 : sans lui, un identifiant expire sur un
+            # depot prive fait attendre une saisie que personne ne fera, et le
+            # rapport entier reste bloque derriere. Un outil de sante qui pend
+            # ne rend pas un mauvais verdict, il n'en rend aucun.
+            # Le gestionnaire d'identifiants reste actif, sinon les depots
+            # prives passeraient tous en "non mesure" : ce serait echanger une
+            # reponse fausse contre une absence de reponse.
             code, out = run(["git", "ls-remote", remote, "refs/heads/" + branch],
-                            cwd=path, timeout=45, merge_stderr=False)
+                            cwd=path, timeout=45, merge_stderr=False,
+                            env={"GIT_TERMINAL_PROMPT": "0"})
             if code != 0 or not out.strip():
                 sync = "distant injoignable"
             else:

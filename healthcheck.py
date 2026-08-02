@@ -511,6 +511,14 @@ def check_backup_scope(res):
 JOBS = [
     ("NanoBackup", os.path.join(os.path.expanduser("~"), "nano-backups",
                                 "backups"), 48),
+    # Les trois regions ecrivent le meme latest.json, donc la fraicheur ne
+    # distingue pas laquelle a tourne : si une seule reste active le fichier
+    # reste frais et deux tiers de la couverture ont disparu sans signal. Elles
+    # sont donc listees separement, pour que l'etat de chaque tache soit lu.
+    ("CS2SkinRadar-Asia", os.path.join(DOWNLOADS, "02 - Projects",
+                                       "cs2-skin-radar", "data", "latest.json"), 36),
+    ("CS2SkinRadar-EU", os.path.join(DOWNLOADS, "02 - Projects",
+                                     "cs2-skin-radar", "data", "latest.json"), 36),
     ("CS2SkinRadar-US", os.path.join(DOWNLOADS, "02 - Projects",
                                      "cs2-skin-radar", "data", "latest.json"), 36),
     ("InventoryMonitor", os.path.join(DOWNLOADS, "02 - Projects",
@@ -576,6 +584,65 @@ def check_jobs(res):
             res.add(OK, f"job/{name}", f"active, code 0, sortie il y a {age:.0f} h")
 
 
+# Travaux cron de la carte, avec la sortie qu'ils produisent et l'age au-dela
+# duquel elle est suspecte (heures). Meme raisonnement que JOBS : cron ne dit
+# jamais qu'un travail a echoue, il ne dit rien du tout. La seule preuve qu'un
+# cron a fait quelque chose est le fichier qu'il a ecrit.
+#
+# Les cadences sont lues dans /etc/crontabs/root : quotidien -> 36 h de marge,
+# hebdomadaire -> 8 jours. La marge couvre un decalage d'horaire et une
+# execution ratee, pas deux.
+CRON_JOBS = [
+    ("scan csrust",   "/root/csrust-monitor/scan.log",        36),
+    ("suivis X",      "/root/x-following-backup/backup.log", 192),
+    ("blocklist",     "/var/log/blocklist-update.log",       192),
+    ("utiq",          "/var/log/utiq-update.log",             36),
+    ("weekly-maint",  "/var/log/weekly-maint.log",           192),
+    ("daily-maint",   "/root/watchdog.log",                   36),
+]
+
+
+def check_cron(res):
+    """Les crons de la carte produisent-ils encore quelque chose.
+
+    busybox n'a pas `stat -c`, donc l'age n'est pas calcule : il est teste.
+    `find <f> -mmin +N` n'imprime le chemin que si le fichier est plus vieux
+    que N minutes, ce qui est exactement le predicat voulu et evite de faire
+    de l'arithmetique de dates a travers quatre shells.
+    """
+    lines = []
+    for label, path, max_h in CRON_JOBS:
+        lines.append(
+            f"if [ -f {path} ]; then "
+            f"if [ -n \"$(find {path} -mmin +{max_h * 60} 2>/dev/null)\" ]; "
+            f"then echo 'VIEUX {label}'; else echo 'FRAIS {label}'; fi; "
+            f"else echo 'ABSENT {label}'; fi")
+    code, out = ssh("nano", "; ".join(lines))
+    if code is None or code != 0:
+        res.add(UNKNOWN, "cron carte", f"non sonde: {out.strip()[:50]}")
+        return
+
+    seen = {}
+    for line in out.split("\n"):
+        state, _, label = line.strip().partition(" ")
+        if label:
+            seen[label] = state
+
+    stale = [l for l, s in seen.items() if s == "VIEUX"]
+    absent = [l for l, s in seen.items() if s == "ABSENT"]
+    missing = [l for l, _, _ in CRON_JOBS if l not in seen]
+    if missing:
+        # La sonde n'a pas rendu de verdict pour tout le monde. Ne pas prendre
+        # un silence pour un feu vert.
+        res.add(UNKNOWN, "cron carte", f"sans reponse: {', '.join(missing)}")
+    elif absent:
+        res.add(FAIL, "cron carte", f"aucune sortie: {', '.join(absent)}")
+    elif stale:
+        res.add(FAIL, "cron carte", f"sortie perimee: {', '.join(stale)}")
+    else:
+        res.add(OK, "cron carte", f"{len(CRON_JOBS)} travaux, sorties fraiches")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -599,6 +666,7 @@ def main():
         check_backup_scope(res)
     if everything or args.jobs:
         check_jobs(res)
+        check_cron(res)
 
     if args.json:
         print(json.dumps([{"status": s, "name": n, "detail": d} for s, n, d in res.rows],

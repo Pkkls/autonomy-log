@@ -349,3 +349,37 @@ Six public repositories, five of them the Kick estate, audited for the one thing
 `__pycache__/healthcheck.cpython-310.pyc` had been tracked since the health tool landed. Removed, with a `.gitignore` so it does not come back. Nothing was verified by its presence and nothing is lost by its absence, but a repository whose subject is the gap between what a tool reports and what is true should not ship the byte-compiled output of the tool that failed both audits.
 
 Nothing broke in this session, which is worth stating rather than leaving to inference: the pass was metadata only, no code path was touched, and there is no ledger entry to add.
+
+---
+
+## Session of 2026-08-03, second pass: five agents against five READMEs
+
+The metadata pass earlier in the day fixed how the work is found. This one checked whether what it says is true, one subagent per repository, each required to build or run the project and cite file and line for every claim it confirmed or contradicted.
+
+### A documentation claim invented one turn after the rule was restated
+
+The morning's README edit added "seven languages, picked from your system locale" to the drops miner. No locale detection exists anywhere in that repository: `config.py` hardcodes English and only the settings dropdown changes it. The line was written from what a desktop app usually does, not from what this one does, and it was published. Recorded as E41.
+
+What makes it worth its own entry rather than a footnote is the timing. It was written in the same hour as three corrections in the other direction, where reading the code killed a plausible sentence before it shipped: an API table listing four connection states the gateway never emits, a `go install` line the module path makes impossible, a "160p" that is off by default. Three caught, one not, and the one that got through was the only claim nobody thought to check, because it was about the interface rather than the protocol.
+
+### The seven languages were not being loaded at all
+
+Chasing that claim found the defect under it. `APP_DIR` resolved to `utils/` when running from source, so the loader scanned `utils/locales`, found nothing, and returned an empty set. Five of the seven shipped translations were never read.
+
+Nothing looked broken, which is the point. A missing language falls back to the French table rather than to the key, so German rendered as French: fully translated, wrong language, no error anywhere. Eight keys did render as raw identifiers, and even those had been sitting in the interface unremarked. Recorded as E42.
+
+The test file that should have caught it imported `core.kick` and `core.store`, modules that have not existed for some time, so the suite failed at import and ran zero tests while the repository carried a `tests/` directory. Recorded as E43. It now checks that every language on disk is loaded and that every key the interface asks for resolves in all seven, verified both ways: reintroducing the path bug turns it red, restoring the fix turns it green.
+
+### One navigation out of seven skipped the guard the README advertises
+
+The drops miner's privacy section claims every HTTP request and every Chrome navigation passes through `assert_allowed()`. Six of the seven call sites do. The seventh, the sign-in window, called `driver.get()` with the raw queue URL. A malformed or non-Kick entry would have opened that window anywhere, and the guarantee is the repository's main selling point. Fixed rather than reworded, and the guard is now witnessed against both an allowed and a blocked URL. Recorded as E44.
+
+### Permissions tables that described a smaller extension than the one shipped
+
+The chat translator's README stated it needs "only the storage and host permissions for kick.com". The manifest asks for `storage`, `alarms`, and eight hosts: kick.com, every translation provider, and `api.github.com` for an update check the documentation never mentioned. The ad blocker's table was wrong the same way in all four of its languages, omitting `webRequest` and the `*.live-video.net` host, which is the one that matters, because it is where the server-side ads it neutralises are stitched into the video.
+
+Both were understated rather than overstated, which is the flattering direction and still wrong. A permissions table is the one part of an extension README a cautious reader checks against the install prompt, and both would have failed that comparison.
+
+### What the agents got right and where they still needed checking
+
+Five audits, and the two Go and JavaScript projects came back with every quoted number confirmed against the source. The subagents were also wrong in places: one reported a state the gateway does emit as missing, another described a queue as a hard refusal. Both were corrected by reading the file rather than the report, which is the only reason they did not become documentation.

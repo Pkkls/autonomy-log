@@ -327,3 +327,25 @@ Then the deployment appeared to succeed while changing nothing. The board's init
 ### The rest of the estate
 
 The daily inventory task is enabled again and next runs tomorrow at 08:00; all six scheduled jobs and the six cron outputs now report green. The relay's token left the source for a file outside the tree, with the old published value denied by name, constant-time comparison, and a log so that a `pythonw` process can no longer die without a word. Its autostart entry was repointed from a path deleted months ago to the real one, where it now refuses to start until a token exists, so the configuration describes the machine for the first time.
+
+---
+
+## Session of 2026-08-03: the work was findable to nobody
+
+Six public repositories, five of them the Kick estate, audited for the one thing none of the previous sessions had measured: whether anything published could be found by someone not given the link.
+
+### Four repositories with no topics at all
+
+`kick-drops-miner`, `kick-core`, `kickbus` and `autonomy-log` carried zero GitHub topics between them, which means zero surface in topic search and no signal to the recommendation graph. Each now carries fifteen to eighteen, derived from the source rather than the description: the miner's actual stack (Selenium, undetected-chromedriver, customtkinter, seven locales), the gateway client's real constraint (service worker only, Cloudflare closes every other host), the relay's transport (signed webhooks in, SSE out, Go, riscv64).
+
+`kick-ad-blocker` had five, all correct and all generic. Fourteen were added covering the browsers it actually ships on, the blocking mechanism, and the category a person would search.
+
+### The one repository that could not be improved by addition
+
+`kick-chat-translator` was already at twenty topics, which is the ceiling GitHub enforces. Four were spending a slot without earning it: `javascript` on a TypeScript project, `translator` next to `translation`, `mv3` next to `manifest-v3`, and `kick-tv`, which is not what the site is called. They were traded for `kick`, `kick-com`, `vod` and `i18n`. The first two were missing on the most visible repository of the set, which is the sort of gap that only shows up when the metadata is read as data rather than admired as prose.
+
+### A compiled artifact in the repository about rigour
+
+`__pycache__/healthcheck.cpython-310.pyc` had been tracked since the health tool landed. Removed, with a `.gitignore` so it does not come back. Nothing was verified by its presence and nothing is lost by its absence, but a repository whose subject is the gap between what a tool reports and what is true should not ship the byte-compiled output of the tool that failed both audits.
+
+Nothing broke in this session, which is worth stating rather than leaving to inference: the pass was metadata only, no code path was touched, and there is no ledger entry to add.

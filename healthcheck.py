@@ -127,7 +127,15 @@ def run(args, cwd=None, timeout=60, merge_stderr=True, env=None):
     """
     base_env = {**os.environ, "GIT_TERMINAL_PROMPT": "0"}
     try:
+        # Sans encoding= explicite, `text=True` decode avec l'encodage local
+        # de l'hote (cp1252 ici), pas celui de ce que ssh/git renvoient
+        # toujours (UTF-8). Un tiret cadratin emis par le board devenait un
+        # caractere de remplacement avant meme d'atteindre le code appelant,
+        # et un `.split("—")` cherchait un octet qui n'arrivait jamais sous
+        # cette forme : la session Steam avait 1 jour restant, le scan avait
+        # reussi la meme heure, et le controle disait "non reconnu".
         p = subprocess.run(args, cwd=cwd, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace",
                            timeout=timeout,
                            env={**base_env, **env} if env else base_env)
     except subprocess.TimeoutExpired as err:
@@ -262,6 +270,16 @@ def classify_cookie(out):
     if "expires in about" in out:
         left = out.split("expires in about", 1)[1].split("—")[0].strip()
         return OK, f"{left} restantes"
+    # config.go a deux formulations pour le cas non-expire : "in about %d h"
+    # sous un jour, "in %d day(s)" au-dela, sans "about". Le classificateur ne
+    # couvrait que la premiere ; le 2026-08-09, une session a 1 jour restant
+    # est ressortie "non reconnue" alors que le scan tournait bien en vrai
+    # (727/729 items pricés le matin meme). Vu directement dans config.go,
+    # pas suppose : les deux formes viennent de la meme fonction, aucune
+    # troisieme n'existe.
+    if "expires in" in out and "day(s)" in out:
+        left = out.split("expires in", 1)[1].split("—")[0].strip()
+        return OK, f"{left} restants"
     return UNKNOWN, f"sortie non reconnue: {out.strip()[:50] or '(vide)'}"
 
 
@@ -269,7 +287,16 @@ def selftest():
     """Prove the classifier separates the cases. Run with --selftest."""
     cases = [
         ("cookie expire",      "steamLoginSecure EXPIRED — re-export needed", FAIL),
-        ("cookie valide",      "session expires in about 19 h — 723 items",   OK),
+        ("cookie valide (h)",  "session expires in about 19 h — 723 items",   OK),
+        # config.go emet "in N day(s)" (sans "about") au-dela d'un jour restant.
+        # Vu tourner en vrai le 2026-08-09 : 1 jour restant, scan reussi la
+        # meme heure, et pourtant classe "non reconnu" avant ce cas.
+        ("cookie valide (j)",  "WARNING: Steam session cookie expires in "
+                                "1 day(s) — re-export steamLoginSecure soon", OK),
+        # Temoin : le message EXPIRE contient aussi "day(s)", et ne doit pas
+        # tomber dans la branche ci-dessus. "EXPIRED" doit gagner en premier.
+        ("cookie expire (j)",  "ERROR: Steam session cookie EXPIRED 2 day(s) "
+                                "ago — nothing can be fetched",               FAIL),
         ("sortie vide",        "",                                            UNKNOWN),
         ("binaire plante",     "panic: runtime error: index out of range",    UNKNOWN),
         ("flag disparu",       "Usage: csrust-monitor [--scan] [--weekly]",   UNKNOWN),

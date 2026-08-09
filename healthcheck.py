@@ -100,11 +100,42 @@ def run(args, cwd=None, timeout=60, merge_stderr=True, env=None):
     line-ending setting prints one conversion warning per file, on stderr, and
     the merged stream turned twenty-three warnings into twenty-three filenames.
     Anything that counts lines passes merge_stderr=False.
+
+    E41 turned out to only half fix this. `GIT_TERMINAL_PROMPT=0` on the
+    ls-remote call silenced git's OWN prompt, but git on Windows hands
+    credential lookup to an external helper (git-credential-manager), and that
+    helper has its own interactive flow, gated by a different variable. Seven
+    days idle later, the very first repo in the list hung the entire health
+    check on a GUI login flow that headless could never complete.
+
+    Forcing `GCM_INTERACTIVE=never` looked like the fix and was measured to be
+    a worse one: it made the fast, working, credential-cache path fail
+    instantly instead ("could not read Username"), trading a hang for a
+    permanent wrong answer on every private repo, which is the exact failure
+    class this file exists to catch. Measured the same way: a plain call with
+    neither override succeeded once in 5s and then hung 20s on the next five
+    repos in a row. The helper's own latency is not controllable from here.
+
+    What *is* controllable is what survives a timeout. Python's subprocess
+    timeout only signals the process it directly spawned; git.exe's own
+    children (git-remote-https, the credential helper) are not in that
+    process's job object on Windows and were found still running, orphaned,
+    minutes after their parent had supposedly been killed. `taskkill /T`
+    kills the whole tree, so a timeout now actually ends the thing that timed
+    out instead of leaving it to keep holding a network connection and,
+    eventually, contend with the next run.
     """
+    base_env = {**os.environ, "GIT_TERMINAL_PROMPT": "0"}
     try:
         p = subprocess.run(args, cwd=cwd, capture_output=True, text=True,
                            timeout=timeout,
-                           env={**os.environ, **env} if env else None)
+                           env={**base_env, **env} if env else base_env)
+    except subprocess.TimeoutExpired as err:
+        pid = getattr(err, "pid", None)
+        if pid and sys.platform == "win32":
+            subprocess.run(["taskkill", "/T", "/F", "/PID", str(pid)],
+                           capture_output=True)
+        return None, str(err)
     except (OSError, subprocess.SubprocessError) as err:
         return None, str(err)
     out = p.stdout or ""
@@ -160,16 +191,12 @@ def check_repos(res):
         sync = "sans amont"
         if code == 0 and "/" in upstream.strip():
             remote, _, branch = upstream.strip().partition("/")
-            # GIT_TERMINAL_PROMPT=0 : sans lui, un identifiant expire sur un
-            # depot prive fait attendre une saisie que personne ne fera, et le
-            # rapport entier reste bloque derriere. Un outil de sante qui pend
-            # ne rend pas un mauvais verdict, il n'en rend aucun.
-            # Le gestionnaire d'identifiants reste actif, sinon les depots
-            # prives passeraient tous en "non mesure" : ce serait echanger une
-            # reponse fausse contre une absence de reponse.
+            # Le prompt et le delai de repli sont geres par `run()` (voir sa
+            # docstring : E41 puis sa correction). 15 s laisse passer le cas
+            # authentifie mesure a 5 s avec une marge, sans faire attendre le
+            # reste du rapport derriere un identifiant expire.
             code, out = run(["git", "ls-remote", remote, "refs/heads/" + branch],
-                            cwd=path, timeout=45, merge_stderr=False,
-                            env={"GIT_TERMINAL_PROMPT": "0"})
+                            cwd=path, timeout=15, merge_stderr=False)
             if code != 0 or not out.strip():
                 sync = "distant injoignable"
             else:

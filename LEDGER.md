@@ -375,6 +375,24 @@ The mechanism is the same one this file keeps finding elsewhere: a number writte
 **Fix:** the four findings given real, currently-unused numbers (E42-E45) and full entries in this file. CHANGELOG.md's prose still reads "E41" through "E44" in place for the historical record of what that session wrote and believed at the time; it is not silently rewritten, because a log that edits its own past to match a later correction stops being a record of what happened.
 **Class:** E35, one level up. E35 was this document disagreeing with itself about a headline number. This is the document disagreeing with itself about the numbers it uses to refer to its own entries — the index checking nothing about the thing it indexes.
 
+### E47. The health tool's own subprocess calls decoded a different alphabet than the one arriving over the wire
+**Severity: medium, and it had been silently wrong since the tool existed.** `run()` called `subprocess.run(..., text=True)` with no `encoding=` argument. Python's default in that case is `locale.getpreferredencoding()`, which on this machine is cp1252. Everything ssh and git actually send is UTF-8. Any byte sequence outside plain ASCII — an em dash, an accented letter — was silently decoded under the wrong table before a single line of this file's own logic ever saw it.
+
+Live consequence, not a theoretical gap: the Steam cookie classifier looks for a literal em dash in the board's own log line. Over cp1252 that dash arrived as a replacement character, matched nothing, and a session with one full day left — measured minutes after a real scan had completed successfully — reported as `sortie non reconnue`. The classifier was correct; the bytes it was handed were already wrong by the time they reached it.
+
+**Caught by:** re-running the exact command the classifier uses by hand, seeing the same em dash render correctly in a terminal, and asking why the two didn't agree — then reproducing the mismatch directly: `subprocess.run(["python","-c","print(chr(0x2014))"], text=True)` on this machine returns a replacement character, not an em dash.
+**Fix:** `encoding="utf-8", errors="replace"` on the one subprocess call every check in this file routes through. `errors="replace"` rather than a strict decode, because a check that crashes on one stray byte is worse than a check that loses one byte and keeps going — the file's founding rule, applied to itself.
+**Class:** E12, the shell-boundary path-form bug, one layer down: not the shape of an argument crossing a boundary, but the alphabet of the bytes crossing it. Both are invisible until the specific byte that exposes them shows up, and both were caught by refusing to believe a plausible-looking mismatch without re-deriving it by hand.
+
+### E48. A scheduled task's own "still running" code was read as a failure
+**Severity: low, and a clean instance of collapsing three answers into two.** `CS2SkinRadar-Asia` reported `dernier code 267009` as FAIL. 267009 is `0x41301`, `SCHED_S_TASK_RUNNING` — the Windows Task Scheduler's own code for "this run has not finished," not an error of any kind. The task's own `Status` field said `Running`; it had started that morning and was still inside its configured two-hour stop-after window. One region simply took longer than the other two that run.
+
+The check's logic had a two-way branch where the outcome needed three: succeeded, failed, or not yet decided. A non-zero code fell into the same bucket regardless of which of those it meant, and the one code that means "ask again later" was read as the same thing as a code that means "this broke."
+
+**Caught by:** looking up what 267009 actually is instead of trusting that a non-zero exit code is by definition a failure — the same discipline this estate keeps having to relearn about probes, applied to a number instead of a claim.
+**Fix:** `267009` gets its own branch, reported UNKNOWN with the recorded start time. Verified live, before and after, against the same task: FAIL, then correctly UNKNOWN, on a run that was in fact still in progress both times. No synthetic selftest exists for this check; it has always been verified against the real scheduler, and was here too.
+**Class:** the estate's oldest lesson, still finding new call sites. "Could not measure yet" and "measured, broken" are different answers, and a checker that only has room for two will eventually put one where the other belongs.
+
 ### E22. Concluded absence from a search that was looking for the wrong string
 **Severity: medium, and the operator caught it.** Asked whether the inventory bot sees items bought in the last seven days, the agent queried the live inventory for Steam's trade-hold notice, found the phrase nowhere across 1259 items, and reported that nothing was currently held.
 

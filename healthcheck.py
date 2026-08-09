@@ -626,6 +626,14 @@ def check_jobs(res):
 
         if state.lower() == "disabled":
             res.add(FAIL, f"job/{name}", "desactivee (ne se declenchera pas)")
+        elif result == "267009":
+            # 0x41301 SCHED_S_TASK_RUNNING : la tache est en train de tourner,
+            # pas terminee. Vu en vrai le 2026-08-09 : demarree a 10h00, une
+            # region qui prend plus de temps que les autres, code non nul lu
+            # comme un echec alors que rien n'a encore ete decide. Ni FAIL ni
+            # OK n'est vrai tant que ca ne s'est pas termine.
+            res.add(UNKNOWN, f"job/{name}",
+                    f"en cours d'execution (demarree {fields.get('last run time', '?')})")
         elif result not in ("0", "?"):
             res.add(FAIL, f"job/{name}", f"dernier code {result}")
         elif age is None:

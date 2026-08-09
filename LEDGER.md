@@ -330,6 +330,51 @@ The failure mode is also the nastier of the two in one respect: it is not a synt
 **Caught by:** re-running the same question through the base64 path, which this project's own notes have prescribed for exactly this reason since before the session started, and which the failing command had skipped because it was one line.
 **Fix:** none in the estate. The rule already existed and was not followed: anything crossing the Windows, WSL and board shells goes over as base64, always, including the one-liner at the end when everything is finished.
 
+### E42. A documentation claim invented one turn after the rule restating it had just shipped
+**Severity: low in the artifact, telling in the timing.** A README edit for the drops miner added "seven languages, picked from your system locale." No locale detection exists anywhere in that repository: `config.py` hardcodes English, and only the settings dropdown changes it. The sentence was written from what a desktop app usually does, not from what this one does, and it was published.
+
+What earns it an entry of its own rather than a footnote is when it happened. It was written in the same hour as three corrections running the other way, where reading the source killed a plausible sentence before it shipped: an API table listing four connection states the gateway never emits, a `go install` line the module path makes impossible, a "160p" that is off by default. Three caught, one not — and the one that got through was the only claim nobody thought to check, because it read as a fact about the interface rather than about the protocol, and the session's own scrutiny had been aimed at protocols all day.
+
+**Caught by:** a subagent instructed to build or run each project and cite file and line for every claim, rather than to read the README and judge whether it sounded right.
+**Fix:** the line was removed; there being no locale detection to describe correctly.
+**Class:** E15 and E31 combined. A claim taken on the strength of how ordinary it sounds, written by the same process that had just finished demonstrating it knew better.
+
+### E43. Five sixths of a repository's advertised languages were never read
+**Severity: medium, silent, and live.** Chasing the claim behind E42 found a second, real defect under it. `APP_DIR` resolved to `utils/` when the program ran from source, so the language loader scanned `utils/locales`, found nothing there, and returned an empty table. Five of the seven shipped translations were never loaded by the running code.
+
+Nothing looked broken, which is the point. A missing language falls back to the French table rather than to the raw key, so selecting German rendered the interface fully in French: every string translated, into the wrong language, with no error anywhere a user or a log would show one. Eight interface keys did render as raw identifiers under the working two languages, and even those had been sitting unremarked in the shipped interface.
+
+**Caught by:** the same file-and-line audit that found E42, tracing the "seven languages" claim into the loader instead of accepting the README's number.
+**Fix:** `APP_DIR` resolution corrected; a check added that every language file on disk is actually loaded, and that every key the interface requests resolves in all seven. Verified both ways: reintroducing the path bug turns the check red, restoring the fix turns it green.
+**Class:** D1's shape in a UI rather than a bot. A fallback that produces a complete, well-formed, wrong answer is indistinguishable from a correct one at every layer that isn't the one comparing against the key.
+
+### E44. The test suite that should have caught E43 imported modules that no longer existed
+**Severity: medium.** The repository carried a `tests/` directory. Its test file imported `core.kick` and `core.store`, modules that had not existed for some time under those names. The suite failed at import, before a single test ran, and had been doing so for long enough that the language-loading defect in E43 lived under it the whole time.
+
+A failing import and a passing suite of zero tests produce different exit codes, but nothing in the ordinary workflow was reading the exit code; the presence of a `tests/` directory was doing the reassuring, not its result.
+
+**Caught by:** the same audit, told to run the project rather than to read that it had tests.
+**Fix:** imports corrected to the current module paths; the suite now runs and includes the E43 coverage.
+**Class:** E43 in the meta-repository, the tool built to catch this failure mode. See D10 for the same collapse in this estate's own auditors.
+
+### E45. One navigation out of seven skipped the guard the README uses as its main selling point
+**Severity: medium, and it undercuts the repository's central claim.** The drops miner's privacy section states that every HTTP request and every Chrome navigation passes through `assert_allowed()`, a single choke point meant to guarantee the browser never goes anywhere but Kick. Six of the seven call sites do. The seventh, the sign-in window, called `driver.get()` directly with a raw queue URL, unchecked.
+
+A malformed or non-Kick entry reaching that path would have opened the sign-in window at an arbitrary address, which is exactly the outcome the guard exists to make impossible, and the one sentence in the README a cautious reader would trust without checking is the one that was not quite true.
+
+**Caught by:** the same per-call-site audit, checking the claim against all seven sites rather than against a sample.
+**Fix:** the sign-in navigation now routes through `assert_allowed()` like the other six. Witnessed against both an allowed URL and a blocked one, so the guard is shown to pass and to refuse, not merely to be present.
+**Class:** E19, obeying the letter of an internal rule while missing one of the places it applies.
+
+### E46. The ledger's own numbering collided with itself, silently, for six days
+**Severity: none in consequence, structural in what it says about unchecked self-reference.** E42 through E45 above were first recorded on 2026-08-03, in CHANGELOG.md, as prose narrating a session — and there labelled E41 through E44. E41 was already taken: it names the DNS blocklist entry earlier in this file, written the day before. The four new findings were never given real entries here. For six days, this ledger's own index disagreed with the document that cites it, and nothing compared the two.
+
+The mechanism is the same one this file keeps finding elsewhere: a number written down was trusted as a fact rather than checked against the one canonical list it was supposed to belong to. CHANGELOG.md is the narrative log; LEDGER.md is the numbered catalog the narrative is supposed to cite, not duplicate independently. Nothing enforced that the two stayed in agreement, so a session that ran without access to this file's current tail picked the next number it assumed was free.
+
+**Caught by:** reconciling the two files by hand while adding entries for E42-E45, and noticing the citations in CHANGELOG.md's prose did not resolve to anything here.
+**Fix:** the four findings given real, currently-unused numbers (E42-E45) and full entries in this file. CHANGELOG.md's prose still reads "E41" through "E44" in place for the historical record of what that session wrote and believed at the time; it is not silently rewritten, because a log that edits its own past to match a later correction stops being a record of what happened.
+**Class:** E35, one level up. E35 was this document disagreeing with itself about a headline number. This is the document disagreeing with itself about the numbers it uses to refer to its own entries — the index checking nothing about the thing it indexes.
+
 ### E22. Concluded absence from a search that was looking for the wrong string
 **Severity: medium, and the operator caught it.** Asked whether the inventory bot sees items bought in the last seven days, the agent queried the live inventory for Steam's trade-hold notice, found the phrase nowhere across 1259 items, and reported that nothing was currently held.
 

@@ -515,6 +515,76 @@ The correction is recorded in place and dated, with the original claim struck th
 **Caught by:** re-deriving the behaviour from its effect rather than from its name, on a later pass.
 **Class:** E22 in a different codebase, and the distance is the point. E22 was published, written into memory, and the same shape still recurred against a different identifier in a different repository. What transfers is not the string but the method: search for the effect, not only for the name that is supposed to produce it.
 
+### E56. A claim marked for verification was written down as measured, and it was false
+**Severity: medium, and it happened inside this campaign's own working file.** The brief commissioning this work listed, among the things to check, that several round briefs prescribed `&&` while reminding the reader in the same document that the operator's PowerShell 5.1 does not have that operator. It was flagged as a case to verify. The working evidence file for this campaign then recorded it as measured, in the form "seven for seven", with per-file line citations attached.
+
+It is not so. Each of the seven briefs contains exactly one line carrying `&&`, and that line is the warning itself. Seven briefs state the rule and none of them breaks it. The count was then re-run without the classifier's exclusion terms, to be sure the exclusion was not manufacturing its own answer: the total number of lines containing `&&` is one per brief, so there is no prescribed use hiding behind the filter.
+
+**The direction of the error is the part worth keeping.** It turned a rule that worked into a rule that failed. A fabricated success is the thing everyone knows to guard against. This was a fabricated failure, and it is the easier one to believe, because a document that contradicts itself is a better story than a document that does not.
+
+**Caught by:** counting the occurrences before publishing the entry that would have carried the claim. That entry had already been drafted from the working file.
+**Class:** the same shape as E57 and E59, committed one step further along the chain by the same kind of node. A note that says "to verify" and a note that says "verified" are different objects, and nothing in a plain text file keeps them apart once the first has been copied into the second. The detector is re-derivation from the primary artifact. Rereading the evidence file would have confirmed the claim perfectly.
+
+### E57. The brief stated as established what it had only received
+**Severity: medium, and it is the cleanest single instance of an inherited claim.** A round brief asserted that since `9ce0f28` every query from the chat bar went through the panel that was on screen. False. `9ce0f28` "Mount the chat bar in the panel that is on screen" changed the mount and the remount guard, and six update functions still queried the whole document. The statement had arrived in a report, been rewritten as settled fact in the next brief, and travelled onward carrying no mark of its age or its source.
+
+Refuted by measurement in the following round and corrected by `6db2630` "Route every bar update through the panel that is on screen", 2026-08-14 03:44. Residence: one round.
+
+**Caught by:** the executing node re-deriving the claim from the commit instead of accepting the brief. Anyone can repeat it by reading `9ce0f28` and then `6db2630`.
+**Class:** the detector here is neither a test nor contact with the world. Both nodes agreed, the code compiled, the tests passed, and nothing was measured against reality because nobody believed there was a question. What refuted it was returning to the primary artifact and deriving the claim a second time. The question that fires is not "is this true", and not "is this true because of something I did", but "do I know this, or did I inherit it".
+
+### E58. A provenance was written for a decision that never had one
+**Severity: low in the artifact, higher in what it does to a shared record.** A brief instructed that a custom dropdown be filed among the measured dead ends, as though a measurement had killed it. The executing node went looking for that measurement, found no trace of it anywhere in the record, and rewrote the entry around the evidence that does exist: item 70, where a single `color-scheme` property was sufficient, `8e62f3d` "Declare a colour scheme on every select we style", 2026-08-14 03:34.
+
+**Caught by:** looking for the cited source before repeating the citation.
+**Fix:** the entry rewritten around the evidence that exists rather than the evidence it claimed to rest on.
+**Class:** a graveyard of rejected options is worth exactly the provenance of each burial. An option buried with an invented reason cannot be reopened by anyone who later has a better idea, because the record says the question was settled by measurement and the measurement is not there to inspect. E58 and E59 are one reflex pointed at two objects: this one invents a source, the other invents a number.
+
+### E59. The count asserted and never derived, inside the document that defines that fault
+**Severity: none in consequence, structural in what it says about unchecked self-reference.** The brief commissioning this campaign stated repeatedly that the studied campaign ran twenty-seven rounds. The number was never derived from anything. It came from informal counting across a conversation, was written down as established, and did so in the same document that names inherited-claim-as-fact a class of error worth a section of its own.
+
+The record supports no single number, and that is the result rather than a failure to reach one. The journal carries 19 distinct round numbers between 4 and 26, two of them appearing twice and four missing, one of those four explicitly. Git carries 63 item commits on the integration branch, numbered up to 95. Seven briefs exist on disk. A round is a journal section, or a brief, or a session, or a range of commits, and those four definitions do not return the same figure. No replacement number is asserted here, because asserting one with the confidence of the first would be the same act performed twice.
+
+Two smaller instances sit beside it. One brief had the next work begin at item 80 when the history already stood at 94. Another had a section written into the journal under a round number the journal had already passed. In both, the generating node projected its own count instead of having the machine's count read.
+
+**Caught by:** a delegated extraction that counted the journal's sections. Not by proofreading, which had happened, and which cannot catch this class at all.
+**Class:** re-derivation from the primary artifact, not rereading. Rereading establishes that a document says what it says. Only returning to the source establishes whether it is so. The fault produced a fresh instance of itself while its own definition was being written, which is the strongest evidence available that it is a live class rather than a tidy retrospective category.
+
+### E60. Four claims about the record, refuted by counting them
+**Severity: low individually, and together they are a measurement of the loop.** The commissioning brief made a number of checkable assertions about the two registers. Four did not survive contact with the files they described.
+
+It said `D` entries were mixed into this ledger's agent errors section. They are not. The agent errors heading opens at line 7 and the environment discoveries heading at line 451, and every `E` heading sits above that boundary while every `D` heading sits below it. No interleaving exists.
+
+It said the `D` series ran to at least D13. It runs to D17.
+
+It named one item-number collision in the journal. There are four, and seven further item numbers are carried by more than one commit in git.
+
+It read a line calling for a test that would prevent "the fourth recurrence" as evidence that a fourth had already happened, and concluded that the dossier contradicted itself. Three sources in the dossier give three occurrences and agree with one another; the line in question asks for a fourth to be prevented, not recorded. There is no contradiction.
+
+**Caught by:** checking each assertion against the file it described, before using any of them downstream.
+**Class:** E57 and E59's family, recorded separately because the count is the point. A node that consumed an artifact and reported back found four checkable errors in it, and E56 is a fifth. Section 6b argues that outbound verification has no natural trigger, because the loop closes where the author is not. When the recipient is another machine node that consumes the artifact and answers, the loop closes somewhere observable, and these five are the size of that effect in this dossier.
+
+### E61. Three interface defects crossed both machine nodes and were caught by eye
+**Severity: medium, user-facing, and the honest counterweight to anything the loop got right.** Three defects reached the operator: the gear pushed outside the chat bar, native menus rendering unreadably, and an odd label in the Debug tab. They came back in one sentence with three screenshots, and became items 70, 71 and 72, `8e62f3d`, `59c820f` and `65ae05e`, all landing between 03:34 and 03:41 on 2026-08-14.
+
+The cause is measurable rather than inferred. The defects entered in the preceding round, through items 57 and 58, `d724999` and `012f115`, and that round's own record states that it produced no browser observation whatsoever and was entirely unit tests.
+
+**The objection has to be instructed, because it is strong.** Could a machine node have seen these without eyes? Partly. `59c820f` says there is no layout engine in the test harness, so the tests read the stylesheet and pin the ordering rather than pixels, which means a width assertion was genuinely unavailable. But the same commit says the defect was measured in a live page rather than guessed: the panel is 340px, the bar wanted 365, and the gear sat at left 340 right 365, fully out of frame. A machine node did measure it, once it had been told where to look.
+
+So the structural reading is too generous and is not taken here. The defect is not that no machine node can perceive rendered output. It is that the round which introduced all three ran no observation at all, having satisfied itself with a suite it had written. The fix commit closes with its own version of the same admission: unit tests only, never seen in a browser after the change.
+
+**Class:** section 1 of the research restated at the scale of a whole round. A suite the agent wrote passing tells you the model is internally consistent, not that the product can be used. Recorded as a weaker claim than it first appeared, because the counter-evidence is in the dossier and leaving it out would have been easy.
+
+### E62. The channel carrying every instruction was never tested at the size it would carry
+**Severity: medium, two rounds lost, and each node saw a different half of it.** The generating node's account, which exists in no file, is that a brief of about twenty kilobytes pasted directly into the client crashed it twice, after which briefs moved to files and only a three-line pointer was pasted. Every brief on disk is a file, and the earliest of them is from the round where this is said to have happened, so the outcome is consistent with the account.
+
+The executing node's record of what appears to be the same event says something adjacent and not identical. It states that the round 16 prompt arrived truncated twice, cut mid-word, after which the operator supplied the complete brief as a file. Same round, same count of two, same remedy, different failure.
+
+**Neither account is wrong and neither is complete.** One node watched a client fall over. The other watched text arrive cut short. The failure sat on a boundary neither could observe from its own side, and the only reason both halves exist is that they were written down separately and later placed side by side. The crash remains attested by the generating node and unverifiable from any artifact. The truncation is in the record and can be checked.
+
+**Caught by:** searching the record for the event the deposition described, and finding it filed under a different symptom.
+**Class:** a transport carrying every instruction between two nodes had never been exercised at the size it would routinely carry, and it failed on the first document that was genuinely large. The second lesson is E54's from the other direction: two descriptions of one incident agreed on round, on count and on remedy while disagreeing about what actually happened, and neither node had any way to notice that they disagreed.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

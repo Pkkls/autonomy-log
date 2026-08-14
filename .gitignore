@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+
+# This machine's addresses, ssh key filenames and WSL roots. Never published:
+# they are properties of one estate, not part of the record. See E64.
+estate.json

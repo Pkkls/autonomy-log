@@ -26,6 +26,31 @@ import sys
 
 # --- what is expected to exist -----------------------------------------------
 
+def _estate_config():
+    """This machine's addresses, kept out of the published repository.
+
+    Board addresses, ssh key filenames and the WSL-side roots are properties of
+    one estate, not part of the record this repository publishes. They live in
+    `estate.json` beside this script, which is gitignored. See E64: the earlier
+    version hardcoded them, and they went public with the repository.
+
+    Absent or unreadable, this returns {} and every check that needed a value
+    reports UNKNOWN with a reason. It does not drop the row. A check that
+    disappears is worse than one that says it could not run, which is the
+    oldest lesson in this file.
+    """
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "estate.json")
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return {}
+
+
+ESTATE = _estate_config()
+
+
 def _downloads():
     """Where the checkouts live, from Windows or from WSL.
 
@@ -37,7 +62,7 @@ def _downloads():
     """
     for candidate in (os.environ.get("ESTATE_ROOT"),
                       os.path.expanduser("~/Downloads"),
-                      "/mnt/c/Users/kil/Downloads"):
+                      ESTATE.get("wsl_root")):
         if candidate and os.path.isdir(candidate):
             return candidate
     return os.path.expanduser("~/Downloads")
@@ -55,13 +80,17 @@ REPOS = [
     "02 - Projects/inventory-monitor",
     "02 - Projects/cs2-skin-radar",
     "02 - Projects/bloque_pub",
-    "filefs/mnt/user-data/outputs/csrust-monitor-go",
-]
+] + list(ESTATE.get("extra_repos", []))
 
-# name -> (host, ssh key, unit checks)
+# The names stay here because they are already all over the record. The address
+# and the key filename are this machine's, so they come from estate.json; a
+# board with no entry keeps its row and reports UNKNOWN. See E64.
+BOARD_NAMES = ("claw", "nano")
+
 BOARDS = {
-    "claw": ("192.168.1.59", "claw_key"),
-    "nano": ("192.168.1.46", "nano_key"),
+    name: (ESTATE.get("boards", {}).get(name, {}).get("host"),
+           ESTATE.get("boards", {}).get(name, {}).get("key"))
+    for name in BOARD_NAMES
 }
 
 SECRETSCAN = os.path.join(DOWNLOADS, "disk-triage", "secretscan.py")
@@ -335,8 +364,8 @@ def _key_path(key):
     """Where this key actually is, or (None, why).
 
     The two boards were never symmetric and the script assumed they were.
-    `nano_key` exists in the Windows profile, `claw_key` only in the WSL one,
-    so `~/.ssh/<key>` found the first and missed the second. The docstring at
+    One board's key exists in the Windows profile, the other's only in the WSL
+    one, so `~/.ssh/<key>` found the first and missed the second. The docstring at
     the top of this file already said the keys "live in WSL"; the code read
     them from the Windows home anyway, and the claw reported `?` on every run
     since the tool was written. Nobody read the `?`.
@@ -344,10 +373,16 @@ def _key_path(key):
     Returns ("native", path) when a plain ssh can use it, ("wsl", path) when
     only the WSL filesystem has it, or (None, reason).
     """
+    if not key:
+        return None, "cle introuvable: carte non configuree dans estate.json"
     local = os.path.expanduser(f"~/.ssh/{key}")
     if os.path.exists(local):
         return "native", local
-    wsl_path = f"/home/kil/.ssh/{key}"
+    wsl_home = ESTATE.get("wsl_home")
+    if not wsl_home:
+        return None, (f"cle {key} introuvable cote Windows et wsl_home absent "
+                      "de estate.json, moitie WSL non sondee")
+    wsl_path = f"{wsl_home}/.ssh/{key}"
     if os.path.exists(wsl_path):          # already running inside WSL
         return "native", wsl_path
     code, _ = run(["wsl", "test", "-f", wsl_path], timeout=20)
@@ -358,6 +393,8 @@ def _key_path(key):
 
 def ssh(board, remote_cmd, timeout=45):
     host, key = BOARDS[board]
+    if not host:
+        return None, f"carte {board} non configuree dans estate.json"
     kind, path = _key_path(key)
     if kind is None:
         # Une cle absente n'est pas une carte injoignable. Les confondre, c'est
@@ -423,15 +460,24 @@ def check_boards(res):
 
     # csrust : le binaire deploye doit correspondre au depot.
     code, out = ssh("nano", "/root/csrust-monitor/csrust-monitor-riscv64 --version 2>&1")
-    repo = os.path.join(DOWNLOADS, "filefs/mnt/user-data/outputs/csrust-monitor-go")
+    csrust_rel = ESTATE.get("csrust_repo")
+    repo = os.path.join(DOWNLOADS, csrust_rel) if csrust_rel else None
     # Le dernier commit qui a touche du Go, pas le HEAD : un commit de doc ou de
     # script deplace le HEAD sans changer le binaire, et comparer au HEAD
     # signalerait un ecart a chaque fois. Assez precis pour attraper un binaire
     # perime, ce qui est le defaut reel a couvrir : un correctif a dormi onze
     # jours pendant qu'une version d'avant tournait.
-    rc, head = run(["git", "log", "-1", "--format=%h", "--",
-                    "*.go", "go.mod", "go.sum"], cwd=repo)
-    if code is None or code != 0 or rc != 0 or not out.strip():
+    if repo is None:
+        # Pas de cwd devine : sans depot configure, un `git log` tournerait dans
+        # le repertoire courant et pourrait rendre un hash sans rapport, donc
+        # une comparaison fausse plutot qu'une mesure absente.
+        rc, head = 1, ""
+    else:
+        rc, head = run(["git", "log", "-1", "--format=%h", "--",
+                        "*.go", "go.mod", "go.sum"], cwd=repo)
+    if repo is None:
+        res.add(UNKNOWN, "csrust", "depot non configure (estate.json)")
+    elif code is None or code != 0 or rc != 0 or not out.strip():
         res.add(UNKNOWN, "csrust", "version non mesurable")
     else:
         deployed = out.strip().split()[-1]

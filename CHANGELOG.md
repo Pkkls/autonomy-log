@@ -39,7 +39,7 @@ Turns a 240x240 SPI panel on a RISC-V board into an always-on status screen. The
 - **Watched processes are configurable.** The services page hardcoded two names from one particular board; it now reads `label:needle` pairs from the environment. Absent services stay dim rather than red, since a service that is off on purpose must not look like an incident, or the screen teaches you to ignore it.
 - **Installable on a board with no panel.** With the enable flag off, the service starts, says why it is not running, and exits: nothing runs, nothing is consumed, and the selftest still passes on the board itself, so the stack is proven ready rather than assumed ready.
 
-### [autonomy-log](https://github.com/Pkkls/autonomy-log) — private as of 2026-08-15, MIT
+### [autonomy-log](https://github.com/Pkkls/autonomy-log) — public, MIT
 This repository. Ledger of errors, engineering write-up, denser analysis, and the record of what changed in the agent afterwards.
 
 ---
@@ -416,6 +416,10 @@ The corresponding edit to the operator's own rule files was written as a proposa
 
 ### This repository was not public, and its inventory said it was
 
-The line above listing `autonomy-log` as public was wrong, and is corrected in this pass. An anonymous request for its GitHub page returns 404 while two other repositories linked from this same file return 200 to the identical client, and `git ls-remote` succeeds under the author's credentials. Recorded as E63. The repository is left private: publishing it is the operator's decision.
+The line above listing `autonomy-log` as public was wrong when it was written. An anonymous request for its GitHub page returned 404 while two other repositories linked from this same file returned 200 to the identical client, and `git ls-remote` succeeded under the author's credentials. Recorded as E63.
 
-Nothing in this session was pushed. Every commit is local, and the extension repository was read and never written.
+The operator then made the repository public, and the line is now correct and verified rather than assumed: the API reports `visibility=public`, and the HTML page and raw file fetches all answer 200 anonymously. The entry stays in the ledger, because the claim was unchecked for its whole existence and that is the finding, not the string it happened to contain.
+
+Going public also closed the window on E64, which had recorded four disclosures in `healthcheck.py` as a pre-publication finding. They are now live, and the entry says so.
+
+The extension repository was read throughout and never written.

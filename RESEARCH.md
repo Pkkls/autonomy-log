@@ -240,6 +240,10 @@ the escaper, the formatter — and never looked at the *thing it produced*. A te
 that asserts a function returns a string will pass whether or not that string is
 usable by its recipient.
 
+**A second campaign reproduced this after shipping a release, which is about as clean a test of the claim as the record offers.** A version bump went out, and the items following it in the history do not fix code at all. They repair the artifact that had already left: a malformed zip produced by the Windows builds, translated READMEs that never listed four of the settings the extension has, and a store listing carrying a false statement about one of its modes. Three outbound defects, in a domain the first campaign never touched.
+
+The refutation to try is that these were known before the release and merely scheduled after it, which would make them ordinary backlog rather than outbound blindness. The history does not support that reading. All three sit after the version-bump commit, and each was found by somebody opening the shipped artifact and looking at it rather than by any check. The remedy is as unglamorous as it was the first time. Read what you produced, once, the way its recipient will receive it.
+
 **The general form:** an agent's tests are written against its model of the
 artifact. Only the artifact meets the world. This is the same statement as
 section 1, with the direction reversed, and reversing it was apparently a

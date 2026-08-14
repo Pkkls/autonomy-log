@@ -1,8 +1,10 @@
-# Verification under autonomy: a single-session field study
+# Verification under autonomy: a two-campaign field study
 
 A dense reading of the same events. The claim under examination: **an autonomous agent's verification apparatus is systematically blind in exactly the region where autonomy makes it dangerous**, and the blindness is structural rather than a matter of effort or capability.
 
-Everything below is grounded in [LEDGER.md](LEDGER.md). Where a claim is speculative it is marked as such. There is no attempt to generalise beyond one session, one agent, one operator; treat this as a case report, not a result.
+Everything below is grounded in [LEDGER.md](LEDGER.md). Where a claim is speculative it is marked as such. There is no attempt to generalise beyond two campaigns run on one machine for one operator; treat this as a pair of case reports, not a result.
+
+The title said "single-session" until a second campaign was added, and by then it was simply false. Sections 3.2, 6d and 6e come from that second campaign, which ran as a loop of two machine sessions rather than one, and the limits it brings with it are in section 8 rather than folded quietly into the existing ones.
 
 ## 1. Two kinds of correctness, one kind of test
 
@@ -325,6 +327,18 @@ None of these are exotic. All of them are things a careful engineer does by refl
 
 ## 8. Limits of this report
 
-One session, one agent, one operator, one machine. No control condition, no repetition, no counterfactual where the same tasks were attempted with narrower autonomy. Severity ratings are the agent's own judgement of hypothetical outcomes that did not occur. The classification of an error as "would have shipped broken" is a claim about a world that was avoided precisely because the error was caught, and is therefore unfalsifiable in this record.
+The first campaign: one session, one agent, one operator, one machine. No control condition, no repetition, no counterfactual where the same tasks were attempted with narrower autonomy. Severity ratings are the agent's own judgement of hypothetical outcomes that did not occur. The classification of an error as "would have shipped broken" is a claim about a world that was avoided precisely because the error was caught, and is therefore unfalsifiable in this record.
 
 Most importantly, the analysis is written by the system it analyses. The bias runs toward a narrative in which errors are structural and interesting rather than careless and dull. E1, E12 and E11 are in the ledger specifically because they resist that framing: they are not deep, they are sloppy, and a version of this document that omitted them would be a more elegant and less honest artifact.
+
+### 8.1 Limits the second campaign adds
+
+**The record it draws on is partial, by its own measurement.** The journal and the git history agree on 41.2% of the union of the item numbers they mention. 33 numbers were journalled and never committed, 17 were committed and never journalled. Every count in sections 3.2, 6d and 6e that comes from the journal is therefore a lower bound, not a total, and nothing in the act of reading that journal reveals what it is missing.
+
+**The number of rounds is not established and no figure is asserted.** Four definitions of a round are available, a journal section, a brief, a session, or a range of commits, and they return four different numbers. The disagreement is published in E59 rather than resolved, because choosing one and stating it confidently is the exact error that entry records.
+
+**Several load-bearing facts rest on one node's testimony and cannot be checked against any artifact.** The mechanism of the delivery failure, the origin of the state block, the operator's verbatim validation sentence, and a faulty measurement caught in an unsent draft are all attested by the generating node alone. They are marked in place wherever they are used, and the reason they cannot be verified is not carelessness: the drafts and the conversation they belong to were never written down.
+
+**That last point is the structural one, and it is the first campaign's uncomfortable section moved outward by one node.** Section 8 above says the entries most likely to be missing are the ones the agent still believes are correct. The second campaign put a node with no shared context on the other end of the loop, and it worked, catching five checkable errors in documents it was handed. But the generating node's own reasoning left no artifact. The faults recorded against it are the ones it noticed and reported about itself, and the executing node has no way to look for the others, because only the finished briefs exist and never their drafts. **A two-node loop reduces the self-analysis problem. It does not eliminate it. It moves it to the node whose record is not written.**
+
+**And the conflict of interest did not go away, it changed shape.** The first campaign's version was an agent analysing itself. This one is a later node of the same estate analysing its predecessors, using the estate's own registers as evidence, under a protocol the estate designed. The apparatus in this document is more careful than the first campaign's, with falsification cases, witnessed detectors and re-derivation. That is not a defence. Rigour of method is precisely what would make a conflict of interest invisible rather than absent, and this document is not the place from which that can be checked.

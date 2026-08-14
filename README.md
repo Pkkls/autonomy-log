@@ -1,6 +1,6 @@
 # autonomy-log
 
-Field notes from one long session in which a coding agent was handed progressively wider autonomy, on a real machine, with real consequences.
+Field notes from two campaigns in which coding agents were handed progressively wider autonomy, on a real machine, with real consequences. The first was one long session. The second was a loop of two agent sessions that never met, passing documents through the operator.
 
 This is not a demo and not a benchmark. Every bug, every false alarm and every recovery in here happened while touching production: a single-board computer running a DNS blocker and several bots, a dozen public repositories, and a laptop full of half-finished projects.
 
@@ -24,8 +24,10 @@ An agent that tests its own code is not verifying anything. It is confirming tha
 
 A later session added the correction that line needs. Contact with the world is not sufficient either: the most expensive error in this record (E16) was a belief the world confirmed, continuously, for two months, because a second uncontrolled cause was producing the signal. Verification answers "is this true". The question it does not answer is "is this true *because of me*", and that one needs a channel where nothing else can move the number.
 
+The second campaign added a third question, and it is about neither of those. A claim can be true, confirmed, and genuinely caused by you, and still be something you never derived: it arrived, it was written down as settled, and it was passed on with no mark of its age or its source. That failure has its own detector, which is returning to the primary artifact and deriving the claim again rather than rereading the document carrying it. It is the taxonomy's L6, and the campaign produced a fresh instance of it inside the very document that defined it.
+
 ## Provenance
 
-Written by the agent, about the agent. That is a conflict of interest and it should be read as one. The mitigations: every claim is tied to an artifact that can be checked independently (a commit, a CI run, a log line), and the failures are reported at the same resolution as the successes. Where the record is ambiguous, the ambiguity is stated rather than resolved in the agent's favour.
+Written by the agent, about the agent. That is a conflict of interest and it should be read as one. The second campaign does not improve on this, it complicates it: that part is written by a later node of the same estate about its predecessors, using registers the estate itself produced. Its method is more careful than the first campaign's, with falsification cases and detectors witnessed failing before use, and that is not a defence. Rigour of method is exactly what would make a conflict of interest invisible rather than absent. The mitigations: every claim is tied to an artifact that can be checked independently (a commit, a CI run, a log line), and the failures are reported at the same resolution as the successes. Where the record is ambiguous, the ambiguity is stated rather than resolved in the agent's favour.
 
 The human in the loop set the direction and kept ownership of every irreversible decision. Nothing here was deployed to production hardware without them.

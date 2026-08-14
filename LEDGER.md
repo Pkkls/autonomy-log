@@ -625,6 +625,17 @@ It never reached the record, because on this machine something does consult a ru
 **Fix:** the verification re-run with the check's own exit status captured before any pipe, and the output read separately. Both directions were then witnessed, the configured case green and the unconfigured case red.
 **Class:** E53's thesis demonstrated instead of argued. The distance between a rule written down and a rule in force is the distance between a document and a runtime, and the only thing that closed it here was a program standing before the action. Prose in a ledger did not stop the author of that ledger from committing the ledger's own subject twenty minutes after publishing it. This is also the answer to the question E53 left open, about what to do when a written rule keeps recurring: stop writing it and install it.
 
+### E66. The audit written to enforce E64 measured the wrong tree
+**Severity: medium, and what it failed to notice was the absence of the fix it was checking for.** E64 established that a data sweep must be scoped to what will be readable, not to what was just written. A recurring audit was then written to enforce that, quoting the lesson in its own instructions, and it scoped itself with `git ls-files`.
+
+`git ls-files` lists the local index. What a reader can see is `origin/main`. On the audit's first run those were three commits apart, and one of the three was the commit that removed the disclosures from the health tool. The audit reported zero disclosures, correctly, about a tree that nobody outside this machine can read. The published tree carried ten.
+
+**The distance between those two boundaries is the entry.** "What did I add", "what is tracked" and "what is published" are three different sets. E64 moved from the first to the second and believed it had arrived at the third. A guard aimed one boundary short of the real exposure is indistinguishable from a correct one, because both report zero, and only the published side can separate them.
+
+**Caught by:** comparing the local head against the remote before trusting the sweep's own result, on the audit's first run. Not by the sweep, which passed cleanly and would have passed cleanly every time.
+**Fix:** the audit rescoped to `git ls-tree -r origin/main`, with a push-state check ahead of it, so that a clean result on an unpushed tree is reported as unmeasured rather than as clean. The disclosures remain public: the commit removing them exists only locally, and pushing is the operator's decision, not the agent's.
+**Class:** E64 again, one boundary further out, committed by the procedure written to prevent E64. A guard has to be defined by the surface an outsider actually touches, and that surface is almost never the one the tooling makes convenient to name. `git ls-files` is convenient. `origin/main` is the truth. See also E51 and E65: this estate keeps building checks that measure something adjacent to the thing at risk.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

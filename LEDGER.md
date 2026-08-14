@@ -596,6 +596,18 @@ The finding needed a control before it could be attributed, because a 404 can be
 **Fix:** the line corrected to state the real visibility. The repository is not made public, because publishing is the operator's decision and not the agent's.
 **Class:** E24 committed by the document whose first rule is E24's lesson, and 6b at its purest. The author of an artifact is the one party who cannot experience it as its audience does, because their own access is never the access under test. A self-referential claim about availability is the one claim that verifying from inside cannot touch.
 
+### E64. The forbidden-data sweep was scoped to what was written, not to what would be published
+**Severity: medium, and it was caught with the exposure still at zero.** The second campaign ran a sweep for operator names, absolute paths, credentials and private repository names before every commit, with the detector witnessed failing on positive specimens first. It reported nothing, correctly, on every pass. It was pointed at the diff the agent had just written.
+
+That is the wrong region and the error is in the question. Before publication the question is not "what did I add", it is "what will be readable". Rescoped to the whole tree, the same detector immediately finds four disclosures, all of them older than this campaign and none of them written by it: an operator username hardcoded in two path fallbacks in `healthcheck.py`, the two boards' RFC1918 addresses sitting next to the filenames of the SSH keys that reach them, and a private working repository's name inside a path constant.
+
+**Severity is calibrated rather than announced.** No key material, no tokens, and RFC1918 addresses are not routable. The username is the part that matters, because it links a new identifier to the account that publishes the repository. And the exposure at the moment of discovery was nil: the repository was still private, checked on two independent surfaces with a cache buster, so this is a pre-publication finding and not an incident.
+
+**Caught by:** rescoping the sweep when the repository's visibility was said to have changed. That trigger is itself the defect. A sweep that only widens when someone mentions publishing is a sweep that depends on somebody remembering to mention it.
+
+**Fix:** not applied, and deliberately. The two paths are load-bearing fallbacks, and the docstring of the function holding one of them records that the last time this file's key resolution was wrong, one board reported `?` on every run for the tool's whole existence and nobody read it. Trading a silent daily check for a line of privacy is the wrong trade for an agent to make alone, so the change is proposed to the operator with its exact diff instead.
+**Class:** 4.2, guard placement, moved from order to scope. The sweep ran before the commit, which is the correct moment, and covered the wrong set. A guard can be correctly placed in time and still be aimed at the wrong region, and "before" is the property people check while "over what" is the one they assume. The general form: define a guard by the boundary it protects, not by the work that prompted it.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

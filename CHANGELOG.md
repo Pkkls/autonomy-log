@@ -39,7 +39,7 @@ Turns a 240x240 SPI panel on a RISC-V board into an always-on status screen. The
 - **Watched processes are configurable.** The services page hardcoded two names from one particular board; it now reads `label:needle` pairs from the environment. Absent services stay dim rather than red, since a service that is off on purpose must not look like an incident, or the screen teaches you to ignore it.
 - **Installable on a board with no panel.** With the enable flag off, the service starts, says why it is not running, and exits: nothing runs, nothing is consumed, and the selftest still passes on the board itself, so the stack is proven ready rather than assumed ready.
 
-### [autonomy-log](https://github.com/Pkkls/autonomy-log) — public, MIT
+### [autonomy-log](https://github.com/Pkkls/autonomy-log) — private as of 2026-08-15, MIT
 This repository. Ledger of errors, engineering write-up, denser analysis, and the record of what changed in the agent afterwards.
 
 ---
@@ -383,3 +383,39 @@ Both were understated rather than overstated, which is the flattering direction 
 ### What the agents got right and where they still needed checking
 
 Five audits, and the two Go and JavaScript projects came back with every quoted number confirmed against the source. The subagents were also wrong in places: one reported a state the gateway does emit as missing, another described a queue as a hard refusal. Both were corrected by reading the file rather than the report, which is the only reason they did not become documentation.
+
+## Session of 2026-08-15: a second campaign, written up from its own registers
+
+The subject is a campaign that ran on 2026-08-13 and 2026-08-14 on a browser extension, as a loop of two machine sessions with no shared context, passing a brief one way and a report the other through the operator. This session did not run that campaign. It read the campaign's registers and wrote it up, which is why every claim below names the register it came from.
+
+### The campaign's own output, checkable on a public repository
+
+[kick-chat-translator](https://github.com/Pkkls/kick-chat-translator) is public. The campaign carried it to version 2.6.0: the remote tag `v2.6.0` dereferences to `42f16c9`, which is the commit the campaign's journal names as its publication point. The integration branch carries 63 commits of the form `[item N]`, with numbers running to 95, and the mismatch between those two figures is itself a finding rather than a typo, recorded as E54.
+
+Nothing is claimed here about the extension's store review. It was in progress and this session had no way to observe it.
+
+### Fifteen ledger entries, E49 to E63
+
+Split by which node produced the error, because the three classes have different detectors. Seven from the executing node, five from the node that wrote the briefs, one for the defects that crossed both machine nodes and were caught by the operator on a screenshot, one for a delivery failure each node saw a different half of, and one found in this repository while writing the others.
+
+The numbering was established by a program that counts, before allocating and again after writing, with the detector first witnessed failing on a synthetic duplicate and a synthetic gap and passing on a clean corpus. Before: E1 to E48, D1 to D17. After: E1 to E63, D unchanged. No gaps and no duplicates in either series at either point. The check matters here more than usual, because E46 in this same file records the ledger's numbering colliding with itself silently for six days, and E54 records the same thing happening in three of the campaign's registers at once.
+
+### A layer added to the taxonomy, and a claim withdrawn
+
+`RESEARCH.md` gains L6, provenance, whose detector is re-derivation from the primary artifact rather than rereading, along with the argument for why it does not collapse into L2. It also gains three sections on the two-node loop, and section 8.1 on the limits that campaign brings.
+
+The withdrawal is in 6e. The campaign looked like the control condition the first study says it lacked, with a datable boundary and metrics that move across it. It is not one: the nature of the work changes at the same boundary, from diagnosis to interface, and interface work has a human-visible surface, so escapes to the operator would rise with or without a second node. The protocol changes stay, being datable from artifacts. The causal claim is gone.
+
+The document was retitled, because "a single-session field study" had become false rather than merely dated.
+
+### Two rules added to the reloaded layer
+
+In `WHAT-CHANGED.md`: provenance, and the silence of colliding registers. Both carry the incident that produced them. A third candidate was deliberately refused, since a rule about gate exit codes already sits in that layer and did not prevent E51, and a duplicate would treat an enforcement gap as a coverage gap.
+
+The corresponding edit to the operator's own rule files was written as a proposal and not applied.
+
+### This repository was not public, and its inventory said it was
+
+The line above listing `autonomy-log` as public was wrong, and is corrected in this pass. An anonymous request for its GitHub page returns 404 while two other repositories linked from this same file return 200 to the identical client, and `git ls-remote` succeeds under the author's credentials. Recorded as E63. The repository is left private: publishing it is the operator's decision.
+
+Nothing in this session was pushed. Every commit is local, and the extension repository was read and never written.

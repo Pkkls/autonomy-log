@@ -585,6 +585,17 @@ The executing node's record of what appears to be the same event says something 
 **Caught by:** searching the record for the event the deposition described, and finding it filed under a different symptom.
 **Class:** a transport carrying every instruction between two nodes had never been exercised at the size it would routinely carry, and it failed on the first document that was genuinely large. The second lesson is E54's from the other direction: two descriptions of one incident agreed on round, on count and on remedy while disagreeing about what actually happened, and neither node had any way to notice that they disagreed.
 
+### E63. This repository's own inventory calls it public and links it, and the link is dead
+**Severity: medium, reader-facing, and the file carrying it opens by promising the opposite.** `CHANGELOG.md` lists this repository among those created, as public and MIT, linking its GitHub page. An anonymous request for that page returns 404. The repository is private. The licence half of the claim is correct, the LICENSE file being present and MIT; the visibility half has been wrong for as long as the line has existed, and every document in this repository was written on the assumption that it was publicly readable.
+
+The finding needed a control before it could be attributed, because a 404 can be a property of the request rather than of the target. Two other repositories from the same account, linked from the same file and genuinely public, return 200 to the identical client in the same run. `git ls-remote` against this one succeeds under the author's own credentials and reports `refs/heads/main`. So the page exists, the author reaches it, and nobody else does.
+
+**What makes it worse than a broken link:** `CHANGELOG.md` opens by stating its own rule, that entries link to the artifact so each claim can be checked rather than believed. The single link a reader would follow to check the claim this file makes about itself is the one that fails, and it fails only for readers, never for the author. Every other claim in the file is checkable. The claim about its own availability is the exception.
+
+**Caught by:** fetching the file's links from outside while preparing to add an entry to it. Nothing in this repository would have caught it: there is no CI here at all, and the link checker written after E24 lives in another repository and does not cover this file.
+**Fix:** the line corrected to state the real visibility. The repository is not made public, because publishing is the operator's decision and not the agent's.
+**Class:** E24 committed by the document whose first rule is E24's lesson, and 6b at its purest. The author of an artifact is the one party who cannot experience it as its audience does, because their own access is never the access under test. A self-referential claim about availability is the one claim that verifying from inside cannot touch.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

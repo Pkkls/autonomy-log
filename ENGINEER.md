@@ -1,6 +1,6 @@
 # What actually happened, for engineers
 
-One session, one agent, widening autonomy, a real machine. This is the practical read: what broke, why, and what you should do differently if you hand an agent the keys.
+Two campaigns on one real machine: first one agent given widening autonomy, then a loop of two agent sessions that never met. This is the practical read: what broke, why, and what you should do differently if you hand an agent the keys.
 
 ## The shape of the session
 
@@ -76,3 +76,50 @@ The agent kept ownership of everything reversible and handed back everything tha
 That split is the practical contract. **The agent should be free to be wrong in ways you can undo.** Everything else stops at your desk, with enough context that the decision takes you a minute, not an hour.
 
 The corollary: give it enough rope to reach real systems, because the two most valuable findings of the session, a bot reporting zero as truth and a backup covering a third of a machine, were both invisible from inside the code. They only appear when something is allowed to go look.
+
+## Running the same loop yourself
+
+The second campaign used two agent sessions with no shared context: one read the reports and wrote the next brief, the other read the brief and did the work, and a person carried the documents between them. Nobody designed this. It accreted after a large brief pasted into the client failed twice and had to become a file. It is worth reproducing because it caught five checkable errors in its own instructions, which a single session has no mechanism to do. The whole apparatus is below.
+
+### The brief, going out
+
+Each section is here because of a failure it prevents.
+
+**A state block.** HEAD, the remote SHA read with `git ls-remote` rather than remembered, the test count, whether the tree is clean, one line per item, and the next free number. Without it the writing node projects its own count onto the machine, which is E59.
+
+**What was already decided, and what is already buried.** The executing node remembers nothing. Absent this it reopens settled questions and re-measures dead ends that were closed for good reasons.
+
+**The work, as numbered items.** Put the number in the commit subject. That single habit is what makes the two registers joinable later, and it is also how you find out they disagree.
+
+**Arbitration by rule, never a question.** Give the decision criterion and say the operator's answer overrides it if it arrives. A round that asks a question stops until somebody wakes up, and that cost is paid in hours.
+
+**The hard constraints, restated in full every time.** The executing node does not remember the previous brief either.
+
+**Everything needing human eyes, batched into one list**, with what good looks like and what broken looks like for each. Left unbatched, four small visual checks spread themselves across four rounds.
+
+### The report, coming back
+
+The state block again, **recomputed and not copied forward**. This is the load-bearing rule of the whole protocol: copied state is exactly how a claim loses its age and becomes an inherited fact. Then one line per item with its SHA, what was measured with the actual number, what was deliberately not done and why, and the faults committed during the round. That last section is the one people drop, and the loop only works if each node reports its own.
+
+### The trust hierarchy, in every brief
+
+The history decides. The journal and the brief are memory, and memory is an instrument: a false sentence in it reads exactly like a true one and breaks nothing downstream. Any number written in a brief is indicative. In this campaign that rule hardened from conditional to unconditional across six briefs, which is an argument for writing it unconditionally on the first day.
+
+### Before concluding a round
+
+Ten lines, because a longer list does not get read.
+
+1. Did I re-derive every number I am about to state, or did I inherit it?
+2. Does the gate's exit code actually reach the shell, with nothing after it that can succeed on its behalf?
+3. Did I watch the new check fail on a broken case before trusting it when green?
+4. Is the numbering I am allocating into established by counting, rather than by reading the end of a file?
+5. Did I open what I produced the way its reader will receive it?
+6. Is "could not measure" a distinct outcome from "measured, and broken"?
+7. Did my probe change the system it measured, or write into a path the product reads?
+8. Is anything shipping that no browser or real client has ever seen?
+9. What did I decide was true without checking?
+10. Is the tree clean, and is everything irreversible waiting on the operator rather than on me?
+
+### What the loop does not fix
+
+It buys you a reader for your outbound documents, and that is worth a lot. It does not buy you eyes. Neither machine node sees rendered output unless it is told to go and look, and the campaign's three escapes to the operator all came out of one round that ran no browser observation at all and was satisfied with a test suite it had written itself. It also does not fix the node writing the briefs: that node's reasoning leaves no artifact, so the faults it does not notice about itself are unreachable by anyone, including the node reading its output.

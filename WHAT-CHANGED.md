@@ -47,3 +47,43 @@ Every error in [LEDGER.md](LEDGER.md) was found by the agent, which sounds like 
 That prediction was then confirmed twice, in the least flattering way available. E14, a credential scanner that reported clean without ever searching, was found by an independent audit and not by the agent or its selftest. E16, the most expensive error here, was found because the operator asked a single question the agent had never asked itself, about a signal the agent had been reporting as a success for months. **Both were in the category "the agent still believes it is correct", and neither was ever going to leave it from the inside.**
 
 The one structural defence in the rules above still holds: assert against something the agent did not author. The published schema, the live capture, the machine itself. To it, add the harder one: an outside party who does not share the agent's context. Every consequential defect in this record was found through one of those two, and none were found by the agent thinking harder.
+
+## Second campaign: a loop of two machine nodes
+
+The first campaign was one agent, one operator, one machine. The second was a browser extension built over two days by two machine sessions that never shared context. One read the reports and wrote the next brief, the other read the brief and executed it. Neither ever saw the other, and documents passed between them through the operator, a brief one way and a report back. The errors are in [LEDGER.md](LEDGER.md), E49 to E62.
+
+The test is unchanged: did a rule enter the layer that gets reloaded.
+
+### Rules committed to persistent memory
+
+Two entries again. The existing three already cover most of what this campaign produced, and the overlap was checked rather than assumed. E49 and E53 are the probe being part of the system, which operational care already says. E61 is a self-authored suite checking the model instead of the world, which verification discipline already says. Those needed no new rule and got none. Two things were not covered.
+
+**Provenance.** Before repeating a claim, ask whether you know it or inherited it. The detector is re-derivation from the primary artifact, not rereading. Rereading establishes that a document says what it says; only returning to the source establishes whether it is so. This applies to anything received from an earlier session, from another node, or from your own working notes.
+
+It is filed separately from verification discipline for the same reason attribution was. When a brief asserted that every query from the chat bar went through the panel on screen, both nodes agreed, the code compiled, and the tests passed. Verification had nothing to bite on, because nobody believed there was a question. Attribution had nothing to bite on either, because no causal claim was being made. The operation that failed was neither of those: a measured fact had been rewritten as a standing fact and had lost its age and its source in transit. Four entries in this campaign are that single shape, E56, E57, E59 and E60.
+
+**Shared registers collide in silence.** Where a numbering series has more than one writer, establish the series with a program that counts before allocating into it, and check again after writing. A collision emits no signal, because the register goes on reading normally afterwards.
+
+This one earns its place by recurring across both campaigns. E46 recorded this ledger's own numbering colliding with itself, silently, for six days. E54 records the second campaign's journal, its git history and this ledger doing the same thing independently and at the same time, with none of the three aware of the others. Nothing inside a shared register tells a writer that another writer is in it.
+
+### Immediate application, same campaign
+
+The provenance rule was applied to this campaign's own work before publication, and it caught something. The working evidence file recorded, as measured and with per-file line citations, that all seven round briefs prescribed `&&` while warning in the same document that the operator's shell does not have it. A ledger entry publishing that had already been drafted. Counting the occurrences first showed that each brief contains exactly one line carrying `&&`, and that line is the warning: seven statements of the rule, zero violations. The claim had been marked "to verify" one document earlier and was copied forward as verified.
+
+The direction of that error is the part worth keeping. It fabricated a failure rather than a success. Guarding against flattering mistakes is the instinct everyone already has. This one was unflattering to its subject and therefore easier to believe, which is the same asymmetry approached from the other side.
+
+### What was deliberately not changed
+
+**No new rule about gates and exit codes.** E51 records a commit going out over a red check whose exit status the shell had swallowed, because the chain began at `git add`. A rule against exactly that already sits in the reloaded layer, and it did not fire. Adding a second copy would treat the problem as a gap in coverage when it is a gap in enforcement, and the honest position is that this campaign produced no fix for it.
+
+**No modification to the operator's standing instructions.** Same reason as the first campaign. The two rules above are proposed for the reloaded layer; the agent did not write them into it.
+
+**No attempt to settle the round count.** Four definitions of a round are available and they return four different numbers. The disagreement is published in E59 rather than resolved, because resolving it would have meant choosing one and asserting it with the same confidence that produced the original error.
+
+### The uncomfortable part, one node further out
+
+The first campaign's version of this section says that the entries most likely to be missing are the ones the agent still believes are correct, and that nothing leaves that category from the inside. The second campaign is a partial test of that, because it had something the first did not: a second machine node with no shared context, which is the closest thing to an outside party a machine estate can generate on its own.
+
+It worked, and the effect is measurable rather than asserted. Five checkable errors in the incoming brief were caught by the node that consumed it, E56 plus the four in E60. That is the mechanism the first campaign's closing paragraph asked for, arriving without anyone having designed it.
+
+It does not close the problem, and what remains has a precise shape. The generating node's own conversation was never written down anywhere. The faults recorded against it are the ones it noticed and reported about itself. The ones it did not notice are, by construction, absent from this record, and the executing node cannot go looking for them, because only the finished briefs exist and never their drafts. **A two-node loop reduces the self-analysis problem. It does not eliminate it. It moves it to the node whose record is not written.**

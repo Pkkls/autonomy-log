@@ -57,10 +57,25 @@ Errors sort cleanly by the layer that could in principle detect them, and the so
 | L3 statistical, decision | Ground-truth comparison | E5, E8 | Only by running against reality |
 | L4 operational | Cost model of one's own actions | E9, E10, E11 | Partially, after damage |
 | L5 attribution | An observation only your action can explain | E16 | **No**, and it survived two months |
+| L6 provenance | Re-derivation from the primary artifact | E56, E57, E59, E60 | **Yes**, all four, by the node that received the claim |
 
 The distribution is the finding. **L0 and L1 are saturated; L2 upward is where every consequential error lives.** Adding test coverage moves resources into a layer that is already fully defended. This predicts a common and expensive failure mode in agent deployments: response to an incident is more unit tests, which cannot touch the layer that produced it.
 
 L4 deserves emphasis because it is specific to embodiment. An agent that acts on constrained hardware is not an external observer: E9 loaded a 15 MB structure on a board with 128 MB of RAM to determine its size, driving load from 3.0 to 6.3 and consuming ten minutes without completing. **The measurement was a perturbation of comparable magnitude to the phenomenon.** The correct probe, a streaming count, answered in under a second. A cost model of one's own probes is a distinct competence from correctness, and it is not exercised at all in sandboxed evaluation.
+
+**L6 was added after a second campaign, and it is the only row whose instances come from that campaign rather than the first.** That campaign ran as two machine sessions with no shared context, one reading the reports and writing the next brief, the other reading the brief and executing it, so for the first time in this record the inputs of one node were the outputs of another. The faults that appeared in the handoff do not sit anywhere in L0 to L5. They are not syntax, not internal semantics, not a disagreement with an external system, not a statistical misjudgement, not a mismodelled cost, and not a misattributed cause. They are claims about the dossier: something received, written down as established, and passed on carrying no mark of its age or its source.
+
+The detector is neither a test nor contact with the world. It is returning to the artifact a claim came from and deriving it a second time. That is not rereading. Rereading a brief confirms that the brief says what it says, which is precisely the operation that fails here, and it fails silently because it always succeeds.
+
+**The objection to answer is that L6 collapses into L2**, since checking a claim against a commit is contact with a real system. The objection is serious and the answer turns on what a repository is. A commit is not the world. It is an earlier artifact of the same system, and consulting it needs no external party, no network, no operator, and no running instance. E57 could have been refuted at any moment by reading a diff that had been on disk since before the false claim was written. Nothing was measured against reality, because nobody believed reality was in question.
+
+The separation is clean at one point. **An L6 fault can be committed while stating something true.** E59 asserted a round count that had never been derived from anything; had the number happened to be correct, the fault would have been identical in kind, because what failed was the absence of derivation and not the falsity of the value. No other row in this table has that property. An L2 fault is by construction a false statement about an external system: remove the falsity and no error remains. Remove the falsity from an L6 fault and the error is untouched.
+
+Instances do overlap, and overlap is not reduction. E57 is both, being false about the code, so contact with the code catches it too. What L2 cannot express is the true-but-underived claim, and what re-derivation inspects that measurement does not is the lineage of a sentence rather than the present state of a thing.
+
+**One further property is the reason this is a row and not a footnote.** The two-node structure did not create the class. A single session inherits claims from its own earlier reasoning continuously, and that reasoning leaves no artifact, so there is nothing to re-derive against and the fault is undetectable rather than absent. Writing the handoff down is what makes lineage inspectable at all. The second node did not introduce the disease; it introduced the test.
+
+That also explains the last column, which should otherwise look suspicious. L6 is the only layer here whose detector caught every instance, and the reason is not that the estate improved. It is that this detector is cheap and permanently available, the primary artifact being on disk, whereas L2 and L5 require going out to touch something that can be absent, slow, or unwilling. A layer defended by a cheap detector is not evidence of virtue.
 
 ## 3. Feedback structure: two loops
 

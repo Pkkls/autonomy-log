@@ -448,6 +448,73 @@ Two thirds noise on the first run. This log has argued repeatedly that in a moni
 **Caught by:** reading all six findings before believing any of them, which is the same act that turned two earlier "discoveries" today into nothing.
 **Kept, not smoothed over:** a rule that needed three corrections before it was usable is worth recording as such. The end state is twenty links across eight repositories, none broken, and a check that runs in CI so the next dead link is caught by a machine rather than by the operator clicking one.
 
+### E49. A Firefox build left in a shared output folder killed the operator's live extension
+**Severity: high, and the probe broke the system it was measuring.** Mid-round, the operator reported that translation had stopped and the toolbar button was inert. The console said `Could not establish connection. Receiving end does not exist.` The content script was alive and had processed 26 lines out of 36. The service worker was dead.
+
+The cause was a shared path. `npm run build:firefox` writes into the same `dist/` as `npm run build`, and the final validation of the two preceding rounds each ended on `build:firefox`, so the folder the operator's Chrome loads from held a Firefox build. An MV3 service worker is restarted constantly and re-reads its file from disk, so at its first restart it found no valid Chrome service worker entry and never came back.
+
+**The fuse and the damage are two rounds apart.** The commands that broke the extension ran in rounds 9 and 10; the extension went down in round 11, in a browser no machine node inhabits, and was reported by the person using it.
+
+**Caught by:** the operator, using the product. No machine node saw it and none could: the corrupted folder is on the operator's disk and a dead worker is only visible in a browser session neither machine node has.
+**Fix:** reloading the extension, `dist/` having already been rewritten as a Chrome build by the setup's own `release:check`. Verified after the fact by watching translations arrive across eight samples, 2 then 5, 6, 8, 9, with the loading indicators cycling. The rule was written the same round: any sequence that runs `build:firefox` must end on `npm run build`. It was broken again, see E53.
+**Class:** D17's lesson with a delay fitted to it. A probe is part of the system it measures, and when the probe's output shares a mutable path with the product, the probe is not an observation but an edit. The delay is what made it hard: the session that broke the extension was not the session that ran the command.
+
+### E50. Fifteen seconds of a channel that had gone quiet, read as a broken feature
+**Severity: medium, and the operator refuted it in the same round.** After shipping a fix, the session declared that translation did not work. It was false. The claim rested on a single snapshot taken at 15 seconds, in a tab the session had itself created and which did not have focus, on a channel that had stopped emitting, so no message was arriving to be translated at all. The operator corrected it and was right.
+
+The re-measurement is the control the first one lacked, and the contrast is the whole entry: repeated sampling over about 22 seconds on a live channel gave 31 lines, 31 processed, 16 translated, loading indicators cycling 2, 4, 3, 5, 0, with zero duplicates and zero errors. The first measurement did not disagree with this one. It had no content.
+
+**Caught by:** the operator contradicting the report.
+**Fix:** the rule recorded in place, that no "it does not work" may be concluded from a point measurement in an unfocused tab without first establishing that the data source is alive. A structural limit was recorded beside it: the session sees only the tabs it creates, never the operator's.
+**Class:** E22, with the false negative manufactured by a sampling window instead of an invented substring. A probe that returns nothing is not evidence of nothing, and a channel that has gone silent renders exactly like a translator that has stopped.
+
+### E51. The gate ran, was red, and guarded nothing, because the chain started at git add
+**Severity: high, and the trap was already written down before it was walked into.** A commit went out over a red `release:check`. The shell chain began at `git add`, so the exit status that propagated belonged to the last command in the chain rather than to the check, and the gate's red never reached anything with the power to stop the commit. The round's own notes record that this trap had been described in an earlier brief and was hit anyway.
+
+**Why nothing else caught it either:** the test witness stayed green under vitest while `tsc` was broken, because vitest does not typecheck. Only `release:check` sees that class of breakage. A cheap green witness was available and it was wrong, which is worse than having none.
+
+**Caught by:** reading the round's own retrospective against the commit that followed it.
+**Fix:** `42f16c9` removed the duplicate import that had broken the build. The method fault itself is recorded and not fixed: nothing structural prevents the next chain from beginning at `git add`.
+**Class:** a gate whose exit code is not the exit code the shell propagates is decoration. This estate has the rule already and this is its instance in a second codebase: never place a gate where a later command can succeed on its behalf.
+
+### E52. Four of the five places a language lives, three languages running
+**Severity: medium, and the failure mode was a menu disagreeing with its own page.** Adding an interface language touches four display sites, `UI_LOCALES`, `UI_LOCALE_NAMES`, `UI_MESSAGES` and `scripts/i18n-check.mjs`, plus one authorisation site, the zod enum `uiLang` at `settings.ts:83`. The first four were done and the fifth missed, for three consecutive languages. The visible result was a menu showing one language while the page rendered another, because zod refused the new value and storage kept the last one it had accepted.
+
+The two lists are duplicated deliberately, since importing `UI_LOCALES` into `settings.ts` would pull 67 KB of catalogue into the content script bundle. The duplication is a priced decision and is not the defect. The defect is that nothing asserted the two lists agreed, so the fifth site could fall behind the other four without any signal.
+
+**Caught by:** the disagreement becoming visible in the options page, after three languages had already shipped carrying it.
+**Fix:** a test that walks `UI_LOCALES` and requires the schema to accept every entry, plus the reverse direction. Witnessed red on exactly es, tr and ko before it was made green.
+**Class:** when a value must be listed in several places and only some of them are load-bearing at write time, the others fail silently and later. The guard belongs on the invariant that the lists agree, not on remembering the procedure, which is E23's separation of two facts seen from the other side.
+
+### E53. The rule written in round 11 was broken again in round 25
+**Severity: medium, and it is the same folder as E49.** `dist/` was again left holding a Firefox build, the final `npm run build` having failed on the same duplicate import without the session noticing. The rule that any sequence running `build:firefox` must end on `npm run build` had been written into the record immediately after that same folder took the operator's extension down.
+
+The two are about twenty-six hours apart, round 11 having started 2026-08-13 14:48Z and round 25's repair commit landing 2026-08-14 16:59Z. In between, the rule sat in a file that the second session had access to and no reason to reread.
+
+**Caught by:** the round's own retrospective, which listed it as one of that round's method faults.
+**Fix:** none structural. The rule remains a sentence in a document.
+**Class:** a rule written into a journal is not a rule in force. It has no runtime, nothing consults it before the command runs, and the only thing between it and the next repeat is whether the session that read the journal is the session that runs the build. E56 is the same failure one level up, in how the rule was worded rather than whether it was enforced.
+
+### E54. Three registers collided on numbering at once, and none of them said anything
+**Severity: medium, silent, and it reproduces E46 in two further media.** E46 recorded that this ledger's own numbering collided with itself, silently, for six days. The studied campaign's registers did the same thing in parallel, none of them aware of the others.
+
+In the journal, two sections are titled ROUND 15 and two are titled ROUND 22, written by different sessions. Beneath the two ROUND 22 headings sit two different ITEM 74 and two different ITEM 75 with unrelated contents. Two further item numbers collide across rounds. Four genuine collisions, against three apparent ones that turn out to be a success heading and a first-attempt heading narrated out of order.
+
+In git, seven item numbers are carried by more than one commit. The sharpest is item 45: `1031257` "Stop handing the engine a source language that was only guessed" and `ae65813` "Count Korean letters written on their own as Korean", two minutes apart, unrelated work, the same number.
+
+**The registers also disagree about what exists.** 68 distinct item numbers appear in the journal and 52 in git, of which 35 appear in both. 33 journalled numbers were never committed and 17 committed numbers were never journalled. Agreement across the union is 41.2%, and the journal is the register the system treats as its memory.
+
+**Caught by:** counting headings by program rather than reading the files, then sweeping the journal for any line where a session had noticed. Twelve lines matched terms like collision, duplicate and numbering; none of them concerned round or item numbers. The search for a refutation was run before the claim was written, because "nobody noticed" is exactly the sort of claim that is easy to assert and cheap to check.
+**Class:** E46 again, twice over. A numbering collision emits no signal because the register goes on reading normally afterwards, and the only detector is a program that counts. Nothing in a shared register tells a writer that another writer is in it.
+
+### E55. Absence concluded from a search for the wrong identifier, again
+**Severity: low in consequence, telling in that E22 is its published ancestor.** A setting was reported dead. It was not: `injector.ts:78` toggles a class on the document element and `inject.css` carries the matching rules, widened by a later item to cover third-party emote tokens. The conclusion had been reached by searching for the identifier and never for the class it drives.
+
+The correction is recorded in place and dated, with the original claim struck through rather than deleted, which is why it is available to be counted here at all. A sister case appears in a later round, where a delegated agent reported three dead settings and verification corrected two of them.
+
+**Caught by:** re-deriving the behaviour from its effect rather than from its name, on a later pass.
+**Class:** E22 in a different codebase, and the distance is the point. E22 was published, written into memory, and the same shape still recurred against a different identifier in a different repository. What transfers is not the string but the method: search for the effect, not only for the name that is supposed to produce it.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

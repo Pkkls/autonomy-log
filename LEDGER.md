@@ -614,6 +614,17 @@ Verified both ways before committing, using the file's own selftest. With the co
 **What the fix does not do**, and this is the part worth keeping: the values remain in the history of a public repository. Cleaning the current file lowers how easily they are found. It retracts nothing. The only true remedies were never to publish them or to rewrite public history, and the second is an irreversible action on other people's clones, so it was left to the operator rather than taken.
 **Class:** 4.2, guard placement, moved from order to scope. The sweep ran before the commit, which is the correct moment, and covered the wrong set. A guard can be correctly placed in time and still be aimed at the wrong region, and "before" is the property people check while "over what" is the one they assume. The general form: define a guard by the boundary it protects, not by the work that prompted it.
 
+### E65. The gate rule was published, broken twenty minutes later, and caught by a hook rather than by the rule
+**Severity: none in consequence, and it is the cleanest live instance this record contains.** E51 records a commit shipping over a red check because the shell chain began with `git add`, so the gate's exit status never reached anything able to stop it. E53 generalises that: a rule written into a journal is not a rule in force, because nothing consults it before the command runs.
+
+Both entries were committed, and then, inside the same session and while verifying a change to this repository's own health tool, the agent ran the selftest piped into `tail` and read the pipeline's exit status as the check's. The same fault, against the same class, minutes after writing the entries that define it.
+
+It never reached the record, because on this machine something does consult a rule before a command runs. A pre-execution hook refused the command and named the class back.
+
+**Caught by:** the hook. Not the author, and not the two entries the author had written about this exact fault within the hour.
+**Fix:** the verification re-run with the check's own exit status captured before any pipe, and the output read separately. Both directions were then witnessed, the configured case green and the unconfigured case red.
+**Class:** E53's thesis demonstrated instead of argued. The distance between a rule written down and a rule in force is the distance between a document and a runtime, and the only thing that closed it here was a program standing before the action. Prose in a ledger did not stop the author of that ledger from committing the ledger's own subject twenty minutes after publishing it. This is also the answer to the question E53 left open, about what to do when a written rule keeps recurring: stop writing it and install it.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

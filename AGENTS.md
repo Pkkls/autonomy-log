@@ -4,9 +4,9 @@
 
 PURPOSE: cold-start context for an agent operating on this repository. Machine-first. Read this file before any other.
 
-SECTIONS: SCHEMA, DERIVED, ASSERTED, INVARIANTS, OPEN. Order is fixed.
+SECTIONS: SCHEMA, PRECEDENCE, DERIVED, ASSERTED, INVARIANTS, OPEN. Order is fixed.
 
-ID-PREFIX: `DRV-` re-derivable fact. `AST-` asserted, not derivable. `INV-` machine-checkable condition. `OPN-` unresolved.
+ID-PREFIX: `PRC-` precedence level. `DRV-` re-derivable fact. `AST-` asserted, not derivable. `INV-` machine-checkable condition. `OPN-` unresolved.
 ID-RULE: stable, never reused, never renumbered. Allocate above the current maximum in each series.
 
 DERIVED-COLUMNS: `ID | FACT | VALUE | COMMAND`. COMMAND regenerates VALUE exactly. This section is a CACHE, not a source; it can be rebuilt entirely by running its own commands.
@@ -28,6 +28,23 @@ NOT-AN-INVARIANT: external links are checked by `python check_agents.py --extlin
 RUNTIME: `.github/workflows/verify.yml` runs the verifier on every push and pull request. Without it the rules in this file would have no runtime and would not bind, which is AST-09 applied to AST-09.
 ESCAPE-TRAP: a COMMAND cell cannot contain a regex pipe. The table's `\|` escape and a regex `\|` are the same two characters, and unescaping turns `^\|` into `^|`, which matches every line instead of none. Write the pattern without a pipe.
 CLASSIFICATION-RULE: a claim with no regenerating command belongs in ASSERTED or OPEN, never in DERIVED. An ASSERTED claim disguised as DERIVED is an assertion with no age and no owner; when in doubt, classify as ASSERTED.
+
+## PRECEDENCE
+
+The rules in ASSERTED are a flat list and they conflict. This orders them. **Lower number wins.** Two rules at the same level that conflict are not resolved by choosing: stop and report, because a coin flip recorded as a decision is worse than an unresolved one.
+
+Each level carries the entries that put it there and the observation that would move it. An ordering with no falsifier is a doctrine, and this record has no use for one.
+
+| ID | LEVEL | RULE | BEATS | ESTABLISHED BY | MOVED IF |
+| --- | --- | --- | --- | --- | --- |
+| PRC-0 | Irreversibility | Do not take an action the operator cannot undo. Prefer the reversible form, or stop and hand it over. | Everything, including being right. | E29, E49, D17 | A case where refusing an irreversible action cost more than taking it. The record holds one such refusal and it was never tested against its counterfactual, so this level rests on argument, not measurement. |
+| PRC-1 | Exposure | Before anything becomes readable by others, run the guard, scoped to the surface a reader actually touches. | Correctness of content. | E63, E64, E66 | A published false claim costing more than a published identifier. Not observed here. The asymmetry is that a wrong claim can be corrected in place while publication cannot be retracted, which E64 records about itself. |
+| PRC-2 | Derivation | State nothing not derived from a primary artifact. Rereading is not deriving. | Completeness and speed. | E56, E57, E59, E60, E68, E70 | A case where re-deriving produced worse work than trusting the report. Six cases run the other way and none runs this way. |
+| PRC-3 | Witness | A check is not trusted until it has been seen failing on a constructed broken case. | Having the check at all. | E14, E18, E20, E21, E26, E27, E30, E34, E65, E67 | Building the witness costing more than the miss it prevents. E26 is the nearest case and it argues for this level, not against it. |
+| PRC-4 | Distinguishability | Ensure a broken state cannot read as an intact one at the boundary, in instruments and in registers alike. | Elegance and brevity. | E48, E69, RESEARCH 6c and 6g | A register found degrading loudly and ignored anyway, which would make the problem attention rather than distinguishability. |
+| PRC-5 | Economy | Do the least that works. | Nothing. It yields to every level above. | E26, AST-15 | A case where economy should have overridden a higher level. None in this record, which is what makes it last rather than absent. |
+
+Coverage is partial and stated as such: this orders the rules the record has tested against each other. Two ASSERTED rules that have never conflicted in practice are not ranked here, and inventing a rank for them would be the cheap reading described in 6g.
 
 ## DERIVED
 
@@ -80,6 +97,7 @@ DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte size
 | INV-06 | every relative markdown link resolves inside the committed tree | `python check_agents.py --links` | 0 |
 | INV-07 | machine config is ignored and never tracked | `git check-ignore -q estate.json` | 0 |
 | INV-08 | health tool selftest passes | `python healthcheck.py --selftest` | 0 |
+| INV-09 | the SECTIONS line lists exactly the sections this file has, in order | `python check_agents.py --sections` | 0 |
 
 ## OPEN
 

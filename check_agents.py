@@ -18,6 +18,7 @@ Modes:
   --numbering D   ledger D series continuity, used by INV-04
   --secrets       identifying data in the committed tree, used by INV-05
   --links         relative markdown links resolve, used by INV-06
+  --sections      the SECTIONS line matches the file, used by INV-09
   --extlinks      external links serve real content. Not an INVARIANT: it
                   needs the network, and a transient outage turning the local
                   verifier red would be a false positive, which costs more
@@ -248,6 +249,29 @@ def check_extlinks():
     return 0
 
 
+def check_sections():
+    """The SECTIONS line must list exactly the sections the file has, in order.
+
+    Adding a section and forgetting to declare it leaves a document whose own
+    schema understates it, which a reader has no way to notice. Written because
+    the precedence section was added by hand and the declaration was updated
+    from memory, which works once.
+    """
+    with open(DOC, encoding="utf-8") as fh:
+        src = fh.read()
+    m = re.search(r"^SECTIONS:\s*([^.]+)\.", src, re.M)
+    if not m:
+        print("FAIL sections: no SECTIONS line found, probe failure")
+        return 1
+    declared = [s.strip() for s in m.group(1).split(",")]
+    actual = re.findall(r"^## (.+?)\s*$", src, re.M)
+    if declared != actual:
+        print("FAIL sections: declared %s, found %s" % (declared, actual))
+        return 1
+    print("ok   sections: %d declared and present in order" % len(actual))
+    return 0
+
+
 def check_links():
     files = set(committed_files())
     bad = total = 0
@@ -320,6 +344,8 @@ def main(argv):
         return check_numbering(argv[argv.index("--numbering") + 1])
     if "--secrets" in argv:
         return check_secrets()
+    if "--sections" in argv:
+        return check_sections()
     if "--links" in argv:
         return check_links()
     if "--extlinks" in argv:

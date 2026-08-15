@@ -19,9 +19,15 @@ Modes:
   --secrets       identifying data in the committed tree, used by INV-05
   --links         relative markdown links resolve, used by INV-06
 
-Exit 0 when everything holds, 1 otherwise. Every failure is printed with its
-id and the run does not stop at the first, because reading all findings before
-believing any is this repository's own lesson (E26).
+Exit 0 when everything holds and the tree is published. Exit 2 when everything
+holds except INV-01, meaning the values are right for this machine and not yet
+visible to anyone; that is not an error and the owner clears it by pushing.
+Exit 1 on any real disagreement. Three outcomes rather than two, because a
+checker with room for two eventually reports one as the other.
+
+Every failure is printed with its id and the run does not stop at the first,
+because reading all findings before believing any is this repository's own
+lesson (E26).
 
 Commands are POSIX sh. Run from the repository root.
 """
@@ -226,12 +232,22 @@ def run_all():
     if not derived or not invariants:
         print("FAIL parsed nothing from %s, probe failure" % DOC)
         return 1
-    for f in failures:
+
+    # Three outcomes, not two. "Correct but not published yet" and "wrong" are
+    # different answers, and a checker with room for two eventually reports one
+    # as the other. This estate's oldest lesson, applied to itself.
+    pending = [f for f in failures if f.startswith("INV-01")]
+    real = [f for f in failures if not f.startswith("INV-01")]
+    for f in real:
         print("FAIL " + f)
-    if failures:
-        print("%d failure(s)" % len(failures))
+    if real:
+        print("%d failure(s)" % len(real))
         return 1
-    print("ok   AGENTS.md agrees with the committed tree")
+    if pending:
+        print("PENDING " + pending[0])
+        print("ok   every value holds; this tree is not published yet, push to clear")
+        return 2
+    print("ok   AGENTS.md agrees with the published tree")
     return 0
 
 

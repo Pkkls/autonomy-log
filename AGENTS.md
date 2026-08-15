@@ -19,7 +19,11 @@ SHELL: COMMAND cells are POSIX sh, executed as `sh -c`, from the repository root
 
 SCOPE: DERIVED reads `HEAD`, never the index and never the working tree. `INV-01` asserts `HEAD` equals `origin/main`. Those two together, and only together, mean DERIVED describes what a reader can see. A green DERIVED with a red `INV-01` describes a tree that exists only on one machine.
 
-VERIFIER: `python check_agents.py`. Exit 0 = every DERIVED value and every INVARIANT holds. Non-zero = at least one failed, each named by ID. Failures are all reported, not just the first.
+VERIFIER: `python check_agents.py`. Three outcomes, because two would put one answer where another belongs.
+EXIT-0: everything holds and the tree is published.
+EXIT-2: everything holds except `INV-01`, meaning the values are correct for this machine and not yet visible to anyone. Not an error. The owner clears it by pushing.
+EXIT-1: at least one real disagreement, each named by ID. All failures are reported, never just the first.
+ESCAPE-TRAP: a COMMAND cell cannot contain a regex pipe. The table's `\|` escape and a regex `\|` are the same two characters, and unescaping turns `^\|` into `^|`, which matches every line instead of none. Write the pattern without a pipe.
 CLASSIFICATION-RULE: a claim with no regenerating command belongs in ASSERTED or OPEN, never in DERIVED. An ASSERTED claim disguised as DERIVED is an assertion with no age and no owner; when in doubt, classify as ASSERTED.
 
 ## DERIVED
@@ -30,14 +34,12 @@ CLASSIFICATION-RULE: a claim with no regenerating command belongs in ASSERTED or
 | DRV-02 | agent-error entries in ledger | 66 | `git grep -h -c -E '^### E[0-9]+\.' HEAD -- LEDGER.md` |
 | DRV-03 | environment-discovery entries in ledger | 17 | `git grep -h -c -E '^### D[0-9]+\.' HEAD -- LEDGER.md` |
 | DRV-04 | lettered ledger entries | 2 | `git grep -h -c -E '^### E[0-9]+[a-z]\.' HEAD -- LEDGER.md` |
-| DRV-05 | commits on the branch | 71 | `git rev-list --count HEAD` |
 | DRV-06 | licence | MIT License | `git show HEAD:LICENSE \| head -1` |
 | DRV-07 | machine config tracked | 0 | `git ls-tree -r --name-only HEAD -- estate.json \| wc -l` |
-| DRV-08 | taxonomy layer rows in research | 7 | `git grep -h -c -E '^\| L[0-9]' HEAD -- RESEARCH.md` |
+| DRV-08 | taxonomy layer rows in research | 7 | `git grep -h -c -E '^. L[0-9] ' HEAD -- RESEARCH.md` |
 | DRV-09 | top-level research sections | 12 | `git grep -h -c -E '^## ' HEAD -- RESEARCH.md` |
-| DRV-10 | LEDGER.md size in bytes | 150412 | `git cat-file -s $(git rev-parse HEAD:LEDGER.md)` |
-| DRV-11 | RESEARCH.md size in bytes | 47365 | `git cat-file -s $(git rev-parse HEAD:RESEARCH.md)` |
-| DRV-12 | CHANGELOG.md size in bytes | 49551 | `git cat-file -s $(git rev-parse HEAD:CHANGELOG.md)` |
+
+DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte sizes change on every ordinary commit, so they turned the verifier red without ever meaning anything. Their ids are not reused. See AST-15.
 
 ## ASSERTED
 
@@ -57,6 +59,7 @@ CLASSIFICATION-RULE: a claim with no regenerating command belongs in ASSERTED or
 | AST-12 | `git add` with named files only. Never `-A`, never `.`. | 2026-08-15 | repository owner |
 | AST-13 | Ledger entry format: `### E<n>. <declarative title>`, a bolded severity clause, the mechanism, then `Caught by:`, `Fix:`, `Class:`. `Class:` cites other entries by identifier. | 2026-08-15 | LEDGER.md |
 | AST-14 | Adding a ledger entry means allocating above the current maximum by counting, then re-verifying after writing. Numbering has collided silently twice in this record. | 2026-08-15 | E46, E54 |
+| AST-15 | A DERIVED row must be stable under ordinary work. Commit counts, byte sizes and timestamps change on every commit and make the verifier red without meaning anything, which teaches its reader to skip it. Entry counts are kept precisely because changing one should force a re-verification of the numbering. | 2026-08-15 | E26, AST-14 |
 
 ## INVARIANTS
 

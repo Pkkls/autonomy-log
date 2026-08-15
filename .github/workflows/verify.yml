@@ -1,0 +1,41 @@
+name: verify
+
+# AGENTS.md carries the rules; this gives them a runtime. A rule written in a
+# document does not bind anything (AST-09), and check_agents.py had no trigger
+# until this file existed.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # External links are checked weekly rather than per push. They need the
+    # network, and a transient outage failing every commit would be a false
+    # positive, which in a monitoring tool costs more than a miss (E26).
+    - cron: "0 6 * * 1"
+
+jobs:
+  document:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # INV-01 compares HEAD to origin/main, so the full history and the
+          # remote ref have to be present.
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: verify AGENTS.md against the committed tree
+        run: python check_agents.py
+
+  external-links:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: every external link serves real content
+        run: python check_agents.py --extlinks

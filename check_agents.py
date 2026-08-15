@@ -18,6 +18,10 @@ Modes:
   --numbering D   ledger D series continuity, used by INV-04
   --secrets       identifying data in the committed tree, used by INV-05
   --links         relative markdown links resolve, used by INV-06
+  --extlinks      external links serve real content. Not an INVARIANT: it
+                  needs the network, and a transient outage turning the local
+                  verifier red would be a false positive, which costs more
+                  than a miss (E26). CI runs it on a schedule.
 
 Exit 0 when everything holds and the tree is published. Exit 2 when everything
 holds except INV-01, meaning the values are right for this machine and not yet
@@ -32,12 +36,17 @@ lesson (E26).
 Commands are POSIX sh. Run from the repository root.
 """
 
+import os
 import re
 import subprocess
 import sys
 
 DOC = "AGENTS.md"
 REF = "HEAD"
+
+# Invariants that depend on this machine's own configuration and cannot hold on
+# a clean checkout. Skipped when CI is set, and the skip is always printed.
+LOCAL_ONLY = {"INV-08"}
 
 # Explicit utf-8. The default is the host locale codepage, which silently
 # mangles any non-ascii byte before this file's logic ever sees it (E47).
@@ -189,6 +198,56 @@ def check_secrets():
     return 0
 
 
+def check_extlinks():
+    """External links must serve real content, not merely answer 200 (E24).
+
+    Deliberately not an INVARIANT. It needs the network, so a transient outage
+    would turn the local verifier red for a reason that is not a defect, and in
+    a monitoring tool a false positive costs more than a miss (E26). It runs on
+    a schedule in CI instead.
+    """
+    import urllib.error
+    import urllib.request
+
+    def body(url):
+        req = urllib.request.Request(url, headers={"User-Agent": "check-agents"})
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return r.status, r.read().decode("utf-8", "replace")
+        except urllib.error.HTTPError as e:
+            return e.code, ""
+        except Exception as e:  # network, DNS, TLS
+            return 0, str(e)
+
+    def serves_content(url):
+        status, text = body(url)
+        return status == 200 and len(text) > 1000 and "Page not found" not in text
+
+    # The detector must be able to fail, or its silence proves nothing (AST-10).
+    control = "https://github.com/Pkkls/deliberately-absent-witness-repository"
+    if serves_content(control):
+        print("FAIL extlinks: the negative control passed, detector is unproven")
+        return 1
+
+    urls = set()
+    for path in committed_files():
+        if path.endswith(".md"):
+            for _t, href in re.findall(r"\[([^\]]+)\]\((https?:[^)]+)\)",
+                                       committed(path)):
+                urls.add(href)
+    bad = 0
+    for url in sorted(urls):
+        if not serves_content(url):
+            print("FAIL extlinks: %s does not serve real content" % url)
+            bad += 1
+    if bad:
+        print("FAIL extlinks: %d of %d dead" % (bad, len(urls)))
+        return 1
+    print("ok   extlinks: control refused, %d external links serve real content"
+          % len(urls))
+    return 0
+
+
 def check_links():
     files = set(committed_files())
     bad = total = 0
@@ -224,6 +283,11 @@ def run_all():
     invariants = table("INVARIANTS")
     for row in invariants:
         rid, cond, cmd, expect = row[0], row[1], row[2], row[3]
+        if rid in LOCAL_ONLY and os.environ.get("CI"):
+            # Printed, never silent: a check that vanishes without saying so is
+            # indistinguishable from one that passed.
+            print("skip %s: needs machine-specific configuration, absent in CI" % rid)
+            continue
         code, _ = sh(cmd)
         if str(code) != expect.strip():
             failures.append("%s exit %d, expected %s: %s" % (rid, code, expect, cond))
@@ -258,6 +322,8 @@ def main(argv):
         return check_secrets()
     if "--links" in argv:
         return check_links()
+    if "--extlinks" in argv:
+        return check_extlinks()
     return run_all()
 
 

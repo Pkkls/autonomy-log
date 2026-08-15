@@ -23,6 +23,9 @@ VERIFIER: `python check_agents.py`. Three outcomes, because two would put one an
 EXIT-0: everything holds and the tree is published.
 EXIT-2: everything holds except `INV-01`, meaning the values are correct for this machine and not yet visible to anyone. Not an error. The owner clears it by pushing.
 EXIT-1: at least one real disagreement, each named by ID. All failures are reported, never just the first.
+LOCAL-ONLY: `INV-08` needs machine configuration that is absent from a clean checkout. It is skipped when the `CI` environment variable is set, and the skip is printed, never silent.
+NOT-AN-INVARIANT: external links are checked by `python check_agents.py --extlinks`, on a weekly CI schedule, not in this table. They need the network, and a transient outage failing every local run would be a false positive, which in a monitoring tool costs more than a miss.
+RUNTIME: `.github/workflows/verify.yml` runs the verifier on every push and pull request. Without it the rules in this file would have no runtime and would not bind, which is AST-09 applied to AST-09.
 ESCAPE-TRAP: a COMMAND cell cannot contain a regex pipe. The table's `\|` escape and a regex `\|` are the same two characters, and unescaping turns `^\|` into `^|`, which matches every line instead of none. Write the pattern without a pipe.
 CLASSIFICATION-RULE: a claim with no regenerating command belongs in ASSERTED or OPEN, never in DERIVED. An ASSERTED claim disguised as DERIVED is an assertion with no age and no owner; when in doubt, classify as ASSERTED.
 
@@ -30,7 +33,7 @@ CLASSIFICATION-RULE: a claim with no regenerating command belongs in ASSERTED or
 
 | ID | FACT | VALUE | COMMAND |
 | --- | --- | --- | --- |
-| DRV-01 | tracked files | 11 | `git ls-tree -r --name-only HEAD \| wc -l` |
+| DRV-01 | tracked files | 12 | `git ls-tree -r --name-only HEAD \| wc -l` |
 | DRV-02 | agent-error entries in ledger | 66 | `git grep -h -c -E '^### E[0-9]+\.' HEAD -- LEDGER.md` |
 | DRV-03 | environment-discovery entries in ledger | 17 | `git grep -h -c -E '^### D[0-9]+\.' HEAD -- LEDGER.md` |
 | DRV-04 | lettered ledger entries | 2 | `git grep -h -c -E '^### E[0-9]+[a-z]\.' HEAD -- LEDGER.md` |
@@ -57,7 +60,7 @@ DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte size
 | AST-10 | A check never observed failing has proved nothing. Witness every detector red on a constructed broken case and quiet on a clean one before trusting its green. | 2026-07-30 | RESEARCH section 7 |
 | AST-11 | Never read an exit code after a pipe. Capture the checked process's own status. | 2026-08-15 | E51, E65 |
 | AST-12 | `git add` with named files only. Never `-A`, never `.`. | 2026-08-15 | repository owner |
-| AST-13 | Ledger entry format: `### E<n>. <declarative title>`, a bolded severity clause, the mechanism, then `Caught by:`, `Fix:`, `Class:`. `Class:` cites other entries by identifier. | 2026-08-15 | LEDGER.md |
+| AST-13 | Ledger entry format for NEW entries: `### E<n>. <declarative title>`, a bolded severity clause, the mechanism, then `Caught by:`, `Fix:`, `Class:`, with `Class:` citing other entries by identifier. The convention accreted and earlier entries predate it: measured across 83 entries, `Severity:` appears 68 times, `Caught by:` 61, `Class:` 54, `Fix:` 43. Do not retrofit the older ones; the record is what it was. | 2026-08-15 | LEDGER.md, measured |
 | AST-14 | Adding a ledger entry means allocating above the current maximum by counting, then re-verifying after writing. Numbering has collided silently twice in this record. | 2026-08-15 | E46, E54 |
 | AST-15 | A DERIVED row must be stable under ordinary work. Commit counts, byte sizes and timestamps change on every commit and make the verifier red without meaning anything, which teaches its reader to skip it. Entry counts are kept precisely because changing one should force a re-verification of the numbering. | 2026-08-15 | E26, AST-14 |
 

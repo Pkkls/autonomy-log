@@ -40,7 +40,7 @@ CLASSIFICATION-RULE: a claim with no regenerating command belongs in ASSERTED or
 | DRV-06 | licence | MIT License | `git show HEAD:LICENSE \| head -1` |
 | DRV-07 | machine config tracked | 0 | `git ls-tree -r --name-only HEAD -- estate.json \| wc -l` |
 | DRV-08 | taxonomy layer rows in research | 7 | `git grep -h -c -E '^. L[0-9] ' HEAD -- RESEARCH.md` |
-| DRV-09 | top-level research sections | 12 | `git grep -h -c -E '^## ' HEAD -- RESEARCH.md` |
+| DRV-09 | top-level research sections | 13 | `git grep -h -c -E '^## ' HEAD -- RESEARCH.md` |
 
 DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte sizes change on every ordinary commit, so they turned the verifier red without ever meaning anything. Their ids are not reused. See AST-15.
 
@@ -65,6 +65,8 @@ DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte size
 | AST-15 | A DERIVED row must be stable under ordinary work. Commit counts, byte sizes and timestamps change on every commit and make the verifier red without meaning anything, which teaches its reader to skip it. Entry counts are kept precisely because changing one should force a re-verification of the numbering. | 2026-08-15 | E26, AST-14 |
 | AST-16 | An agent holds standing stewardship of this repository: keep it correct, keep the verifier and its runtime working, repair drift, and record errors as they occur. Stewardship is maintenance and recording. It is not a mandate to produce content. | 2026-08-15 | repository owner |
 | AST-17 | This repository records work done elsewhere and has no subject matter of its own. Every entry must trace to something observed: a commit, a command output, a measurement, a dated report. An agent given a standing mandate will be tempted to generate entries to justify it, and a fabricated entry destroys the only property this record has. A quiet period correctly produces nothing, and that must be reported as the result rather than filled. | 2026-08-15 | repository owner, AST-16 |
+| AST-18 | An agent also acts as analyst over the estate's other sessions, whose transcripts are readable. Collection and raw analysis stay local: transcripts carry the operator's private work and must never reach this repository. Only sanitized, artifact-backed findings are published. | 2026-08-15 | repository owner |
+| AST-19 | An analyst examining a peer node in its own estate is not independent, and its tilts are enumerable with a direction each: shared instruction set, shared modality, asymmetric evidence, self-inclusion, survivorship of the record, outcome knowledge. Every finding names the ones that apply to it and their direction, inside the finding. A blanket admission at the top of a document changes no conclusion, which is why it is the comfortable option. | 2026-08-15 | RESEARCH 6f |
 
 ## INVARIANTS
 

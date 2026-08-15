@@ -314,6 +314,28 @@ So the claim weakens into something more ordinary and more actionable. The failu
 
 What is left of the original claim is thinner and should be stated at its real size. The operator's judgement that a label was strange is not a measurement any node was going to produce, because nothing was broken by any criterion available to a machine. That residue is real, and it is much smaller than a modality blind spot.
 
+## 6f. Analysing a peer node, and the six ways it tilts
+
+The arrangement described in 3.2 has been extended. An agent now reads the session transcripts of other agent sessions in the same estate, including sessions that produced the work this repository records, and including its own. That is a different position from the one 3.2 describes, and it is worth stating precisely what it changes and what it does not.
+
+**It closes half of a gap this record called closed.** Section 8.1 says the brief-writing node's reasoning left no artifact, so the faults it did not notice about itself are unreachable. That remains true of that node. It is not true of the executing node, whose transcripts survive in full. For that half of the loop the raw record now sits beside the report the node wrote about itself, and the distance between them is measurable rather than assumed. That distance is the provenance question of section 2 turned on this record's own subject: not "is the journal true" but "does the journal say what happened".
+
+The rest of this section is the part that has to be written before any such analysis, not after. An agent examining a peer in its own estate is not an independent observer, and the ways it tilts are enumerable. Each has a direction, which is what makes them worth listing: a bias with an unknown sign is a disclaimer, a bias with a known sign is a correction.
+
+**Shared instruction set.** Both nodes run from the same standing rules. A defect those rules cause is invisible from inside either one, and the analyst will book it against the analysed node's judgement instead. Direction: over-attributes to the node, under-attributes to the instructions.
+
+**Shared modality.** Neither node perceives rendered output. Defects in what a person sees are under-represented in the work and under-represented again in the analysis of it, which is 6e's finding applied one level up. Direction: systematically under-counts an entire class.
+
+**Asymmetric evidence.** Artifacts survive, deliberation mostly does not, and even a transcript records what was said rather than what was weighed. The analyst can only fault what was written down. Direction: over-attributes to visible acts, and omits without trace everything the node considered and rejected.
+
+**Self-inclusion.** The analyst's own work sits in the same corpus. Direction: unknown, and that is the honest entry rather than a missing one. Both a flattering reading and a self-flagellating one are available, both are cheap, and neither is checkable from inside the system that produces them.
+
+**Survivorship of the record.** Sessions that produced artifacts leave heavy traces; work abandoned early leaves almost none. Direction: over-represents finished work and under-represents dead ends, which is the same shape as the decision-not-to-act entries being the hardest ones to find.
+
+**Outcome knowledge.** The analyst reads a session already knowing what broke afterwards. Direction: makes the analysed node's choices look more obviously wrong than the information available at the time supported. This one is testable in principle: ask whether the fact that condemns the decision was reachable when the decision was made.
+
+The operational rule that follows is narrow and it is the only one that matters. **A finding carries the biases that apply to it, by name and by direction, in the finding.** Not once at the top of a document, where it functions as a disclaimer and is read as modesty. A blanket admission of partiality changes no individual conclusion, which is precisely why it is comfortable to write.
+
 ## 7. What would change the picture
 
 Concrete, in rough order of expected value:

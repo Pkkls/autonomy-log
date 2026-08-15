@@ -690,6 +690,18 @@ It never reached the record, because on this machine something does consult a ru
 **Fix:** the notation was built and measured rather than argued about, and the measurement is what decides. No symbolic file was added, for a reason that is now a number.
 **Class:** E3, where a payload shape was guessed and happened to be right, moved from guessing data to citing evidence. The outcome was sound and the process was the defect, and here the defect is a specific and repeatable one: a result was carried outside the conditions it was obtained under. Every measured finding has a scope written next to it, and inheriting the finding without inheriting the scope is the provenance failure of section 2 applied to evidence rather than to claims.
 
+### E71. The backup manifest drifted a fourth time, and this time a check found it rather than a consequence
+**Severity: low in what was at risk, and it is the first of this family caught by a machine.** The estate health tool reported one uncovered configuration: a script in the backup manifest reads a whitelist file that the manifest does not save. The script is covered, the file it sources is not, which is the exact shape this manifest had already drifted into twice before.
+
+The file is 21 bytes and one line, hand-written, and the blocklist beside it is regenerated on a schedule. That combination is what makes it worth an entry rather than a shrug. A restore would bring back the generating script and the generated list without the exception, so a domain that had been deliberately allowed would go back to being blocked, with nothing anywhere pointing at the cause. Small and hand-written is the profile of the files that cannot be reconstructed, and being small is why nobody thinks to check them.
+
+**What is different from the three earlier drifts is who noticed.** D2 was found because two thirds of a machine turned out to be missing from an archive that had been green for months. The two drifts after it were found by hand. This one was found by a check that exists because of D2, comparing the manifest against the board rather than against the archive, and reporting the difference before any restore was attempted. The guard fired at the right moment for the first time in this family.
+
+**Caught by:** running the estate health tool with no particular suspicion, which is how it is meant to be used.
+**Fix:** the path added to the manifest. Verified in both directions: the check read FAIL with one uncovered config before the edit, and 36 entries with every config covered after it.
+**Not established:** how long the file went uncovered. The manifest carries no dates and the board's own timestamps were not consulted, so the exposure window is unknown and is not guessed here.
+**Class:** 4.3, scope drift under a verified pipeline, with the entry recording a success rather than a miss. The transferable part is narrow: the check compares the declared scope against the machine, not against the archive, because an archive that has stopped describing a machine prints exactly like one that still does. Every other signal available, size, exit code, restore test, was green throughout.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

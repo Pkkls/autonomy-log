@@ -35,6 +35,29 @@ because reading all findings before believing any is this repository's own
 lesson (E26).
 
 Commands are POSIX sh. Run from the repository root.
+
+Cost, measured 2026-08-15, median of five runs after a discarded warm-up, on
+twelve tracked files. Method matters here: a single first invocation read
+5149 ms and would have sent this in the wrong direction entirely.
+
+    full run                2057 ms
+      12 sh -c spawns       1044 ms   DERIVED rows and the non-python invariants
+      5 python respawns     1013 ms   of which healthcheck --selftest is 165
+    CI, INV-08 skipped      1892 ms
+
+Not optimised, deliberately. Roughly half the cost is respawning this file
+through the commands written in the INVARIANTS table, and that indirection is
+the design's central guarantee: the table holds the command and the verifier
+runs what the table says. Calling the functions directly would save about a
+second and make the table decorative, free to drift from what actually
+executes, which is the failure this whole apparatus exists to prevent. Two
+seconds on a push is a fair price for that, so PRC-5 yields to PRC-4 here.
+
+The one real inefficiency is check_secrets reading each tracked file with its
+own `git show`, which is O(files) in subprocess spawns. At twelve files it
+costs 434 ms. Batching would win maybe 350 ms at the price of parsing a batch
+protocol, which is not worth it yet. Revisit if the tree passes roughly fifty
+files, where the same pattern would cost several seconds.
 """
 
 import os

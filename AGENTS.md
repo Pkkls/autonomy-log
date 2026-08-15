@@ -46,7 +46,7 @@ DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte size
 | ID | CLAIM | DATE | SOURCE |
 | --- | --- | --- | --- |
 | AST-01 | Repository records errors made by coding agents under widening autonomy on real systems, each with its detection path and cost. It is a record, not a library. | 2026-07-30 | repository owner |
-| AST-02 | Never `git push`. Publication is the owner's decision, not an agent's. Commit locally and report the push command. | 2026-08-15 | repository owner |
+| AST-02 | Committing and pushing to `main` of this repository is authorized standing, no confirmation needed. `push --force`, history rewriting, and any other repository remain forbidden. This supersedes the earlier rule that forbade pushing outright; that rule was written when the repository was private and the campaign's brief required it. | 2026-08-15 | repository owner |
 | AST-03 | Never publish anything identifying a machine, a user, a network address, an ssh key filename, an absolute path, or a private repository name. Machine-specific values belong in the gitignored config read by the health tool. | 2026-08-15 | E64, E66 |
 | AST-04 | Everything written for this repository is in English, plain prose, no em dashes, no hollow openings, no robotic connectors. | 2026-07-30 | repository owner |
 | AST-05 | No claim without a controllable source. Testimony with no artifact behind it is published marked as such, never promoted to fact. | 2026-08-15 | RESEARCH section 8 |

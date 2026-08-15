@@ -679,6 +679,17 @@ It never reached the record, because on this machine something does consult a ru
 
 **Bias declaration.** Outcome knowledge applies and is the strong one: the gap was selected already knowing which items the published research cites, which makes it look more consequential than an arbitrary two-hour gap would. The mitigation is that the citation weight is a property of the already-published document and not of this analysis. Asymmetric evidence applies: the transcript stops before the last seven items, so the claim about them is bounded to this journal. Self-inclusion applies with unknown direction, since the entries this gap threatens were written by the agent writing this.
 
+### E70. A measurement was applied outside the condition it was measured under, after the confound had been named
+**Severity: low in outcome, and the outcome is the problem.** Asked to build the context file in a notation denser than prose, the agent refused and cited a published benchmark: symbolic encoding of instructions compresses well but its fidelity ranges from a quarter to full depending on the model and collapses on small ones. Those numbers are real. They were measured under a condition the benchmark states explicitly, which is that no legend or explanation for the symbols is provided. The refusal was of all symbolic encoding, including encoding that ships its own legend, which the benchmark never measured.
+
+**The confound had already been identified, by the same agent, two messages earlier.** It had written that what supplies portability is exactly what the benchmark deliberately removed, an embedded legend. Then it applied the legend-free result to the legend-bearing case anyway. Naming a confound and then reasoning past it is worse than not seeing it, because the note establishes the thought was available.
+
+**What the measurement actually shows, run afterwards.** Encoding the same content in a dense notation with an embedded legend yields 7873 characters against 8428 for the existing tables, a gain of 6.6%. The ceiling is 12.4%, because 88% of the file is irreducible field text: claims, commands and dates. The markdown-versus-JSON figure that justified the original format comes from scaffolding that markdown tables had already removed, and past that point there is nothing left to compress. The decision not to build it is correct on those grounds and was not correct on the grounds given.
+
+**Caught by:** the operator asking a second time where the thing they had requested was, which sent the agent back to the benchmark's own statement of its conditions.
+**Fix:** the notation was built and measured rather than argued about, and the measurement is what decides. No symbolic file was added, for a reason that is now a number.
+**Class:** E3, where a payload shape was guessed and happened to be right, moved from guessing data to citing evidence. The outcome was sound and the process was the defect, and here the defect is a specific and repeatable one: a result was carried outside the conditions it was obtained under. Every measured finding has a scope written next to it, and inheriting the finding without inheriting the scope is the provenance failure of section 2 applied to evidence rather than to claims.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

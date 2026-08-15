@@ -34,7 +34,7 @@ CLASSIFICATION-RULE: a claim with no regenerating command belongs in ASSERTED or
 | ID | FACT | VALUE | COMMAND |
 | --- | --- | --- | --- |
 | DRV-01 | tracked files | 12 | `git ls-tree -r --name-only HEAD \| wc -l` |
-| DRV-02 | agent-error entries in ledger | 66 | `git grep -h -c -E '^### E[0-9]+\.' HEAD -- LEDGER.md` |
+| DRV-02 | agent-error entries in ledger | 67 | `git grep -h -c -E '^### E[0-9]+\.' HEAD -- LEDGER.md` |
 | DRV-03 | environment-discovery entries in ledger | 17 | `git grep -h -c -E '^### D[0-9]+\.' HEAD -- LEDGER.md` |
 | DRV-04 | lettered ledger entries | 2 | `git grep -h -c -E '^### E[0-9]+[a-z]\.' HEAD -- LEDGER.md` |
 | DRV-06 | licence | MIT License | `git show HEAD:LICENSE \| head -1` |

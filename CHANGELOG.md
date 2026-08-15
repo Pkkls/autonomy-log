@@ -423,3 +423,23 @@ The operator then made the repository public, and the line is now correct and ve
 Going public also closed the window on E64, which had recorded four disclosures in `healthcheck.py` as a pre-publication finding. They are now live, and the entry says so.
 
 The extension repository was read throughout and never written.
+
+## Session of 2026-08-15, second pass: the rules get a runtime
+
+### AGENTS.md, machine-first context with a verifier behind it
+
+A cold-start context file for agents, and the program that checks it. Format chosen on measurement: markdown carries the same payload in 28.6% fewer characters than JSON here, and it is the register these models were trained on. Symbolic encoding was rejected despite compressing 62-81% in the published benchmark, because measured fidelity there ranges from 26% to 100% depending on the model and falls to near zero below 12B, and the loss is silent.
+
+Two zones that never mix. DERIVED holds facts that each carry the command regenerating them, so the section is a cache rebuildable from its own contents. ASSERTED holds what the repository cannot produce, each line dated and attributed. A claim with no regenerating command goes to ASSERTED or OPEN, never to DERIVED.
+
+`check_agents.py` parses the document, runs every derived command, runs every invariant, and reports each failure by id rather than stopping at the first. Three exit codes, because two would report "correct but not yet published" as "wrong". The secret scanner proves each pattern against its own specimen before a clean result is believed, and assembles those specimens at runtime so the scanner passes its own scan.
+
+`.github/workflows/verify.yml` runs it on every push and pull request, and checks external links on a weekly schedule rather than per commit, since a transient network failure reddening every commit is a false positive, and those cost more than misses here.
+
+### Three defects in the apparatus, recorded as E67
+
+Running the verifier found three faults in it, all from the commit that introduced it, each an instance of an entry it had been built to respect. A pattern matched every line, because the table's escape for a literal pipe and a regex escape for a literal pipe are the same two characters. Four derived rows were volatile enough to cry on every ordinary commit. Two outcomes existed where three answers did. Building a check does not transfer the check's lesson.
+
+### Corrections to claims that had outrun the record
+
+`AST-02` forbade pushing. It was written while the repository was private and stayed after both conditions changed. `AST-13` described the ledger entry format as universal; counted across 83 entries, `Severity:` appears 68 times, `Caught by:` 61, `Class:` 54, `Fix:` 43. The convention accreted, the early entries predate it, and they are not retrofitted.

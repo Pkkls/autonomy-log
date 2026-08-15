@@ -636,6 +636,19 @@ It never reached the record, because on this machine something does consult a ru
 **Fix:** the audit rescoped to `git ls-tree -r origin/main`, with a push-state check ahead of it, so that a clean result on an unpushed tree is reported as unmeasured rather than as clean. The disclosures remain public: the commit removing them exists only locally, and pushing is the operator's decision, not the agent's.
 **Class:** E64 again, one boundary further out, committed by the procedure written to prevent E64. A guard has to be defined by the surface an outsider actually touches, and that surface is almost never the one the tooling makes convenient to name. `git ls-files` is convenient. `origin/main` is the truth. See also E51 and E65: this estate keeps building checks that measure something adjacent to the thing at risk.
 
+### E67. The verification apparatus shipped with three defects, one per lesson it was built from
+**Severity: medium, three occurrences, and every one of them is a class already published above.** A machine-readable context file and its verifier were written in `9541cbb` to hold this repository's rules and enforce them. Running it found three defects in it, all introduced by the same commit, and each an instance of an entry it was built to respect.
+
+**One, a check that measured everything and reported it as a count.** A derived row counted taxonomy rows by matching a leading pipe. The document's table escape for a literal pipe is `\|`, and a regex escape for a literal pipe is also `\|`, so unescaping handed the shell `^|`, which in extended regular expressions means "start of line or nothing" and matches every line. It returned 348 where 7 was expected. The value was wrong in the safe direction here, but a pattern that matches everything is the same failure as a probe that matches nothing, and only the expected value being small made it visible.
+
+**Two, four rows that would have cried every day.** Commit count and three file byte sizes were recorded as derived facts. All four change on any ordinary commit, so the verifier would have gone red continuously while nothing was wrong. E26 says a false positive costs more than a miss in a monitoring tool, and this is that entry's lesson broken inside the tool built to apply it. The rows were retired rather than corrected, their ids not reused, and the selection rule written down so they do not come back.
+
+**Three, two outcomes for three answers.** The verifier reported failure whenever the local commit was not yet pushed. That is true and it is not a defect: the values were correct and simply not visible to anyone. Collapsing "correct but not published" into "wrong" is exactly E48, where a scheduled task's own "still running" code was read as a failure. It now has three exits, one per real answer.
+
+**Caught by:** running it. Not by rereading it, and not by the care taken while writing it, which was considerable and caught none of the three.
+**Fix:** all three in `3706131`, each with its trap written into the document so the next author meets it as a rule rather than as a surprise. Verified by breaking a derived value deliberately, watching the verifier name the right id and exit non-zero, then restoring.
+**Class:** E65 at the level of design rather than of a single command. Building the check does not transfer the check's lesson: three entries were consulted while writing this apparatus and all three were violated inside it. The transferable form is narrow and unglamorous. A lesson is held by a program that runs, never by an author who has recently read it, and the only reliable way to learn what a verifier does is to run it against something you know to be broken.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

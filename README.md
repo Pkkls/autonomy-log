@@ -42,6 +42,7 @@ L0 and L1 are saturated. Everything consequential lives at L2 and above, which i
 
 | File | What it is |
 | --- | --- |
+| [AGENTS.md](AGENTS.md) | For an agent rather than a person, and the one to read first if you are one. Facts that carry the command regenerating them, claims that cannot be derived and are dated instead, machine-checkable invariants, and what is still unresolved. `python check_agents.py` verifies the whole file against the tree and runs in CI. |
 | [ENGINEER.md](ENGINEER.md) | The practical read. What broke, what the fix was, what to do differently if you hand an agent the keys. Ends with the two-node protocol written out so someone else can run it. |
 | [RESEARCH.md](RESEARCH.md) | The dense read. The same events as a study of verification under autonomy: where belief detaches from the world, why green tests are a weak signal, and how error classes map onto the layers that produce them. |
 | [LEDGER.md](LEDGER.md) | The raw material both are built on. Every error, in order, with its detection path and its cost. Read this if you distrust the narratives, which you should. |

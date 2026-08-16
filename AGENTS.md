@@ -51,7 +51,7 @@ Coverage is partial and stated as such: this orders the rules the record has tes
 | ID | FACT | VALUE | COMMAND |
 | --- | --- | --- | --- |
 | DRV-01 | tracked files | 12 | `git ls-tree -r --name-only HEAD \| wc -l` |
-| DRV-02 | agent-error entries in ledger | 71 | `git grep -h -c -E '^### E[0-9]+\.' HEAD -- LEDGER.md` |
+| DRV-02 | agent-error entries in ledger | 72 | `git grep -h -c -E '^### E[0-9]+\.' HEAD -- LEDGER.md` |
 | DRV-03 | environment-discovery entries in ledger | 17 | `git grep -h -c -E '^### D[0-9]+\.' HEAD -- LEDGER.md` |
 | DRV-04 | lettered ledger entries | 2 | `git grep -h -c -E '^### E[0-9]+[a-z]\.' HEAD -- LEDGER.md` |
 | DRV-06 | licence | MIT License | `git show HEAD:LICENSE \| head -1` |

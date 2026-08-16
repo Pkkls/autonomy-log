@@ -27,7 +27,26 @@ jobs:
         with:
           python-version: "3.x"
       - name: verify AGENTS.md against the committed tree
-        run: python check_agents.py
+        run: |
+          # The verifier returns three codes and a step has room for two. On a
+          # pull request the checkout is a merge commit, so INV-01 (HEAD equals
+          # origin/main) is false by construction, for a reason that says
+          # nothing about the change under review, and the verifier returns 2.
+          # That code means every value holds and the tree is not published,
+          # which is the expected state for a pull request rather than a
+          # failure. Accepting it here masks nothing: 2 is returned only when
+          # INV-01 is the sole failure, and any real disagreement returns 1
+          # ahead of it. See E72.
+          #
+          # `|| status=$?` rather than a bare call: the default shell runs with
+          # -e, so a non-zero exit would abort before the code could be read.
+          status=0
+          python check_agents.py || status=$?
+          if [ "$status" -eq 2 ] && [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "exit 2 on a pull request: every value holds, tree not published yet"
+            exit 0
+          fi
+          exit "$status"
 
   external-links:
     if: github.event_name == 'schedule'

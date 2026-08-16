@@ -42,10 +42,7 @@ jobs:
           # -e, so a non-zero exit would abort before the code could be read.
           status=0
           python check_agents.py || status=$?
-          if [ "$status" -eq 2 ] && [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "exit 2 on a pull request: every value holds, tree not published yet"
-            exit 0
-          fi
+          # TEMPORAIRE: acceptation retiree pour temoigner le rouge.
           exit "$status"
 
   external-links:

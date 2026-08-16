@@ -738,6 +738,35 @@ The twelve were then scanned by hand, with the same tool and the same mode the s
 **Fix:** none applied. Which repositories belong in the declared list is a judgment about what the operator wants reported daily, not a defect with a correct answer: declaring all twelve doubles the scan and adds twelve rows to a report whose value is being short. The measurement is handed over with the options rather than resolved unilaterally.
 **Class:** E73 and 4.3, one instrument further along, with exposure rather than freshness as the stake. The transferable part is that a declared scope and a coverage claim are different things, and a guard that never states its own coverage lets the second be inferred from the first.
 
+### E75. The package built here and the package built from a clean clone differed by six bytes
+**Severity: medium, and six bytes was the whole of it.** A store's review process rebuilds the source it is given and compares the result against the uploaded package. The two did not match. The repository stores LF, the machine has `core.autocrlf` enabled, and there was no `.gitattributes`, so `git archive` handed out CRLF while the working tree had kept LF. Measured on the release archive: 41 entries, 38 byte-identical, and three localisation files differing by exactly six bytes each, one per line ending. Timestamps already matched, because the packer normalises those.
+
+**Six bytes is the whole failure and that is the point.** The reviewer's hash differs from the submitted one, so the build is not reproducible, which is the single thing that review question exists to establish. Nothing about the code was wrong, nothing rendered differently, and no test could have failed.
+
+**Caught by:** the session doing the work extracting the source archive into a clean directory, running the install, build and package commands there, and comparing the two archives entry by entry. Its own note is the transferable part: found by doing it rather than by reading the form.
+**Fix:** `* text=auto eol=lf` pins the line endings across platforms and autocrlf settings, with images and archives marked binary so nothing rewrites them.
+**Class:** the estate's line-ending trap, which it already knew as a pattern that fails to match in a CRLF file, arriving as a reproducibility failure instead of a failed search. What is new is the affected party: not the author, who sees nothing, but a third party rebuilding the source. A property that only an outsider can check is one no local check will ever fail on, which is E63's shape moved from availability to determinism.
+
+### E76. A cache was judged on the traffic another layer had already removed
+**Severity: low in consequence, and it corrects a conclusion this estate had already drawn.** An in-tab cache showed a 6.7% hit rate, which read as a cache not earning its place. A live session measured what was actually happening: per-user deduplication accounts for 91% of all skipped lines, 213 of 234. Deduplication runs first. The cache was therefore being scored on what deduplication had already discarded, and the low rate says nothing about whether the cache is worth keeping.
+
+**The trap is that both numbers are correct.** The hit rate was measured properly and reported honestly. What was wrong was the inference attached to it, which assumed the denominator was the traffic rather than the remainder. Neither layer can be removed on the other's numbers, and the earlier reading would have removed the wrong one.
+
+**Caught by:** watching the extension run against a live channel for the first time in that release and recording the distribution of skips, which no file had previously contained.
+**Fix:** the measurement written down beside the hit rate, so the ratio is read against what reaches it.
+**Class:** section 3.1's question moved from causes to denominators. There the failure was crediting your own action for a number a second cause produced; here it is crediting a component for a ratio a prior stage determined. Both are a measurement that is accurate and an attribution that is not, and both are invisible while the number itself is beyond reproach.
+
+### E77. A public product page carried the notes written for its reviewer
+**Severity: medium, user-facing, and it is the third surface this family has reached.** The store listing for one browser published the submission memo: the manifest key for that browser's extension id, a minimum version constraint, an instruction to declare something in the submission form, and a lint result. All of it live on the public product page, under a heading that named it as reviewer notes.
+
+The same page contradicted itself about data. The description claimed no data collection directly above a metadata block declaring that website content is collected. Both statements are defensible in their own sense and a reader sees a lie. It also opened with a capability the browser in question does not have, so a reader learned in two sentences that the headline was not for them.
+
+Two more instances of the same family landed with it. The documentation described the on-device engine as a clean split by browser, which measurement contradicted on the same machine, where one browser build exposed the interface and another of the identical version did not. And the troubleshooting entry for untranslated messages sent readers to check settings that accounted for none of the real cases: of 234 skipped lines, 213 were one user repeating themselves, 9 were below the length floor, 7 were emoji or laughter, and 1 was already in the reading language.
+
+**Caught by:** the session doing the work reading each published artifact as its audience receives it, rather than as its author remembers writing it.
+**Fix:** the reviewer notes removed, the data claim tied to the permission it comes from and stated in terms of what leaves the browser, the engine section rewritten to name both gates it actually depends on, and the troubleshooting entry replaced with the measured distribution.
+**Class:** E24 and E63 again, on a store listing rather than a report or an inventory. The recurring shape is that the author is the one party who cannot experience an artifact as its audience does, and the recurring remedy is unchanged and still unglamorous: read what you produced, once, the way it will be received. What the documentation case adds is a reader who cannot tell a wrong claim from a bug in the product, which is the distinguishability criterion arriving in prose.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

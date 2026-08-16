@@ -19,6 +19,7 @@ whole repository is about.
 import argparse
 import base64
 import json
+import re
 import time
 import os
 import subprocess
@@ -707,7 +708,33 @@ CRON_JOBS = [
     ("utiq",          "/var/log/utiq-update.log",             36),
     ("weekly-maint",  "/var/log/weekly-maint.log",           192),
     ("daily-maint",   "/root/watchdog.log",                   36),
+    ("renouvellement session", "/root/csrust-monitor/renew.log",   36),
+    ("rapport hebdo",          "/root/steamdt-weekly/report.log", 192),
 ]
+
+
+def cron_log_targets(crontab):
+    """Absolute log paths the board's crontab actually redirects to.
+
+    The declared list above is a scope, and a scope is only meaningful if
+    something compares it against the machine. Parsing happens here rather
+    than in the remote shell because the paths are relative to a `cd` earlier
+    on the same line, and resolving that through four nested quoting layers is
+    how this estate has broken probes before.
+    """
+    found = set()
+    for line in crontab.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or ">>" not in line:
+            continue
+        target = line.split(">>", 1)[1].strip().split()[0]
+        if not target.startswith("/"):
+            here = re.search(r"cd\s+(\S+)", line)
+            if not here:
+                continue
+            target = here.group(1).rstrip("/") + "/" + target
+        found.add(target)
+    return found
 
 
 def check_cron(res):
@@ -725,13 +752,19 @@ def check_cron(res):
             f"if [ -n \"$(find {path} -mmin +{max_h * 60} 2>/dev/null)\" ]; "
             f"then echo 'VIEUX {label}'; else echo 'FRAIS {label}'; fi; "
             f"else echo 'ABSENT {label}'; fi")
+    # Le crontab lui-meme, pour comparer le perimetre declare a la machine dans
+    # les deux sens. Sans cette moitie, un travail ajoute a la carte est
+    # invisible par construction : la boucle ci-dessus ne peut que confirmer ce
+    # qui est deja dans la liste.
+    lines.append("echo '---CRONTAB---'; cat /etc/crontabs/root 2>/dev/null")
     code, out = ssh("nano", "; ".join(lines))
     if code is None or code != 0:
         res.add(UNKNOWN, "cron carte", f"non sonde: {out.strip()[:50]}")
         return
 
+    body, _, crontab = out.partition("---CRONTAB---")
     seen = {}
-    for line in out.split("\n"):
+    for line in body.split("\n"):
         state, _, label = line.strip().partition(" ")
         if label:
             seen[label] = state
@@ -739,6 +772,9 @@ def check_cron(res):
     stale = [l for l, s in seen.items() if s == "VIEUX"]
     absent = [l for l, s in seen.items() if s == "ABSENT"]
     missing = [l for l, _, _ in CRON_JOBS if l not in seen]
+    declared = {p for _, p, _ in CRON_JOBS}
+    undeclared = sorted(cron_log_targets(crontab) - declared)
+
     if missing:
         # La sonde n'a pas rendu de verdict pour tout le monde. Ne pas prendre
         # un silence pour un feu vert.
@@ -747,8 +783,16 @@ def check_cron(res):
         res.add(FAIL, "cron carte", f"aucune sortie: {', '.join(absent)}")
     elif stale:
         res.add(FAIL, "cron carte", f"sortie perimee: {', '.join(stale)}")
+    elif not crontab.strip():
+        # Un crontab illisible rend le perimetre inverifiable. Un perimetre non
+        # mesure ne se rapporte pas comme un perimetre intact.
+        res.add(UNKNOWN, "cron carte", "crontab illisible, perimetre non verifiable")
+    elif undeclared:
+        res.add(FAIL, "cron carte",
+                f"{len(undeclared)} hors perimetre: {', '.join(undeclared[:3])}")
     else:
-        res.add(OK, "cron carte", f"{len(CRON_JOBS)} travaux, sorties fraiches")
+        res.add(OK, "cron carte",
+                f"{len(CRON_JOBS)} travaux, sorties fraiches, rien hors perimetre")
 
 
 def main():

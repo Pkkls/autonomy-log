@@ -772,6 +772,17 @@ Two more instances of the same family landed with it. The documentation describe
 **Fix:** the reviewer notes removed, the data claim tied to the permission it comes from and stated in terms of what leaves the browser, the engine section rewritten to name both gates it actually depends on, and the troubleshooting entry replaced with the measured distribution.
 **Class:** E24 and E63 again, on a store listing rather than a report or an inventory. The recurring shape is that the author is the one party who cannot experience an artifact as its audience does, and the recurring remedy is unchanged and still unglamorous: read what you produced, once, the way it will be received. What the documentation case adds is a reader who cannot tell a wrong claim from a bug in the product, which is the distinguishability criterion arriving in prose.
 
+### E78. The record that checks itself failed for everyone except its author
+**Severity: medium, on the front page, and it is the third time this shape has appeared.** The repository states that it verifies its own claims, and the verifier passed on every run for weeks. Cloned fresh and run the way a reader would run it, it exits 1. One invariant needs a machine-specific configuration file that is gitignored and therefore absent from every copy but one.
+
+**The defect is in the condition, not the check.** The invariant was skipped when the `CI` environment variable was set, which is a proxy for "the configuration is absent" rather than the thing itself. The proxy drifted the way proxies do. It was true in continuous integration, where the file is absent, and false for a stranger on a laptop, where the file is equally absent, so the same missing precondition produced a skip in one place and a failure in the other. The condition is now the file.
+
+**Caught by:** cloning the repository into a temporary directory and running the command the front page was about to tell readers to run. Nothing else would have found it: the author's machine has the file, so the check passed locally, and continuous integration sets the variable, so it passed there too. The only uncovered case was the one every reader is in.
+
+**Fix:** the skip is keyed on the configuration file's presence, and it prints, so an absent check announces itself rather than vanishing. Verified in both directions: with the file present the invariant runs, with it moved aside the skip is printed and the run is otherwise clean, and a fresh clone now exits 0.
+
+**Class:** E63 and E66 a third time. E63 was an inventory calling itself public while answering 404 to everyone but its author. E66 was an audit measuring the local index rather than the published tree. This is a verifier that passes for the author and fails for the reader. The recurring shape is not carelessness, it is that **the author's environment is never the environment under test**, and every one of the three was found only by leaving it. The generalisable move is cheap and was skipped three times: run the thing from a clean clone before claiming it works.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

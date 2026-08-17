@@ -69,9 +69,17 @@ import sys
 DOC = "AGENTS.md"
 REF = "HEAD"
 
-# Invariants that depend on this machine's own configuration and cannot hold on
-# a clean checkout. Skipped when CI is set, and the skip is always printed.
+# Invariants that need this machine's own configuration, which is gitignored
+# and therefore absent from every clone but this one.
+#
+# The condition is the config file itself, not the CI environment variable. CI
+# was a proxy for "the config is absent" and it drifted the way proxies do:
+# true in CI, false for a stranger who clones the repository, so `git clone &&
+# python check_agents.py` exited 1 for every reader while passing for the
+# author. A repository whose front page says the record checks itself, and
+# whose check only passes on one machine, is E63 for the third time.
 LOCAL_ONLY = {"INV-08"}
+LOCAL_CONFIG = "estate.json"
 
 # Explicit utf-8. The default is the host locale codepage, which silently
 # mangles any non-ascii byte before this file's logic ever sees it (E47).
@@ -386,21 +394,49 @@ def check_amend():
     return 0
 
 
+def _slug(heading):
+    """GitHub's heading anchor: lowercase, punctuation dropped, spaces hyphened."""
+    s = heading.strip().lower()
+    s = re.sub(r"[`*_\[\]()<>.,:;!?'\"/\\]", "", s)
+    return re.sub(r"\s+", "-", s).strip("-")
+
+
 def check_links():
+    """Relative links resolve, and so do their anchors.
+
+    Checking only the filename lets `LEDGER.md#nonexistent` pass, which is a
+    link that answers with a page and lands nowhere. That is E24's shape at the
+    fragment level, and it appeared the moment the front page started pointing
+    at individual entries.
+    """
     files = set(committed_files())
-    bad = total = 0
+    headings = {}
+    for f in files:
+        if f.endswith(".md"):
+            headings[f] = {_slug(h) for h in
+                           re.findall(r"^#{1,6}\s+(.+?)\s*$", committed(f), re.M)}
+    bad = total = anchors = 0
     for path in sorted(f for f in files if f.endswith(".md")):
         for _text, href in re.findall(r"\[([^\]]+)\]\(([^)]+)\)", committed(path)):
             if href.startswith("http"):
                 continue
             total += 1
-            target = href.split("#")[0]
-            if target and target not in files:
+            target, _, frag = href.partition("#")
+            target = target or path
+            if target not in files:
                 print("FAIL %s: relative link '%s' resolves to nothing" % (path, href))
                 bad += 1
+                continue
+            if frag:
+                anchors += 1
+                if frag not in headings.get(target, set()):
+                    print("FAIL %s: '%s' points at no heading in %s"
+                          % (path, href, target))
+                    bad += 1
     if bad:
         return 1
-    print("ok   links: %d relative links resolve inside the committed tree" % total)
+    print("ok   links: %d relative links resolve, %d of them to a real heading"
+          % (total, anchors))
     return 0
 
 
@@ -421,10 +457,11 @@ def run_all():
     invariants = table("INVARIANTS")
     for row in invariants:
         rid, cond, cmd, expect = row[0], row[1], row[2], row[3]
-        if rid in LOCAL_ONLY and os.environ.get("CI"):
+        if rid in LOCAL_ONLY and not os.path.exists(LOCAL_CONFIG):
             # Printed, never silent: a check that vanishes without saying so is
             # indistinguishable from one that passed.
-            print("skip %s: needs machine-specific configuration, absent in CI" % rid)
+            print("skip %s: %s is absent, so this check has nothing to run "
+                  "against" % (rid, LOCAL_CONFIG))
             continue
         code, _ = sh(cmd)
         if str(code) != expect.strip():

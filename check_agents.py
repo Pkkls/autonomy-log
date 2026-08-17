@@ -235,6 +235,20 @@ def check_extlinks():
     import urllib.request
 
     def body(url):
+        """Fetch without following redirects, and the choice is load-bearing.
+
+        urlopen does not follow 3xx here, which is what lets the same-host
+        control discriminate: one host answers 308 for an absent path and 200
+        for a real one. A client that followed the redirect would land on the
+        application shell, read 200 with a full page, and the control would
+        look alive, leaving this check blind on that host.
+
+        This was found by testing the checker with a different HTTP client than
+        the checker uses, which produced a false alarm about a defect that was
+        not there. Stated here so the discriminating behaviour is intentional
+        rather than accidental, and so the next person changing this function
+        knows what the redirect policy is buying.
+        """
         req = urllib.request.Request(url, headers={"User-Agent": "check-agents"})
         try:
             with urllib.request.urlopen(req, timeout=30) as r:
@@ -244,15 +258,26 @@ def check_extlinks():
         except Exception as e:  # network, DNS, TLS
             return 0, str(e)
 
-    def serves_content(url):
-        status, text = body(url)
+    def looks_alive(text, status):
         return status == 200 and len(text) > 1000 and "Page not found" not in text
 
-    # The detector must be able to fail, or its silence proves nothing (AST-10).
-    control = "https://github.com/Pkkls/deliberately-absent-witness-repository"
-    if serves_content(control):
-        print("FAIL extlinks: the negative control passed, detector is unproven")
-        return 1
+    def host_control(url):
+        """What a deliberately absent path on the same host looks like.
+
+        A single-page application answers 200 with the same shell for every
+        path, so status and length cannot tell a live page from a dead one.
+        Comparing against an absent path on the same host is what makes the
+        difference visible, and where it is not visible the answer is UNKNOWN
+        rather than OK. E24 is exactly this failure and this checker was blind
+        to it on that class of host until a link to one was added.
+        """
+        from urllib.parse import urlparse
+        p = urlparse(url)
+        absent = "%s://%s/deliberately-absent-path-witness-%d" % (p.scheme, p.netloc, 424242)
+        return body(absent)
+
+    controls = {}
+    unknown = []
 
     urls = set()
     for path in committed_files():
@@ -260,16 +285,33 @@ def check_extlinks():
             for _t, href in re.findall(r"\[([^\]]+)\]\((https?:[^)]+)\)",
                                        committed(path)):
                 urls.add(href)
-    bad = 0
+    bad, live = 0, 0
     for url in sorted(urls):
-        if not serves_content(url):
-            print("FAIL extlinks: %s does not serve real content" % url)
+        status, text = body(url)
+        if not looks_alive(text, status):
+            print("FAIL extlinks: %s answered %s and served nothing" % (url, status))
             bad += 1
+            continue
+        from urllib.parse import urlparse
+        host = urlparse(url).netloc
+        if host not in controls:
+            controls[host] = host_control(url)
+        c_status, c_text = controls[host]
+        if looks_alive(c_text, c_status):
+            # The host answers alive for a path that does not exist, so this
+            # check cannot separate the two. Saying OK here would be the third
+            # answer reported as the second, which is E48.
+            unknown.append(url)
+            continue
+        live += 1
+    for url in unknown:
+        print("?    extlinks: %s is indistinguishable from an absent path on the "
+              "same host, not verified" % url)
     if bad:
-        print("FAIL extlinks: %d of %d dead" % (bad, len(urls)))
+        print("FAIL extlinks: %d of %d served nothing" % (bad, len(urls)))
         return 1
-    print("ok   extlinks: control refused, %d external links serve real content"
-          % len(urls))
+    print("ok   extlinks: %d verified against a same-host absent control, "
+          "%d unverifiable, %d total" % (live, len(unknown), len(urls)))
     return 0
 
 

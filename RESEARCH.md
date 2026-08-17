@@ -360,7 +360,7 @@ So the variable is not flattery, it is the cost of the reading. A passive verb c
 
 ## 6h. A disclosure protocol's invariants, tested against this record
 
-A draft protocol for user-owned context states ten design invariants a conforming implementation must preserve. They are asserted from first principles and the document is careful, with an explicit out-of-scope section and a reference implementation that names what it excludes. This record contains 105 measured failures. The two had never been put against each other, and the result is worth more than either would suggest alone.
+The [Context Layer](https://sierracatalina.com/context-layer), a draft protocol for user-owned context, states ten design invariants a conforming implementation must preserve. They are asserted from first principles and the document is careful, with an explicit out-of-scope section and a reference implementation that names what it excludes. This record contains 105 measured failures. The two had never been put against each other, and the result is worth more than either would suggest alone.
 
 **Method.** The ten invariants were re-derived from the specification rather than from any summary, which corrected the count: an earlier reading of the same page had said seven. A lexical pre-filter proposed candidate entries per invariant, then every candidate was read and kept only where the invariant blocks a mechanism the entry actually names. Resemblance was not counted. Seven candidates from the discoveries series were read individually rather than excluded silently.
 

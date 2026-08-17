@@ -30,6 +30,14 @@ Syntax and type errors never survive. The agent's own tests catch the layer dire
 
 The consequence is the practical part. Answering an incident with more unit tests spends effort on the one layer that was never in danger. Seven layers, their detectors, and how often each one actually caught anything are in [RESEARCH.md](RESEARCH.md).
 
+## Tested against someone else's invariants
+
+The [Context Layer](https://sierracatalina.com/context-layer), a draft protocol for user-owned context, states ten design invariants a conforming implementation must preserve. Put against this record, they prevent 7 of the 105 entries and refute none. It is not wrong about anything here. It is aimed at a different half of the problem.
+
+The sharpest result is the invariant that scores zero on its own ground. It forbids reporting success before the completion record is durable, and this record is full of operations that reported success: a scanner that exited 0 without finding the repository it was meant to scan, a check whose exit code came from a pipe, a download that installed a 404 page as a blocklist. A receipt would have recorded every one of them as completed, because it attests that an act occurred and not that it accomplished anything.
+
+Method, counts and entry ids are in [RESEARCH.md](RESEARCH.md), section 6h.
+
 ## The record checks itself
 
 [AGENTS.md](AGENTS.md) holds every factual claim about this repository next to the command that regenerates it. `python check_agents.py` runs all of them plus nine invariants, and CI fails the build when one has drifted. Entry numbering is recounted on every push, because it once collided with itself silently for six days and nothing in the file looked wrong.

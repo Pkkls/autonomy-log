@@ -40,7 +40,11 @@ The [Context Layer](https://sierracatalina.com/context-layer), a draft protocol 
 
 The sharpest result is the invariant that scores zero on its own ground. It forbids reporting success before the completion record is durable, and this record is full of operations that reported success: a scanner that exited 0 without finding the repository it was meant to scan, a check whose exit code came from a pipe, a download that installed a 404 page as a blocklist. A receipt would have recorded every one of them as completed, because it attests that an act occurred and not that it accomplished anything.
 
-Method, counts and entry ids are in [RESEARCH.md](RESEARCH.md), section 6h.
+**The exchange ran both ways, and one rule came back.** That specification requires that a contradiction never be resolved by silently dropping the losing branch, and that a superseded claim say what supersedes it. This record had the convention and not the mechanism: two entries were corrected by a later one, which said so only in its own prose, using pronouns where the identifiers belonged. A reader arriving at either met a claim that looked intact. That relation is now a link written in both directions and checked on every push, and the corrected entries open with what changed and what still stands.
+
+Two designs also converged without contact. Its claims carry a status separating what was asserted from what was derived, with provenance attached to the derived side, which is the same split the machine-readable context file here arrived at independently. Four further ideas from the same document were measured against this record and refused with their counts, because taking something from a well-built document on the grounds that it is well-built is the failure this whole repository is about.
+
+Read at v0.1-draft on 2026-08-16. Method, counts and entry ids are in [RESEARCH.md](RESEARCH.md), section 6h; the refusals and their counts are in [AGENTS.md](AGENTS.md), AST-20.
 
 ## The record checks itself
 

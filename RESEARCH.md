@@ -358,6 +358,43 @@ So the variable is not flattery, it is the cost of the reading. A passive verb c
 
 **Bias declaration, per 6f.** Self-inclusion applies heavily and its direction is unknown: this thesis is the analyst's own, six of the fifteen entries it unifies were written by the same agent within one session, and a reading in which recent work turns out to be the unifying material is exactly what an unchecked synthesis would produce. Outcome knowledge applies: the criterion was formed after seeing the entries, so the census tests coverage rather than prediction, and no claim of prediction is made. Survivorship applies to the ambiguous six, which are held out rather than resolved, and holding them out is the conservative direction only if the criterion is true.
 
+## 6h. A disclosure protocol's invariants, tested against this record
+
+A draft protocol for user-owned context states ten design invariants a conforming implementation must preserve. They are asserted from first principles and the document is careful, with an explicit out-of-scope section and a reference implementation that names what it excludes. This record contains 105 measured failures. The two had never been put against each other, and the result is worth more than either would suggest alone.
+
+**Method.** The ten invariants were re-derived from the specification rather than from any summary, which corrected the count: an earlier reading of the same page had said seven. A lexical pre-filter proposed candidate entries per invariant, then every candidate was read and kept only where the invariant blocks a mechanism the entry actually names. Resemblance was not counted. Seven candidates from the discoveries series were read individually rather than excluded silently.
+
+| Invariant | Prevents | Does not prevent | Refuted by | Entries |
+| --- | --- | --- | --- | --- |
+| no ambient raw-vault access | 1 | 104 | none | E29 |
+| purpose-bound requests | 0 | 105 | none | |
+| reducible scope | 0 | 105 | none | |
+| provenance continuity | 6 | 99 | none | E33, E56, E57, E58, E59, E60 |
+| expiry | 0 | 105 | none | |
+| non-escalation | 0 | 105 | none | |
+| proposed writeback | 0 | 105 | none | |
+| receipted sensitive operations | 0 | 105 | none | |
+| minimum reveal for discovery | 0 | 105 | none | |
+| native-protocol preservation | 0 | 105 | none | |
+
+**Seven entries of 105, which is 6.7%.** Nothing is refuted: no entry describes a case where applying one of these invariants would have cost more than not applying it. The protocol is not wrong about anything here. It is aimed elsewhere.
+
+**The sharpest result is the one that scores zero on its own ground.** Receipted sensitive operations is the invariant whose subject matter is unambiguously present in this record: it forbids reporting success before the completion record is durable, and this record is full of operations that reported success. It prevents none of them. E7 exited zero after failing to find the repository it was meant to scan, E20 read a pipe's exit code instead of the check's, E40 called a stop that matched no case, and D14 installed an error page as a blocklist because a download exited zero on a 404. A receipt would have recorded each of those faithfully and said "completed, success". **A receipt attests that an act occurred, not that it accomplished anything**, and the twelve-entry family of checks that run correctly and observe nothing is invisible to it.
+
+**Provenance continuity is the only invariant with real traction, and its two boundaries are informative.** It catches the family this record calls L6: a claim received and passed on without what supports it. Requiring a resolvable reference to supporting records would have stopped a brief asserting an invariant it had only been told (E57), a round count never derived (E59), a burial justified by a measurement that did not exist (E58), a note marked "to verify" recorded as measured (E56), four claims about registers refuted by counting (E60), and a delegated agent's diagnosis accepted without characterisation (E33).
+
+It does not stop two others, and both are boundaries worth naming. In E68 the claim had provenance and what was missing was **who found the defect**, which is not a supporting source record. In E70 the reference existed and resolved, and what was missing was the **condition under which the cited measurement was obtained**. A provenance reference carries where a claim came from. It does not carry the scope of its own validity, and it does not carry the discovery channel. Both gaps produced errors here.
+
+**Classes in this record with no corresponding invariant at all.** These are the places where a failure log knows something a disclosure protocol does not ask about.
+
+A check that executes correctly and measures nothing, twelve entries, the largest single family here. A number confirmed by a second uncontrolled cause, which is section 3.1 and has no analogue in a policy engine. A register that degrades without changing shape, section 6g, where a journal that stops reads exactly like one that finished. An outbound artifact nobody read as its audience receives it, since the protocol governs what enters a consumer and not what an author publishes. The scope of a measurement as distinct from the measurement. And a probe that perturbs the system it measures, five entries, which no permission model addresses because the probe was authorised.
+
+**Verdicts.** Provenance continuity is confirmed empirically, on six entries. No ambient raw-vault access is confirmed on one. Seven invariants are untested by this corpus, because it contains no disclosure exchange: there is no requester to authenticate, no bundle to expire, no discovery to minimise. Receipted sensitive operations is the exception and its verdict is different: its domain is present here and its coverage is zero.
+
+**What this does not establish.** That the protocol is insufficient, which would require testing it against the failures of a system that actually runs it. This record is the wrong corpus for eight of the ten invariants and says so rather than scoring them. The honest reading is that the two documents address different halves of the same problem: one decides what an agent may know before it acts, the other records what it got wrong afterwards, and the only invariant they share is that a claim must carry what supports it.
+
+**Bias declaration, per 6f.** Self-inclusion applies with unknown direction: the corpus is this estate's own and the analyst wrote six of the entries that provenance continuity is credited with catching, so a result in which the imported invariant validates recent work is exactly what an unchecked reading would produce. Outcome knowledge applies: the invariants were read after the corpus, so this measures coverage and not prediction. Asymmetric evidence applies to the zero rows, which record an absence in this corpus rather than a property of the protocol.
+
 ## 7. What would change the picture
 
 Concrete, in rough order of expected value:

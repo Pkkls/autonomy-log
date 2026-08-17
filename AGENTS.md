@@ -58,7 +58,7 @@ Coverage is partial and stated as such: this orders the rules the record has tes
 | DRV-06 | licence | MIT License | `git show HEAD:LICENSE \| head -1` |
 | DRV-07 | machine config tracked | 0 | `git ls-tree -r --name-only HEAD -- estate.json \| wc -l` |
 | DRV-08 | taxonomy layer rows in research | 7 | `git grep -h -c -E '^. L[0-9] ' HEAD -- RESEARCH.md` |
-| DRV-09 | top-level research sections | 14 | `git grep -h -c -E '^## ' HEAD -- RESEARCH.md` |
+| DRV-09 | top-level research sections | 15 | `git grep -h -c -E '^## ' HEAD -- RESEARCH.md` |
 
 DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte sizes change on every ordinary commit, so they turned the verifier red without ever meaning anything. Their ids are not reused. See AST-15.
 

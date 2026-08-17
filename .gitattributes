@@ -1,0 +1,14 @@
+# Line endings, pinned for every platform and every autocrlf setting. Without
+# this, `git archive` hands out CRLF while a working tree keeps LF, and a build
+# from a clean clone differs from one built locally. That is E75, found in the
+# extension repository by rebuilding a release archive and comparing it byte by
+# byte against the submitted one.
+* text=auto eol=lf
+
+# This repository is a written record with two small tools in it. Linguist
+# classes markdown as prose and excludes it, so the landing page reported
+# "Python 100%" over roughly 324 KB of prose and 57 KB of Python, telling every
+# visitor the wrong thing about what this is. Counting the prose is the
+# accurate answer, not a cosmetic one.
+*.md linguist-detectable=true
+*.md linguist-documentation=false

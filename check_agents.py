@@ -395,10 +395,22 @@ def check_amend():
 
 
 def _slug(heading):
-    """GitHub's heading anchor: lowercase, punctuation dropped, spaces hyphened."""
+    """GitHub's heading anchor: lowercase, drop all but word characters, hyphen
+    and space, then spaces to hyphens.
+
+    Validated against the renderer rather than against itself. On 2026-08-16 the
+    ledger's 110 headings were compared to the 110 anchors GitHub actually
+    generates on the rendered page, in both directions, with no divergence.
+
+    An earlier version listed the punctuation to strip instead of keeping what
+    survives, and scored the same 110 by luck: it dropped underscores that
+    GitHub keeps and kept ampersands that GitHub drops, and no heading here
+    contains either. Same answer, wrong process, which is E3. This form is right
+    by construction, so a future heading with an underscore does not silently
+    produce a link that passes the check and lands nowhere.
+    """
     s = heading.strip().lower()
-    s = re.sub(r"[`*_\[\]()<>.,:;!?'\"/\\]", "", s)
-    return re.sub(r"\s+", "-", s).strip("-")
+    return re.sub(r"[^\w\- ]", "", s).replace(" ", "-")
 
 
 def check_links():

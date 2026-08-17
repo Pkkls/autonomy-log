@@ -19,6 +19,7 @@ Modes:
   --secrets       identifying data in the committed tree, used by INV-05
   --links         relative markdown links resolve, used by INV-06
   --sections      the SECTIONS line matches the file, used by INV-09
+  --amend         supersession links are bidirectional, used by INV-10
   --extlinks      external links serve real content. Not an INVARIANT: it
                   needs the network, and a transient outage turning the local
                   verifier red would be a false positive, which costs more
@@ -295,6 +296,54 @@ def check_sections():
     return 0
 
 
+def check_amend():
+    """Supersession must be a link, not a sentence.
+
+    An entry corrected by a later one used to say so only in the later entry's
+    prose, with a pronoun where the identifier belonged. Nothing pointed back,
+    so a reader arriving at the corrected entry met an intact-looking claim,
+    which is exactly the register failure RESEARCH 6g describes.
+
+    The relation is now two fields and this checks both directions:
+    an entry declares `**Amends:** E52, E61` and each named entry carries
+    `**Amended by E68:`. A one-way link is a broken link.
+    """
+    text = committed("LEDGER.md")
+    blocks = {}
+    for part in re.split(r"^### ", text, flags=re.M)[1:]:
+        blocks[part.split(".")[0].strip()] = part
+
+    forward, back = {}, {}
+    for eid, body in blocks.items():
+        m = re.search(r"\*\*Amends:\*\*\s*([^\n]+)", body)
+        if m:
+            forward[eid] = re.findall(r"\b[ED]\d+[a-z]?\b", m.group(1))
+        for m in re.finditer(r"\*\*Amended by ([ED]\d+[a-z]?)\b", body):
+            back.setdefault(eid, []).append(m.group(1))
+
+    bad = 0
+    for eid, targets in forward.items():
+        for t in targets:
+            if t not in blocks:
+                print("FAIL %s amends %s, which does not exist" % (eid, t))
+                bad += 1
+            elif eid not in back.get(t, []):
+                print("FAIL %s amends %s, and %s carries no pointer back" % (eid, t, t))
+                bad += 1
+    for eid, sources in back.items():
+        for s in sources:
+            if eid not in forward.get(s, []):
+                print("FAIL %s says it is amended by %s, which does not declare it"
+                      % (eid, s))
+                bad += 1
+    if bad:
+        print("FAIL amend: %d broken supersession link(s)" % bad)
+        return 1
+    pairs = sum(len(v) for v in forward.values())
+    print("ok   amend: %d supersession link(s), every one bidirectional" % pairs)
+    return 0
+
+
 def check_links():
     files = set(committed_files())
     bad = total = 0
@@ -369,6 +418,8 @@ def main(argv):
         return check_secrets()
     if "--sections" in argv:
         return check_sections()
+    if "--amend" in argv:
+        return check_amend()
     if "--links" in argv:
         return check_links()
     if "--extlinks" in argv:

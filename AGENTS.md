@@ -27,6 +27,7 @@ LOCAL-ONLY: `INV-08` needs machine configuration that is absent from a clean che
 NOT-AN-INVARIANT: external links are checked by `python check_agents.py --extlinks`, on a weekly CI schedule, not in this table. They need the network, and a transient outage failing every local run would be a false positive, which in a monitoring tool costs more than a miss.
 RUNTIME: `.github/workflows/verify.yml` runs the verifier on every push and pull request. Without it the rules in this file would have no runtime and would not bind, which is AST-09 applied to AST-09.
 ESCAPE-TRAP: a COMMAND cell cannot contain a regex pipe. The table's `\|` escape and a regex `\|` are the same two characters, and unescaping turns `^\|` into `^|`, which matches every line instead of none. Write the pattern without a pipe.
+SUPERSESSION: an entry corrected by a later one is never edited into agreement and never deleted. The later entry declares `**Amends:** E52, E61`, and each corrected entry opens with `**Amended by E68:**` and one clause saying what changed and what still stands. `INV-10` checks both directions, because a one-way link leaves the corrected entry reading as intact, which is the failure RESEARCH 6g describes.
 CLASSIFICATION-RULE: a claim with no regenerating command belongs in ASSERTED or OPEN, never in DERIVED. An ASSERTED claim disguised as DERIVED is an assertion with no age and no owner; when in doubt, classify as ASSERTED.
 
 ## PRECEDENCE
@@ -98,6 +99,7 @@ DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte size
 | INV-07 | machine config is ignored and never tracked | `git check-ignore -q estate.json` | 0 |
 | INV-08 | health tool selftest passes | `python healthcheck.py --selftest` | 0 |
 | INV-09 | the SECTIONS line lists exactly the sections this file has, in order | `python check_agents.py --sections` | 0 |
+| INV-10 | every supersession between ledger entries is linked in both directions | `python check_agents.py --amend` | 0 |
 
 ## OPEN
 

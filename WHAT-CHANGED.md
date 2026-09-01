@@ -96,4 +96,6 @@ Two entries entered the layer that gets reloaded, and one existing entry was cor
 
 **The project entry was factually wrong and had been since it was written.** It described this repository as public. It was private until 2026-09-01. The correction matters more than the fact: a memory entry that has never been re-derived is a claim inherited from a document nobody rechecked, which is the class this record has the most entries about. It now carries the exposure decision as well, so the next session does not reopen a question that was closed with its cost counted.
 
+**The layer this file grades was measured, and it failed.** 20 claims in memory about which repositories are published: 13 right, 7 wrong, every error in the same direction, always claiming public for something private. E83. The correction is not seven edits, it is a rule: a visibility is a question with a command behind it, never a fact to store. Where an entry has to mention one, it carries the date it was checked.
+
 **What deliberately did not enter memory.** The counts in E80, E81 and E82. Numbers move, and a memory index read at the start of every session is exactly the wrong place for a value that will be stale next week. The rule enters memory, the number stays in the ledger with the command that regenerates it.

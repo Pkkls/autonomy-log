@@ -838,6 +838,24 @@ The class exposed by publishing is therefore identity and topology: an operator'
 **Decision: published as-is.** `OPN-04` closes as a decision rather than as a solution, which is the honest form of closing it. The disclosure stays, its size is stated here instead of implied, and anyone who thinks the trade was wrong can read what stood on both sides of it.
 **Class:** irreversible action, taken deliberately, with the count on the table.
 
+### E83. The layer that grades every other one, measured, and wrong in a single direction
+**Severity: high, because this is the register [WHAT-CHANGED.md](WHAT-CHANGED.md) grades all the others against.** That file states the test of whether anything was learned: not whether a document was written, but whether a rule entered the layer that gets reloaded at the start of every session. That layer was never itself measured. It is now.
+
+**The measurement.** The agent's persistent memory holds 20 claims about the visibility of this estate's repositories, spread across 65 files. Checked against the API on 2026-09-01: **13 correct, 7 wrong.** Every wrong one fails in the same direction. Memory says public, the repository is private. **Not once does it claim private for something public**, so this is not noise around a true value, it is a register decaying along one axis.
+
+Of the 9 entries claiming a repository is published, 2 are true today and one of those two became true this morning, by publication rather than by the claim having been right. Seven remain false.
+
+**The mechanism, and it is the whole entry.** A repository's visibility is written into memory at the moment it is published, which is the one moment the claim is true and the only moment anyone checks it. Nothing re-derives it afterwards, and in this estate visibility moves in one direction: things get taken private. A register written once at its truest moment and never rechecked will therefore be wrong in exactly one direction, which is what the count shows. **This is AST-15 applied to a layer that has no DERIVED section:** a volatile value stored as if it were a stable one, with no command attached to regenerate it.
+
+**Caught by:** publishing a repository whose memory entry called it public and finding it private, twice in one session, then counting the whole register instead of fixing the two instances. The first fix was applied to a symptom and the count was what turned it into a finding.
+
+**Consequence, already visible from the outside.** D18 is this same defect seen by a reader: four links in a published document pointing at repositories that answer 404. The links were the symptom, this is the belief behind them, and the agent has been reporting work as published when it was not.
+
+**Fix:** the 7 entries are corrected with the date of the measurement, and the rule that replaces them is the one this repository already runs on. A visibility is not a fact to store, it is a question with a command: `gh repo view <owner>/<name> --json visibility`. Where a memory entry needs to mention it, it carries the date it was checked, so a reader can see the age of the claim rather than inherit its confidence.
+
+**The names are not here, deliberately.** The finding is a count and a direction, and both survive without a list. The list would disclose which private projects exist, which is the one part of it that costs something and the one part that teaches nothing. That is minimum reveal, and it is the third rule taken from the protocol in [SOURCES.md](SOURCES.md).
+**Class:** a register with no mechanism behind it, in the layer that certifies the others.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

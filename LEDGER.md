@@ -798,6 +798,46 @@ Two more instances of the same family landed with it. The documentation describe
 
 **Class:** E68 turned around. There the record omitted a discovery channel and a later reader filled the silence in the flattering direction. Here the source stated the finding plainly and the reader never opened the page, then presented it as their own. Both produce a false attribution, and neither required anyone to lie. The rule that would have prevented this is the one already written in this repository for inherited claims, applied to a source rather than to a report: before calling something a finding, read the parts of the source that would contain it.
 
+### E80. A provenance claim measured in a repository the record does not name
+**Severity: high for the record, because it is an asserted rule in the file written for agents, and the number in it decided a refusal.** `AST-20` states that 6 of 105 entries cite a commit hash, that there are 10 distinct hashes, and that all 10 resolve by program, and it refuses structured provenance references on exactly that count: the gap is empty, so there is nothing to import.
+
+**The corpus holds 12, not 10, and it held 12 on the day the claim was written.** Recounted from `LEDGER.md` at the commit that introduced `AST-20` and again at HEAD, the same twelve appear both times. Six entries carry them, which is the one number in the claim that was right: E51, E54, E57, E58, E61, E67.
+
+**Resolution splits, and the split is the finding.** Ten of the twelve resolve in `Pkkls/kick-chat-translator`, the extension repository those entries audit. Two, `3706131` and `9541cbb`, resolve in this repository. None resolves in both, and no citing sentence names either repository. A reader holding a hash cannot tell which of two projects to look in, and a reader who guesses the repository they are standing in gets 404 on ten of twelve.
+
+**The mechanism is the reusable part.** A program was pointed at one checkout and asked how many of the hashes it could resolve. It answered ten, and ten became both the numerator and the denominator. Nothing asked the corpus how many hashes it contained, so the two the instrument could not see were the two the instrument was standing on. **A count taken from an instrument's hit list measures the instrument, not the corpus**, which is E22 in a new register and E79's coverage failure one level down.
+
+**Caught by:** re-deriving the count from the file instead of rereading the claim, then resolving every hash through the public API against both candidate repositories, which is the path a reader has and the author never took.
+**Consequence:** the refusal is overturned by its own corrected measurement. The gap was not empty, it was unmeasured. Structured provenance is adopted as the Citations table at the end of this file with `INV-11` behind it, and `AST-21` supersedes that clause of `AST-20`.
+**Class:** denominator inherited from the tool that was meant to supply only the numerator.
+
+### E81. A version-pinned citation outlived its source, with the link check green throughout
+**Severity: medium, and it is the record predicting its own failure in writing and then committing it.** RESEARCH 6h states that the draft was read at v0.1 on 2026-08-16, that the version and the date are part of the citation, and, in its own words, that a specification still moving is exactly the kind of source a claim can outlive. The front page, `AST-20` and RESEARCH all pin v0.1-draft.
+
+**The source moved the next morning.** The specification served at that URL is now `draft technical specification v0.2`, and its change log is dated 2026.08.17: purpose codes, lite profile, `expires_at` unification. The last commit here is 2026-08-17T04:20Z. The citation was accurate for something under a day and stale for the fifteen days that followed, none of which anyone spent looking.
+
+**The check that should have caught it was green, and correctly so.** `--extlinks` asks whether a URL serves real content, and it is careful about it: it refuses redirects and compares against a deliberately absent path on the same host, so an application shell cannot pass as a live page. That is a good answer to the question it asks. It never asks whether the version a claim pins is the version the page serves, so a source can be rewritten underneath a citation without moving anything the check looks at. **E24 was a link that answered 200 and served nothing. This is a link that answers 200 and serves something else.**
+
+**Re-measured at v0.2 rather than assumed.** The ten design invariants are still ten and their names are unchanged, so the scoring in 6h stands on the invariant set it scored. New in v0.2 and never measured here: `purpose_code` as the normative policy input, with optional purpose text that must not broaden authorization; the CL-Core-Lite profile, which requires a finite `expires_at` and `single_use: true` together; and the unification of expiry across objects. The first is recorded as adopted in `AST-22`, because this record carries purpose in prose and in no field.
+
+**Caught by:** fetching the cited page during unrelated work and reading its version line, fifteen days after it changed.
+**Fix:** `--extlinks` now carries a version assertion for each pinned citation and fails when the pinned string is absent from the page that claims it. Witnessed by pinning a version the page does not serve, watching it go red, and restoring it.
+**Class:** a check whose question sits next to the one that matters.
+
+### E82. The exposure was counted before publication, and the remedy refused on what it would break
+**Severity: n/a as a defect. The entry exists because an irreversible action was taken, and PRC-0 requires the reasoning to be visible rather than remembered.**
+
+**What the committed tree holds: nothing.** `--secrets` proves each of its nine detectors against a specimen before it will report a clean result, and reports 0 disclosures at HEAD.
+
+**What the object graph holds: 99.** Running the same nine detectors over all 168 text blobs reachable from every ref, rather than over the checkout, returns 99 hits, every one in an older revision of `healthcheck.py`, across the 14 commits that touched it. By label: key filename 33, private address 24, owner name 21, mounted user path 12, home directory path 9. **Four detectors never fired anywhere in history: credential, provider token, private key block, absolute user path.** The control that makes the negative worth stating is that HEAD's own `healthcheck.py` scores 0 under the identical program, so the scan discriminates between the two trees rather than being blind to both.
+
+The class exposed by publishing is therefore identity and topology: an operator's short name, two RFC1918 addresses that route nowhere off that LAN, two private-key filenames carrying no key material, and two home-directory shapes. Measured, not estimated.
+
+**`OPN-04` named the only two remedies, and a third fact decides between them.** Never publishing was refused by the owner, twice, the second time after this measurement was reported. Rewriting history changes every commit id in this repository, and this repository now cites twelve of them, two of its own among them, in a table an invariant checks. The remedy would break the provenance built the same day to close E80, it is irreversible on every clone already taken, and what it retracts is a first name and two private addresses.
+
+**Decision: published as-is.** `OPN-04` closes as a decision rather than as a solution, which is the honest form of closing it. The disclosure stays, its size is stated here instead of implied, and anyone who thinks the trade was wrong can read what stood on both sides of it.
+**Class:** irreversible action, taken deliberately, with the count on the table.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -1065,6 +1105,18 @@ Two bot tokens in the current checkout, not merely in history. Private, so not a
 ### D5. Unbounded growth inside a bounded retention window
 A trend file grew nineteen times in seventy days while its retention policy worked correctly. Retention bounded the age of the data, not the width of the universe being sampled. The file now costs more to load than the board can comfortably afford.
 
+### D18. Four repositories documented as public, all of them answering 404 to a reader
+
+This record links five of its own repositories and describes four of them as public with an MIT licence. **On 2026-09-01 all four are private**, measured through the API: `disk-triage`, `kickbus`, `kick-core`, `claw-display`. Anonymous fetches of the same URLs return 404, so every reader arriving from this document lands nowhere while the author, signed in, sees four ordinary repository pages. That is E78's shape at the link level, and D11's shape in the register the estate publishes rather than the one it runs.
+
+**The window is bounded, and the check is not what failed.** The weekly link job passed on 2026-08-24T06:59Z and failed on 2026-08-31T12:57Z naming those four URLs plus this repository's own. The change landed inside that week. The check ran on schedule, asked the right question, and printed every broken link with its status.
+
+**What failed is that the answer went nowhere.** The run has been red for a day, nothing routes a scheduled failure to a person, and it was found by running the check by hand while witnessing an unrelated fix. A monitor whose output nobody reads is the same object as no monitor, and this record now holds that finding at three levels: a status screen (D12), a backup manifest (D13), and its own continuous integration.
+
+Who made those repositories private, and why, is not in evidence here. It is standing configuration, so nothing was changed and nothing will be: an owner who takes four repositories private in one week may well have meant it. The reversible half of the repair is the document. The links are now plain names carrying a dated note, because a link that answers 404 for every reader is not a link.
+
+This repository's own link and badge failed in the same run for the same reason, and are fixed by publishing it rather than by editing it (E82).
+
 ## Counting
 
 Twenty-six agent errors: one a repeat of another written down hours earlier, one a fresh instance of the very failure class the report is built around, one (E17) whose consequence was to plant a false entry in this document's own findings section, one (E18) that broke the credential gate for the third distinct reason minutes after the same session finished documenting the second, one (E19) that obeyed a twice-written rule to the letter and caused the exact damage the rule exists to prevent, one (E20) that broke the same plumbing rule as E18 within hours of writing it down, on a check whose input did not even exist, one (E21) in which the mutation testing this session leans on reported twice that a guard was untested, having silently failed to mutate anything, two (E22, E23) that landed within an hour of each other on a question the operator asked directly, two more (E24, E25) in the feature built to answer it, one (E26) in the tool written to stop E24 happening again, which opened with a two-thirds false-positive rate, one (E27) that repeated E20 and E21 a third time, minutes after reading the written warning against it in the file it was editing, and one (E28) in the health tool itself, wrong on both of the two questions it was audited on.
@@ -1084,3 +1136,24 @@ Two were caught by desk reasoning alone (E2 from reading a schema, E3 from audit
 The ratio worth staring at: **zero of the four shipping-grade defects were caught by the agent's own test suite**, and every one of them lived at a boundary with something the agent could not run.
 
 E16 sits outside that count and costs more than all of it. Every error above is a belief that met no evidence, or met evidence and was corrected. E16 is a belief that met evidence, was confirmed by it, and was wrong anyway, because the evidence had a second cause nobody had ruled out. No amount of contact with the world fixes that on its own. What fixes it is holding one channel where only your own action can move the number, and checking that it moves when you act and stops when you stop.
+
+## Citations
+
+Every commit hash cited above, with the repository it lives in. This record cites two projects and the citing sentences name neither, which cost `AST-20` its count and a reader ten of twelve lookups. Written because a hash without a repository is not a reference, it is a string that happens to be hexadecimal. Checked by `python check_agents.py --citations`, which fails when a hash appears in the prose above and not in this table.
+
+| HASH | REPOSITORY | CITED IN |
+| --- | --- | --- |
+| `012f115` | Pkkls/kick-chat-translator | E61 |
+| `1031257` | Pkkls/kick-chat-translator | E54 |
+| `3706131` | Pkkls/autonomy-log | E67 |
+| `42f16c9` | Pkkls/kick-chat-translator | E51 |
+| `59c820f` | Pkkls/kick-chat-translator | E61 |
+| `65ae05e` | Pkkls/kick-chat-translator | E61 |
+| `6db2630` | Pkkls/kick-chat-translator | E57 |
+| `8e62f3d` | Pkkls/kick-chat-translator | E58, E61 |
+| `9541cbb` | Pkkls/autonomy-log | E67 |
+| `9ce0f28` | Pkkls/kick-chat-translator | E57 |
+| `ae65813` | Pkkls/kick-chat-translator | E54 |
+| `d724999` | Pkkls/kick-chat-translator | E61 |
+
+Ten resolve in the extension repository, two in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.

@@ -87,3 +87,13 @@ The first campaign's version of this section says that the entries most likely t
 It worked, and the effect is measurable rather than asserted. Five checkable errors in the incoming brief were caught by the node that consumed it, E56 plus the four in E60. That is the mechanism the first campaign's closing paragraph asked for, arriving without anyone having designed it.
 
 It does not close the problem, and what remains has a precise shape. The generating node's own conversation was never written down anywhere. The faults recorded against it are the ones it noticed and reported about itself. The ones it did not notice are, by construction, absent from this record, and the executing node cannot go looking for them, because only the finished briefs exist and never their drafts. **A two-node loop reduces the self-analysis problem. It does not eliminate it. It moves it to the node whose record is not written.**
+
+## 2026-09-01, after the citation audit
+
+Two entries entered the layer that gets reloaded, and one existing entry was corrected because it had been wrong for weeks.
+
+**A new reference entry for the external source.** The four rules taken from it, named rather than paraphrased, and the one lesson that cost something: a specification still in draft moves under its citation, so a version pin is part of the claim and needs a check behind it or it rots silently. The entry says which channel confirmed what, because the source's own site is not evidence for the source's own claims.
+
+**The project entry was factually wrong and had been since it was written.** It described this repository as public. It was private until 2026-09-01. The correction matters more than the fact: a memory entry that has never been re-derived is a claim inherited from a document nobody rechecked, which is the class this record has the most entries about. It now carries the exposure decision as well, so the next session does not reopen a question that was closed with its cost counted.
+
+**What deliberately did not enter memory.** The counts in E80, E81 and E82. Numbers move, and a memory index read at the start of every session is exactly the wrong place for a value that will be stale next week. The rule enters memory, the number stays in the ledger with the command that regenerates it.

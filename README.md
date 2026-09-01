@@ -44,7 +44,9 @@ The sharpest result is the invariant that scores zero on its own ground. It forb
 
 Two designs also converged without contact. Its claims carry a status separating what was asserted from what was derived, with provenance attached to the derived side, which is the same split the machine-readable context file here arrived at independently. Four further ideas from the same document were measured against this record and refused with their counts, because taking something from a well-built document on the grounds that it is well-built is the failure this whole repository is about.
 
-Read at v0.1-draft on 2026-08-16. Method, counts and entry ids are in [RESEARCH.md](RESEARCH.md), section 6h; the refusals and their counts are in [AGENTS.md](AGENTS.md), AST-20.
+**One of those four refusals was wrong, and the recount is the sharpest thing on this page.** Structured provenance references were refused on a count: 10 commit hashes cited, all 10 resolving, so no gap to fill. Recounted on 2026-09-01 the corpus holds 12, and they do not live in one place. Ten resolve in the extension repository these entries audit, two resolve here, none in both, and not one citing sentence names a repository, so a reader guessing the repository they are standing in gets 404 on ten of twelve. The original ten came from a program pointed at a single checkout, which was asked how many hashes it could resolve and never asked how many existed. The refused idea is now adopted, as a citations table with an invariant behind it, and the entry that overturns it is E80.
+
+Read at v0.1-draft on 2026-08-16, re-read at v0.2-draft on 2026-09-01. The source published v0.2 the morning after it was first cited here, and the citation stayed pinned to a version that no longer existed for fifteen days while every link check passed, because they all asked whether the page was alive rather than whether it was still the same document. That is E81, the pin is now asserted by the checker, and the version discipline is in [SOURCES.md](SOURCES.md). Method, counts and entry ids are in [RESEARCH.md](RESEARCH.md), section 6h; the refusals and their counts are in [AGENTS.md](AGENTS.md), AST-20 as amended by AST-21.
 
 ## The record checks itself
 
@@ -72,6 +74,7 @@ Standard library only, no install step. It runs every regenerating command, then
 | [WHAT-CHANGED.md](WHAT-CHANGED.md) | The follow-through, and the file the rest are graded against. Not "was a document written" but "did a rule enter the layer that gets reloaded". |
 | [CHANGELOG.md](CHANGELOG.md) | The inventory, with a link on each claim so it can be checked rather than believed. |
 | [AGENTS.md](AGENTS.md) | Written for an agent rather than a person, and the one to read first if you are one. |
+| [SOURCES.md](SOURCES.md) | The one external source this record leans on, split into what a second channel confirms and what the source says about itself. |
 
 ## Written by the agent, about the agent
 

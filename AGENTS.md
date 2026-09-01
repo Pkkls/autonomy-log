@@ -4,7 +4,7 @@
 
 PURPOSE: cold-start context for an agent operating on this repository. Machine-first. Read this file before any other.
 
-SECTIONS: SCHEMA, PRECEDENCE, DERIVED, ASSERTED, INVARIANTS, OPEN. Order is fixed.
+SECTIONS: SCHEMA, PRECEDENCE, DERIVED, ASSERTED, INVARIANTS, OPEN, LOOP. Order is fixed.
 
 ID-PREFIX: `PRC-` precedence level. `DRV-` re-derivable fact. `AST-` asserted, not derivable. `INV-` machine-checkable condition. `OPN-` unresolved.
 ID-RULE: stable, never reused, never renumbered. Allocate above the current maximum in each series.
@@ -51,9 +51,9 @@ Coverage is partial and stated as such: this orders the rules the record has tes
 
 | ID | FACT | VALUE | COMMAND |
 | --- | --- | --- | --- |
-| DRV-01 | tracked files | 13 | `git ls-tree -r --name-only HEAD \| wc -l` |
-| DRV-02 | agent-error entries in ledger | 79 | `git grep -h -c -E '^### E[0-9]+\.' HEAD -- LEDGER.md` |
-| DRV-03 | environment-discovery entries in ledger | 17 | `git grep -h -c -E '^### D[0-9]+\.' HEAD -- LEDGER.md` |
+| DRV-01 | tracked files | 14 | `git ls-tree -r --name-only HEAD \| wc -l` |
+| DRV-02 | agent-error entries in ledger | 82 | `git grep -h -c -E '^### E[0-9]+\.' HEAD -- LEDGER.md` |
+| DRV-03 | environment-discovery entries in ledger | 18 | `git grep -h -c -E '^### D[0-9]+\.' HEAD -- LEDGER.md` |
 | DRV-04 | lettered ledger entries | 2 | `git grep -h -c -E '^### E[0-9]+[a-z]\.' HEAD -- LEDGER.md` |
 | DRV-06 | licence | MIT License | `git show HEAD:LICENSE \| head -1` |
 | DRV-07 | machine config tracked | 0 | `git ls-tree -r --name-only HEAD -- estate.json \| wc -l` |
@@ -85,7 +85,10 @@ DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte size
 | AST-17 | PRC-2 | This repository records work done elsewhere and has no subject matter of its own. Every entry must trace to something observed: a commit, a command output, a measurement, a dated report. An agent given a standing mandate will be tempted to generate entries to justify it, and a fabricated entry destroys the only property this record has. A quiet period correctly produces nothing, and that must be reported as the result rather than filled. | 2026-08-15 | repository owner, AST-16 |
 | AST-18 | PRC-1 | An agent also acts as analyst over the estate's other sessions, whose transcripts are readable. Collection and raw analysis stay local: transcripts carry the operator's private work and must never reach this repository. Only sanitized, artifact-backed findings are published. | 2026-08-15 | repository owner |
 | AST-19 | PRC-2 | An analyst examining a peer node in its own estate is not independent, and its tilts are enumerable with a direction each: shared instruction set, shared modality, asymmetric evidence, self-inclusion, survivorship of the record, outcome knowledge. Every finding names the ones that apply to it and their direction, inside the finding. A blanket admission at the top of a document changes no conclusion, which is why it is the comfortable option. | 2026-08-15 | RESEARCH 6f |
-| AST-20 | PRC-5 | Four ideas from a draft context protocol were measured against this record and refused, and reopening one needs a measured case rather than an argument. Numeric confidence: refused, a float creates a comfortable middle where the binary verified-or-attested forces a decision. Receipts: refused, git already carries actor, timestamp and content digest. Claim expiry: refused, AST-15 forbids volatile derived rows. Structured provenance references: refused on a count, 6 of 105 entries cite a commit hash, 10 distinct hashes, and all 10 resolve by program, so the gap is empty. A `disputed` status was also measured and refused: 4 lexical candidates, none of them two entries in unresolved contradiction, the closest being E62 which resolves its own by keeping both halves and marking one unverifiable. Only bidirectional supersession was imported, as INV-10. | 2026-08-16 | measured against sierracatalina.com/context-layer v0.1-draft |
+| AST-20 | PRC-5 | **Amended by AST-21: the count in the fourth refusal was wrong and the refusal is reversed. Everything else here stands.** Four ideas from a draft context protocol were measured against this record and refused, and reopening one needs a measured case rather than an argument. Numeric confidence: refused, a float creates a comfortable middle where the binary verified-or-attested forces a decision. Receipts: refused, git already carries actor, timestamp and content digest. Claim expiry: refused, AST-15 forbids volatile derived rows. Structured provenance references: refused on a count, 6 of 105 entries cite a commit hash, 10 distinct hashes, and all 10 resolve by program, so the gap is empty. A `disputed` status was also measured and refused: 4 lexical candidates, none of them two entries in unresolved contradiction, the closest being E62 which resolves its own by keeping both halves and marking one unverifiable. Only bidirectional supersession was imported, as INV-10. | 2026-08-16 | measured against sierracatalina.com/context-layer v0.1-draft |
+| AST-21 | PRC-2 | Supersedes the fourth refusal in AST-20. Structured provenance references are adopted, because the count that refused them was taken from an instrument rather than from the corpus. Measured 2026-09-01: LEDGER.md cites 12 distinct commit hashes, not 10, across the 6 entries AST-20 correctly identified. Ten resolve in Pkkls/kick-chat-translator, two in Pkkls/autonomy-log, none in both, and no citing sentence names a repository. The gap was unmeasured, not empty. The Citations table at the end of LEDGER.md is the import, and INV-11 is its runtime. | 2026-09-01 | E80, re-derived from LEDGER.md and resolved through the GitHub API against both repositories |
+| AST-22 | PRC-2 | The context-layer citation is pinned at v0.2-draft, change log dated 2026.08.17, read 2026-09-01. Re-measured rather than carried over: the ten design invariants are still ten and their names are unchanged, so the scoring in RESEARCH 6h stands on the set it scored. Of the three v0.2 additions, purpose codes are adopted in the LOOP section as a declared purpose per round, and the CL-Core-Lite profile and the expires_at unification are out of scope here, since this record issues no bundles. A pinned version is now asserted by --extlinks, because the previous pin went stale in under a day and stayed stale for fifteen. | 2026-09-01 | E81, sierracatalina.com/context-layer/specification v0.2-draft |
+| AST-23 | PRC-1 | This repository was made public on 2026-09-01 with its history unrewritten, and the exposure was counted first: 0 disclosures in the committed tree, 99 detector hits in older blobs of healthcheck.py across 14 commits, four detectors, credential, provider token, private key block and absolute user path, never firing anywhere in history. Rewriting was refused because it would invalidate the twelve commit ids this record now cites, two of them its own, and is irreversible on existing clones. Reopening this needs a disclosure class that history rewriting would actually retract. | 2026-09-01 | E82, owner instruction repeated after the measurement was reported |
 
 ## INVARIANTS
 
@@ -101,6 +104,7 @@ DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte size
 | INV-08 | health tool selftest passes | `python healthcheck.py --selftest` | 0 |
 | INV-09 | the SECTIONS line lists exactly the sections this file has, in order | `python check_agents.py --sections` | 0 |
 | INV-10 | every supersession between ledger entries is linked in both directions | `python check_agents.py --amend` | 0 |
+| INV-11 | every commit hash cited in the ledger is attributed to a repository | `python check_agents.py --citations` | 0 |
 
 ## OPEN
 
@@ -111,3 +115,29 @@ DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte size
 | OPN-03 | Errors of the brief-writing node that it did not notice itself | That node's reasoning left no artifact. Only finished briefs exist, never drafts, so nothing can search for what it missed. |
 | OPN-04 | Identifying values already present in git history | Removing them from the current tree does not retract them. The remedies were never publishing, or rewriting public history, and the second is irreversible on existing clones. |
 | OPN-05 | Whether the conclusions generalise beyond this estate | One owner, one machine, two campaigns, no repetition and no counterfactual. No generalisation is attempted. |
+
+OPN-04 closed on 2026-09-01, as a decision rather than as a solution. The repository was published with its history intact, the exposure counted first and recorded in E82, and the remedy refused because rewriting history would invalidate the twelve commit ids this record cites and is irreversible on any clone already taken. The row stays because a closed question that leaves its answer visible is worth more than a deleted one.
+
+## LOOP
+
+PURPOSE: the standing task, for an agent that has been handed this repository and no instruction. It is recursive by construction: the last step re-enters the first, and every round either produces an entry or records why it produced none.
+
+ENTRY-CONDITION: SCHEMA through OPEN have been read. Nothing else is required to start.
+ROUND-OUTPUT: one commit, or one recorded null result. A round that ends with neither did not happen and must not be reported as a round.
+STOP-CONDITION: `python check_agents.py` exits 1, or a decision belongs to the owner under PRC-0. Both stop the loop and hand back. Neither is a failure of the loop.
+
+| STEP | ACTION | EXIT |
+| --- | --- | --- |
+| L1 | Declare the round's purpose in one line before touching anything, and keep it to one. A round with two purposes is two rounds, and the second is where the unmeasured claim gets in. | The purpose is written. |
+| L2 | `git fetch && git status`. A second session shares this disk and this checkout. If HEAD moved, rebase and re-read every number in DERIVED before using one. | Tree known, maxima re-read from the file, never from memory. |
+| L3 | `python check_agents.py`. Exit 1 stops the loop and becomes the round's purpose. Exit 2 means correct but unpublished. | Verifier state known. |
+| L4 | Pick one target: a red invariant, an OPEN row, a claim in ASSERTED older than its source, or an estate register nothing compares against the estate. Prefer the one with a reader who would be misled today. | One target, named. |
+| L5 | Measure it from the primary artifact, through the path a reader has rather than the one the author has. Record the denominator you counted, not the one the instrument returned. | A number, and the command that regenerates it. |
+| L6 | If the measurement contradicts something published here, the published thing loses. Write the entry, allocate above the maximum in its series, link supersession in both directions. A null result is an entry. | LEDGER.md written, or the null recorded. |
+| L7 | Any check you added or repaired: break it deliberately, watch it go red, restore it. A check never seen failing is not evidence, and this record holds ten entries saying so. | The witness was seen, in this round. |
+| L8 | `python check_agents.py` green, then commit and push. Report success only after the push lands, never before. | Exit 0, published. |
+| L9 | Re-enter at L1. | Always. |
+
+ADOPTED-FROM-CONTEXT-LAYER: four of the protocol's rules bind this loop, and they are named rather than absorbed, per AST-22. Purpose-bound: L1 declares a purpose and it is the round's only authorization, prose about intent broadens nothing. Non-escalation: a round may not act on a surface its purpose did not name. Proposed writeback: changes to the operator's own machine and standing configuration are proposals, never commits, per PRC-0. Receipted operations: L8 forbids reporting success before the receipt, which here is the push, is durable.
+
+NOT-ADOPTED: bundles, vaults, expiry objects and the lite profile. This record discloses nothing to a consumer, so importing their machinery would be adoption on the grounds that the source is well built, which is E80's mistake with the sign flipped.

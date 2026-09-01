@@ -231,6 +231,18 @@ def check_secrets():
     return 0
 
 
+PINNED = {
+    # A cited version is part of the claim, not decoration. The context-layer
+    # draft moved from v0.1 to v0.2 the morning after it was cited here, and
+    # every check stayed green for fifteen days because they all asked whether
+    # the page was alive. It was. It was also a different document. That is E81,
+    # and this table is what would have caught it: the version string a claim
+    # pins must appear on the page it pins.
+    "https://sierracatalina.com/context-layer": "v0.2",
+    "https://sierracatalina.com/context-layer/specification": "v0.2",
+}
+
+
 def check_extlinks():
     """External links must serve real content, not merely answer 200 (E24).
 
@@ -304,6 +316,19 @@ def check_extlinks():
         host = urlparse(url).netloc
         if host not in controls:
             controls[host] = host_control(url)
+        pin = PINNED.get(url.rstrip("/"))
+        if pin:
+            if pin not in text:
+                print("FAIL extlinks: %s is alive and no longer serves %s, the "
+                      "version this record pins" % (url, pin))
+                bad += 1
+            else:
+                # A page serving the exact version a claim depends on is a
+                # stronger witness than the same-host control, and it answers
+                # where that control cannot: this host returned UNKNOWN for
+                # this URL on every run before the pin existed.
+                live += 1
+            continue
         c_status, c_text = controls[host]
         if looks_alive(c_text, c_status):
             # The host answers alive for a path that does not exist, so this
@@ -319,7 +344,8 @@ def check_extlinks():
         print("FAIL extlinks: %d of %d served nothing" % (bad, len(urls)))
         return 1
     print("ok   extlinks: %d verified against a same-host absent control, "
-          "%d unverifiable, %d total" % (live, len(unknown), len(urls)))
+          "%d unverifiable, %d total, %d version pin(s) still served"
+          % (live, len(unknown), len(urls), len(PINNED)))
     return 0
 
 
@@ -452,6 +478,50 @@ def check_links():
     return 0
 
 
+def check_citations():
+    """A commit hash without a repository is not a reference.
+
+    This record cites two projects. Ten of its twelve hashes resolve in the
+    extension repository those entries audit, two resolve here, none in both,
+    and the citing sentences named neither, so a reader who guessed the
+    repository they were standing in got 404 on ten of twelve. AST-20 refused
+    structured provenance on a count of ten, taken from a program that could
+    only ever see ten, standing in the repository holding the other two. The
+    miscount and the refusal it decided are E80.
+
+    Offline by construction: this checks attribution, never resolution.
+    Resolving needs the network and a clone of somebody else's repository, and
+    an invariant that reddens on a transient failure costs more than it catches
+    (E26). Both directions are checked, because a table listing a hash nobody
+    cites rots exactly the way a citation with no row does.
+    """
+    text = committed("LEDGER.md")
+    head, sep, table = text.partition("## Citations")
+    if not sep:
+        print("FAIL citations: the ledger has no Citations section")
+        return 1
+    cited = set(re.findall(r"`([0-9a-f]{7,40})`", head))
+    declared = dict(re.findall(r"^\|\s*`([0-9a-f]{7,40})`\s*\|\s*([^|]+?)\s*\|",
+                               table, re.M))
+    bad = 0
+    for h in sorted(cited - set(declared)):
+        print("FAIL citations: %s is cited in the ledger and has no row" % h)
+        bad += 1
+    for h in sorted(set(declared) - cited):
+        print("FAIL citations: %s has a row and is cited nowhere" % h)
+        bad += 1
+    for h, repo in sorted(declared.items()):
+        if "/" not in repo:
+            print("FAIL citations: %s names '%s', which is not a repository" % (h, repo))
+            bad += 1
+    if bad:
+        print("FAIL citations: %d unattributed or orphaned hash(es)" % bad)
+        return 1
+    print("ok   citations: %d hash(es), every one attributed, across %d repositories"
+          % (len(cited), len(set(declared.values()))))
+    return 0
+
+
 # --- full run ---------------------------------------------------------------
 
 def run_all():
@@ -511,6 +581,8 @@ def main(argv):
         return check_sections()
     if "--amend" in argv:
         return check_amend()
+    if "--citations" in argv:
+        return check_citations()
     if "--links" in argv:
         return check_links()
     if "--extlinks" in argv:

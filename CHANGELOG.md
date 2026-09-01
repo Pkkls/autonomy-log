@@ -8,7 +8,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Entries link to t
 
 ## Repositories created
 
-### [disk-triage](https://github.com/Pkkls/disk-triage) — public, MIT
+**Read this before the links below.** Four of these repositories, `disk-triage`, `kickbus`, `kick-core` and `claw-display`, were public when this was written and are private as of 2026-09-01. Their names are plain text rather than links, because a link that answers 404 for every reader is not a link. The visibility was not changed back: that is standing configuration and it may be deliberate. The measurement, the window it landed in, and why the weekly check caught it and told nobody are in D18.
+
+### **disk-triage** — public, MIT
 Read-only tools for a directory tree that got out of hand. Standard library only, nothing is ever deleted.
 
 - **`dirmap.py`** — sortable HTML map of every directory: size, file count, last write, project type, git branch, uncommitted count, and the first README line so a forgotten project is recognisable.
@@ -20,13 +22,13 @@ Read-only tools for a directory tree that got out of hand. Standard library only
 - **`secretscan.py`** — credential scanner over full git history, not just the checkout. Masks matches, counts placeholders instead of reporting them, anchors patterns so they cannot match inside a base64 blob. Exit 1 on a finding, 2 on an unreadable path.
 - CI on six combinations: Linux, Windows, macOS crossed with Python 3.9 and 3.13. The scanner runs against its own repository on every push.
 
-### [kickbus](https://github.com/Pkkls/kickbus) — public, MIT
+### **kickbus** — public, MIT
 Receives official platform webhooks, verifies their RSA signature, deduplicates, and fans events out over SSE with filtering by type and channel. Standard library only, sized for a 128 MB single-board computer.
 
-### [kick-core](https://github.com/Pkkls/kick-core) — public, MIT
+### **kick-core** — public, MIT
 Dependency-free client for a streaming platform's current realtime gateway, for use in browser extensions. Handles token fetch, subscription, ping, and reconnection with a fresh token.
 
-### [claw-display](https://github.com/Pkkls/claw-display) — public, MIT
+### **claw-display** — public, MIT
 Turns a 240x240 SPI panel on a RISC-V board into an always-on status screen. The board has no framebuffer and no DRM, so the display is driven entirely from userspace over spidev with three GPIO lines.
 
 - **`clawdisp.py`** — daemon rotating three pages (system, network, services), with thresholds that turn amber then red so an abnormal screen is recognisable without reading it. Anything written to a message file takes the screen for five minutes, then rotation resumes. That file is the interface: whoever holds SSH holds the display.
@@ -443,3 +445,33 @@ Running the verifier found three faults in it, all from the commit that introduc
 ### Corrections to claims that had outrun the record
 
 `AST-02` forbade pushing. It was written while the repository was private and stayed after both conditions changed. `AST-13` described the ledger entry format as universal; counted across 83 entries, `Severity:` appears 68 times, `Caught by:` 61, `Class:` 54, `Fix:` 43. The convention accreted, the early entries predate it, and they are not retrofitted.
+
+## Session of 2026-09-01: fifteen days of nothing, audited
+
+Fifteen days passed with no commit here. The estate was not idle in that time, the record was, and the round started by asking what had moved while nothing was watching. The answer was not on any machine. It was in this repository's own citations.
+
+### E80, a refusal decided by a number the corpus never produced
+
+`AST-20` refused four ideas from an external protocol, one of them on a count: 10 commit hashes cited, all 10 resolving, so no gap to fill. The corpus holds 12, and held 12 the day the claim was written. Ten of them resolve in the extension repository those entries audit, two resolve here, none in both, and no citing sentence names a repository, so a reader who guesses the repository they are standing in gets 404 on ten of twelve.
+
+The ten came from a program pointed at one checkout and asked how many hashes it could resolve. Nothing asked the corpus how many it contained, so the two the instrument could not see were the two it was standing on. The refusal is reversed: structured provenance is adopted as the Citations table at the end of [LEDGER.md](LEDGER.md), with `INV-11` behind it and `AST-21` recording the supersession.
+
+### E81, a citation that outlived its source with every check green
+
+The context-layer draft was cited at v0.1, read 2026-08-16. The source published v0.2 on 2026-08-17, hours after the last commit here, and the citation stayed pinned to a version that no longer existed for fifteen days. `--extlinks` was green throughout and was right to be: it asks whether a URL serves real content, and it refuses to be fooled by an application shell. It never asked whether the document underneath the citation was still the one that had been read.
+
+It does now. `PINNED` maps a URL to the version string a claim depends on, and the check fails when the page stops serving it. Witnessed by pinning a version the page does not serve, watching it go red, and restoring it. Re-measured at v0.2: the ten design invariants are still ten with unchanged names, so the scoring in RESEARCH 6h stands; `purpose_code` is new and is adopted in the LOOP section; the lite profile and the expiry unification are out of scope for a record that issues nothing to a consumer.
+
+### E82, published with the exposure counted first
+
+The committed tree carries 0 disclosures. The object graph carries 99, all in older revisions of `healthcheck.py` across the 14 commits that touched it: key filename 33, private address 24, owner name 21, mounted user path 12, home directory path 9. Four detectors never fired anywhere in history, credential, provider token, private key block and absolute user path, and HEAD's own copy of the file scores 0 under the identical program, which is the control that makes the negative worth stating.
+
+`OPN-04` offered two remedies, never publishing or rewriting history. Rewriting would invalidate the twelve commit ids this record now cites, two of them its own, and is irreversible on every clone already taken, against a disclosure of a first name and two addresses that route nowhere. Published as-is. `OPN-04` closes as a decision, not as a solution.
+
+### AGENTS.md gains a standing task
+
+A `LOOP` section, nine steps, ending by re-entering itself. An agent handed this repository and no instruction runs it: declare one purpose, fetch and re-read the maxima from the file because a second session shares this disk, verify, pick one target, measure it through the path a reader has, write the entry, break the new check and watch it go red, push, and start again. Four rules from the external protocol bind the loop by name rather than by absorption: purpose-bound rounds, non-escalation, writeback as proposal, and no success reported before the receipt is durable.
+
+### SOURCES.md
+
+The one external source this record leans on, split the way this repository splits everything else: what a second channel confirms, what the source states about itself, what was adopted, what was refused, and the version the citation is pinned to.

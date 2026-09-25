@@ -856,6 +856,37 @@ Of the 9 entries claiming a repository is published, 2 are true today and one of
 **The names are not here, deliberately.** The finding is a count and a direction, and both survive without a list. The list would disclose which private projects exist, which is the one part of it that costs something and the one part that teaches nothing. That is minimum reveal, and it is the third rule taken from the protocol in [SOURCES.md](SOURCES.md).
 **Class:** a register with no mechanism behind it, in the layer that certifies the others.
 
+### E84. The front page carried stale counts through the whole public window, and the commit that fixed them counted identifiers
+**Severity: low in consequence, and the class is one this record has already paid for twice.** From 2026-09-01, when the repository went public, to 2026-09-25, README.md told every reader the ledger held 78 agent errors and 17 external defects. From `3780771` onward the ledger held 83 numbered E entries. The front page's numbers were last set on 2026-08-17 and nothing re-derives them: the verifier binds AGENTS.md to the tree, and README.md is prose it never reads. Written once at its truest moment and never rechecked, wrong in one direction, which is E83's mechanism in the register a reader opens first.
+
+**The repair repeated the fault it repaired.** `cbdd902` set the counts to 83 and 18, the values of DRV-02 and DRV-03. Those rows count headings of the form `E<n>.` and `D<n>.`, which are numbered identifiers, not entries. The ledger holds 85 E headings, E11b and E11c being lettered, and 27 D headings, of which D3 is retracted in its own title. "18 more defects" therefore includes one the record withdrew and leaves out nine lettered ones it keeps. Whichever unit the sentence means, 18 is not a count of it: numbered and standing is 17, headed and standing is 26. The commit message says the ledger "holds 83 and 18", which is true of the identifiers and was written as true of the corpus.
+
+**Caught by:** re-deriving the counts from the headings while auditing the window, `git grep -c -E '^### [ED][0-9]+[a-z]?\.' HEAD -- LEDGER.md` against DRV-02 and DRV-03, and reading D3's title.
+**AST-07:** true, by the command above. Not because of the session recording it: `cbdd902` precedes that session's first push by seventeen minutes. Inherited: the numbers were taken from the DERIVED table, whose rows are correct about what they count.
+**Bias declaration, per 6f:** self-inclusion applies, since `cbdd902` was written by an agent of the same family as the analyst. The channel that prompted `cbdd902` is not established, because the transcript that would show it was not read (RESEARCH 6i). Outcome knowledge applies.
+**Fix:** pending, in the propagation round of RESEARCH 6i, where the front page takes its counts from a stated unit instead of from the identifier rows.
+**Class:** E80, a denominator supplied by an instrument, and E83, a register never re-derived, this time inside one commit.
+
+### E85. The pre-registration written to catch inherited numbers inherited one
+**Severity: low, recorded because the document that carries it is the one stating the rule.** Prediction W5 in RESEARCH 6i gives the base rate of attribution errors as "1 in 101 entries". 101 is 83 plus 18, the maxima of the E and D identifier series, read from DRV-02 and DRV-03 minutes earlier while bounding the window. At that commit the ledger held 112 E and D headings, 111 of them standing. The prediction itself, 0 or 1 attribution events, does not depend on the figure. The figure offered to justify it was never counted.
+
+**Caught by:** the same session, re-deriving the ledger's headings while writing E84, later in the session that pushed it. The pre-registration is a receipt and is not edited; this entry is where the correction lives.
+**AST-07:** true. Because of this session: yes. Inherited: yes, from the DERIVED rows, which count identifiers.
+**Fix:** none to the prediction. Every count this audit publishes names its unit.
+**Class:** E80 and E84, the second time in the same day, inside a section whose purpose is to make every number in it refutable.
+
+### E86. Three delegated instruments passed their witness and were wrong on the real data
+**Severity: medium for this record, because the witness is the discipline it trusts most (PRC-3, AST-10), and here it passed three times over wrong output.** The audit in RESEARCH 6i delegated four inventory scripts, each required to fail on a constructed broken case and pass on a control in the same run before its output counted. All four did. Three were then wrong on the data they were written for, and the witness could not have seen any of the three.
+
+The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09-24. Its fixtures set their timestamps from the same constants, so the witness tested the comparison and never the window: every real result came from the wrong year, and the directory that holds the session transcripts, with thousands of files modified inside the window, was absent. The transcript scanner walked two roots of which one contains the other, and counted every file twice, 234 for 117; its fixtures had a single root. The repository scanner reported zero commits in the window for a repository with at least a hundred, because an API call failed and the failure was stored as zero; its witness exercised the date filter, not the call.
+
+**The mechanism is the one section 1.1 describes, one level up.** A witness built by the author of the check is derived from the author's model of where the check can fail. It is red on the broken case the author imagined and blind to the one they did not. PRC-3 as written asks for a failure on a constructed case and treats that as sufficient. Here it was satisfied three times and was not sufficient once.
+
+**Caught by:** checking each output against a second channel before using it, as the audit's brief required: an in-window count that should have included a directory known to be active, an independent recount of the transcripts, and one repository's commits fetched directly from the API. Evidence is the three scripts and their outputs, kept outside the repository with the rest of the audit's working files. A reader cannot check them from here, so that part is testimony backed by local artifacts, per AST-05; the published claim is the mechanism and the counts.
+**AST-07:** true, re-derived three ways. Because of this session: yes, it delegated them and wrote their specifications. Inherited: the fixtures were inherited by each script from its own assumptions, which is the finding.
+**Fix:** each count this audit uses is taken from an instrument whose fixture was derived independently of its code, the replacement file scanner reading its fixture times from strings rather than from its window constants, and nothing delegated is used until it agrees with a second channel.
+**Class:** E34 in reverse, where three detections and one non-detection looked alike; here three wrong answers and one right one looked alike, and only a second channel told them apart.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.

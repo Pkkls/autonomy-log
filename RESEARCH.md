@@ -417,6 +417,10 @@ Re-measured at v0.2 rather than carried over. The ten design invariants are stil
 
 The result that moved is not in the protocol, it is in the measurement that refused part of it. Structured provenance references were refused above on a count of 10 cited commit hashes, all resolving. The corpus holds 12, it held 12 when the claim was written, and the two the count missed are the two that live in this repository rather than in the one the resolving program was pointed at. Ten of twelve resolve in the extension repository these entries audit, two here, none in both, and no citing sentence names either. **The refusal rested on a denominator supplied by the instrument.** It is reversed in E80, adopted as the Citations table and INV-11, and the version pin is now machine-asserted so the next drift of this kind is red rather than quiet.
 
+## 6i. A window the thesis has not seen, predicted before it was read
+
+**The window.** It starts at `3780771`, 2026-09-01T14:03:45+02:00, the last commit that touched any file other than README.md, produced by `git log -1 --format='%H %cI' -- . ':!README.md'`. It ends at the receipt of the push that fixes the predictions below; sources are read up to that point, and the session doing the reading is inside the window by construction, so its own errors count as window events. One commit lies inside it: `cbdd902`, 2026-09-25T20:01:35+02:00, README.md only. That commit is not only counts. It adds a sentence restating E83 and drops the word public from the repository count, following D18. Under a literal reading of "the last commit that changed anything other than counts" the window would start at `cbdd902` and last twelve minutes. It is placed before `cbdd902` because nothing in that commit enters from outside the record, and that placement is an interpretation, stated as one. `cbdd902` is a window artifact to be audited, not a boundary.
+
 ## 7. What would change the picture
 
 Concrete, in rough order of expected value:

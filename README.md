@@ -16,13 +16,13 @@ What ended it was the operator asking whether it actually worked. The measuremen
 
 Two months of work rested on it, including a full rewrite whose stated justification was the same false belief.
 
-That is [one entry](LEDGER.md#e16-a-success-measured-through-an-uncontrolled-second-cause). There are 78 agent errors here, and 17 more defects found in systems the agent did not write.
+That is [one entry](LEDGER.md#e16-a-success-measured-through-an-uncontrolled-second-cause). There are 83 agent errors here, and 18 more defects found in systems the agent did not write.
 
-Three others worth the click. [A numbering series colliding with itself](LEDGER.md#e46-the-ledgers-own-numbering-collided-with-itself-silently-for-six-days) for six days without a signal, then [in three registers at once](LEDGER.md#e54-three-registers-collided-on-numbering-at-once-and-none-of-them-said-anything). [A commit that shipped over a red check](LEDGER.md#e51-the-gate-ran-was-red-and-guarded-nothing-because-the-chain-started-at-git-add) because the shell chain began with `git add`, so the gate's exit code guarded nothing. And [a journal that stopped two hours before the work did](LEDGER.md#e69-the-record-stopped-two-hours-before-the-work-did-and-it-stopped-on-the-part-later-analysis-leaned-on-hardest), which reads exactly like a journal that finished.
+Four others worth the click. [A numbering series colliding with itself](LEDGER.md#e46-the-ledgers-own-numbering-collided-with-itself-silently-for-six-days) for six days without a signal, then [in three registers at once](LEDGER.md#e54-three-registers-collided-on-numbering-at-once-and-none-of-them-said-anything). [A commit that shipped over a red check](LEDGER.md#e51-the-gate-ran-was-red-and-guarded-nothing-because-the-chain-started-at-git-add) because the shell chain began with `git add`, so the gate's exit code guarded nothing. And [a journal that stopped two hours before the work did](LEDGER.md#e69-the-record-stopped-two-hours-before-the-work-did-and-it-stopped-on-the-part-later-analysis-leaned-on-hardest), which reads exactly like a journal that finished. And [the memory every session reloads, measured for the first time](LEDGER.md#e83-the-layer-that-grades-every-other-one-measured-and-wrong-in-a-single-direction): 7 of 20 claims wrong, all in the same direction.
 
 ## What this is
 
-Field notes from eighteen days in which coding agents were given progressively wider autonomy on one real machine: a single-board computer running a DNS blocker and several bots, a dozen public repositories, a published browser extension.
+Field notes from eighteen days in which coding agents were given progressively wider autonomy on one real machine: a single-board computer running a DNS blocker and several bots, a dozen repositories, a published browser extension.
 
 Not a benchmark, not a demo, no synthetic tasks. Every entry is something that shipped or nearly shipped, with the path that caught it, what it cost, and the rule it produced. Successes are here too, at the same resolution, including the checks that were built and then found to be measuring nothing.
 
@@ -50,7 +50,7 @@ Read at v0.1-draft on 2026-08-16, re-read at v0.2-draft on 2026-09-01. The sourc
 
 ## The record checks itself
 
-[AGENTS.md](AGENTS.md) holds every factual claim about this repository next to the command that regenerates it. `python check_agents.py` runs all of them plus nine invariants, and CI fails the build when one has drifted. Entry numbering is recounted on every push, because it once collided with itself silently for six days and nothing in the file looked wrong.
+[AGENTS.md](AGENTS.md) holds every factual claim about this repository next to the command that regenerates it. `python check_agents.py` runs all of them plus eleven invariants, and CI fails the build when one has drifted. Entry numbering is recounted on every push, because it once collided with itself silently for six days and nothing in the file looked wrong.
 
 Where a claim rests on testimony with no artifact behind it, it says so in place instead of being quietly promoted to fact.
 
@@ -62,7 +62,7 @@ cd autonomy-log
 python check_agents.py
 ```
 
-Standard library only, no install step. It runs every regenerating command, then ten invariants, and prints each failure with the identifier it belongs to. Exit 0 means the file agrees with the tree. Exit 2 means every value holds but the tree is not published yet, which is a third answer on purpose, because collapsing it into failure is a mistake this record has an entry for. One invariant needs a machine-specific file that is not in the clone, so it announces that it is skipping rather than passing silently, and [it took a fresh clone to find that it had been failing for every reader](LEDGER.md#e78-the-record-that-checks-itself-failed-for-everyone-except-its-author).
+Standard library only, no install step. It runs every regenerating command, then eleven invariants, and prints each failure with the identifier it belongs to. Exit 0 means the file agrees with the tree. Exit 2 means every value holds but the tree is not published yet, which is a third answer on purpose, because collapsing it into failure is a mistake this record has an entry for. One invariant needs a machine-specific file that is not in the clone, so it announces that it is skipping rather than passing silently, and [it took a fresh clone to find that it had been failing for every reader](LEDGER.md#e78-the-record-that-checks-itself-failed-for-everyone-except-its-author).
 
 ## The documents
 

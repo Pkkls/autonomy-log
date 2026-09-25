@@ -864,7 +864,7 @@ Of the 9 entries claiming a repository is published, 2 are true today and one of
 **Caught by:** re-deriving the counts from the headings while auditing the window, `git grep -c -E '^### [ED][0-9]+[a-z]?\.' HEAD -- LEDGER.md` against DRV-02 and DRV-03, and reading D3's title.
 **AST-07:** true, by the command above. Not because of the session recording it: `cbdd902` precedes that session's first push by seventeen minutes. Inherited: the numbers were taken from the DERIVED table, whose rows are correct about what they count.
 **Bias declaration, per 6f:** self-inclusion applies, since `cbdd902` was written by an agent of the same family as the analyst. The channel that prompted `cbdd902` is not established, because the transcript that would show it was not read (RESEARCH 6i). Outcome knowledge applies.
-**Fix:** pending, in the propagation round of RESEARCH 6i, where the front page takes its counts from a stated unit instead of from the identifier rows.
+**Fix:** applied on 2026-09-25. The front page now counts headings, excludes the retracted entry, and names the unit in the sentence that carries the numbers. Its "eighteen days" went the same way: it was true on 2026-08-16, the day it was written, when this repository's history spanned exactly eighteen calendar days, and it had been stale since. It is now a pair of dates.
 **Class:** E80, a denominator supplied by an instrument, and E83, a register never re-derived, this time inside one commit.
 
 ### E85. The pre-registration written to catch inherited numbers inherited one

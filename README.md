@@ -16,13 +16,23 @@ What ended it was the operator asking whether it actually worked. The measuremen
 
 Two months of work rested on it, including a full rewrite whose stated justification was the same false belief.
 
-That is [one entry](LEDGER.md#e16-a-success-measured-through-an-uncontrolled-second-cause). There are 83 agent errors here, and 18 more defects found in systems the agent did not write.
+That is [one entry](LEDGER.md#e16-a-success-measured-through-an-uncontrolled-second-cause). The ledger holds 88 entries on the agent's own work, one of which declares itself a decision rather than an error, and 26 more on defects found in systems the agent did not write. Those are counted by heading, retracted ones excluded, because the previous version of this sentence counted identifiers and [got it wrong on the day it was fixed](LEDGER.md#e84-the-front-page-carried-stale-counts-through-the-whole-public-window-and-the-commit-that-fixed-them-counted-identifiers).
 
 Four others worth the click. [A numbering series colliding with itself](LEDGER.md#e46-the-ledgers-own-numbering-collided-with-itself-silently-for-six-days) for six days without a signal, then [in three registers at once](LEDGER.md#e54-three-registers-collided-on-numbering-at-once-and-none-of-them-said-anything). [A commit that shipped over a red check](LEDGER.md#e51-the-gate-ran-was-red-and-guarded-nothing-because-the-chain-started-at-git-add) because the shell chain began with `git add`, so the gate's exit code guarded nothing. And [a journal that stopped two hours before the work did](LEDGER.md#e69-the-record-stopped-two-hours-before-the-work-did-and-it-stopped-on-the-part-later-analysis-leaned-on-hardest), which reads exactly like a journal that finished. And [the memory every session reloads, measured for the first time](LEDGER.md#e83-the-layer-that-grades-every-other-one-measured-and-wrong-in-a-single-direction): 7 of 20 claims wrong, all in the same direction.
 
+## Then the thesis was tested on days it had never seen
+
+The research here makes claims that can fail, so on 2026-09-25 it was put against the 24 days since its last change. Twenty-five predictions, each with the observation that would refute it, were [pushed before the sources from those days were read](RESEARCH.md#6i-a-window-the-thesis-has-not-seen-predicted-before-it-was-read), the one commit already seen being declared in place. The push is the receipt, and the predictions are never edited, only scored.
+
+The first findings were about this record. The front page you are reading showed stale counts for the whole time it was public, and the commit that fixed them counted identifiers instead of entries. The pre-registration made [the same mistake eighteen minutes later](LEDGER.md#e85-the-pre-registration-written-to-catch-inherited-numbers-inherited-one), in the section written to make every number refutable.
+
+The one worth the click: [three checks passed their witness and were wrong anyway](LEDGER.md#e86-three-delegated-instruments-passed-their-witness-and-were-wrong-on-the-real-data). This record's strongest rule is that a check is not trusted until it has been seen failing on a broken case. All three were. One searched the wrong years, one counted every file twice, one stored a failed call as zero, and in each case the broken case came from the author's idea of where the check could fail, not from where it did. A witness tests the failure its author imagined.
+
+The audit is not finished, and says where it stopped. The session transcripts from those days were not read, so the predictions that depend on them are not scored yet.
+
 ## What this is
 
-Field notes from eighteen days in which coding agents were given progressively wider autonomy on one real machine: a single-board computer running a DNS blocker and several bots, a dozen repositories, a published browser extension.
+Field notes, recorded between 2026-07-30 and 2026-09-25, from coding agents given progressively wider autonomy on one real machine: a single-board computer running a DNS blocker and several bots, a dozen repositories, a published browser extension.
 
 Not a benchmark, not a demo, no synthetic tasks. Every entry is something that shipped or nearly shipped, with the path that caught it, what it cost, and the rule it produced. Successes are here too, at the same resolution, including the checks that were built and then found to be measuring nothing.
 

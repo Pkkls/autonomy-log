@@ -421,6 +421,58 @@ The result that moved is not in the protocol, it is in the measurement that refu
 
 **The window.** It starts at `3780771`, 2026-09-01T14:03:45+02:00, the last commit that touched any file other than README.md, produced by `git log -1 --format='%H %cI' -- . ':!README.md'`. It ends at the receipt of the push that fixes the predictions below; sources are read up to that point, and the session doing the reading is inside the window by construction, so its own errors count as window events. One commit lies inside it: `cbdd902`, 2026-09-25T20:01:35+02:00, README.md only. That commit is not only counts. It adds a sentence restating E83 and drops the word public from the repository count, following D18. Under a literal reading of "the last commit that changed anything other than counts" the window would start at `cbdd902` and last twelve minutes. It is placed before `cbdd902` because nothing in that commit enters from outside the record, and that placement is an interpretation, stated as one. `cbdd902` is a window artifact to be audited, not a boundary.
 
+**Status.** Pre-registered. Everything from here to the heading Verdict was written from the text of this file, the Counting section of LEDGER.md and entry E83, and pushed before any source inside the window was opened. The hash and time of that push are the receipt. Nothing above the Verdict heading is edited afterwards; it is scored below it.
+
+**Known before measuring.** Declared because it is what could steer the predictions without showing.
+
+1. The session loaded the operator's global instructions and their two includes at start. They name three machines with their addresses and key paths, five projects with cadences, four services and three scheduled jobs on the single-board computer, one bot on a camera board, and a resident orchestrator and a local model on the workstation.
+2. The harness listed eight recent project folders on this machine.
+3. Session-start hooks were visible in context: a persona injection, a context-management plugin, a command-rewrite proxy named in the instructions. The skill list names about ten estate operations. One configured tool server failed to connect at start.
+4. A guard hook refused one command of this session before this push: a search over the verifier's own source whose pattern contained the word for credentials, in a file that holds none. The hook's location is therefore known. The refusal is a window event of this session and is kept as data.
+5. The brief that started this session names `cbdd902`, a guard hook on git, and `3780771` as the candidate start. It was written by an agent of the same family without measuring the window.
+6. The diff and message of `cbdd902` were read during round 0.
+7. No memory content for this session's own project was injected.
+
+**Expected from memory, before any scan.** 11 project roots, 3 machines, 9 scheduled or triggered jobs, 7 resident services. The named list is held outside the repository, because some of the names are private projects, and is fixed here by digest: SHA-256 `0a6cc2462cb17add546751a021be03bd52996a33464a98fc02e006f1c7274a73`, 1021 bytes. Expected runs for a window of about 24.3 days: 24 or 25 for a daily job, 3 for a weekly one.
+
+**Terms.** A window event is an agent error (E) or an environment discovery (D) introduced, active or detected inside the window, admitted only with an artifact or published marked as testimony. Consequential means it shipped broken behaviour to a user, damaged a running machine, or put a false statement in front of a reader as done or true. Shipping-grade means consequential in something a user runs. Outbound means made to be read or run by someone other than its author. An instrument is a component whose output is a verdict or a record about another component: a check, monitor, health tool, report, register or memory. Indistinguishable at the boundary means the broken state emits what the working state emits where it is read. Residence time runs from the earliest artifact showing the defect to the first showing it detected. A mechanism is a hook, check, CI step or scheduled job that refuses or reports a violation without anyone rereading prose.
+
+| ID | CLAIM | PREDICTION | REFUTED IF | MEASURED BY |
+| --- | --- | --- | --- | --- |
+| W1 | §2, the seven layers cover the errors | Every window E fits one of L0 to L6 | One or more window E fits none of the seven rows after the refutation round | Layer assigned per event, each reviewed by an oracle that did not write it |
+| W2 | §2, L0 and L1 saturated, every consequential error in L2 upward | 0 consequential window E in L0 or L1 | One or more consequential window E whose correct layer is L0 or L1 | The same assignment, consequential events only |
+| W3 | §2, L2 not caught by the agent's own tests | No L2 window E has the author's own tests as its detector | One or more L2 window E caught by a test its author wrote, before release | Detector field of each L2 event, traced to the first artifact showing detection |
+| W4 | §2, L6 caught by re-derivation | Every L6 window E was detected by re-deriving from the primary artifact | One or more L6 window E detected through a downstream breakage someone noticed | Detector field of each L6 event |
+| W5 | §3.1 and E16, attribution | 0 or 1 L5 window E, the base rate being 1 in 101 entries, and any found is detected by a question from outside the agent | Two or more L5 window E, or one detected by an off-measurement the agent took unprompted | Layer and detector fields |
+| W6 | §6b, outbound verification has no trigger | At least 2 in 3 outbound window E are detected after emission by someone other than the author | Fewer than 2 in 3 | Emission time against detection time and detector, per outbound event |
+| W7 | §6c, failure modes that read as success | At least half of window E and D are indistinguishable at the boundary | Fewer than half | Per event: what the output's reader saw in the broken state against the working one |
+| W8 | §6c, concentration in instruments | More than half of the W7 events are in instruments | Half or fewer | Component field per event |
+| W9 | §6c, residence time | Median residence of indistinguishable events exceeds that of loud ones | Equal or lower. Untestable if either group has fewer than two dated events | Earliest defect artifact and first detection artifact, per event |
+| W10 | Counting, zero of four shipping-grade defects caught by own tests | 0 shipping-grade window E caught by the author's own tests | One or more | Detector field, shipping-grade events only |
+| W11 | E83, the reloaded layer decays | At least 20% of the checkable factual claims in the whole reloaded layer are false at the end of the window | Fewer than 20% | Every claim in the global instructions and includes, every memory directory, settings, hooks and scheduled task definitions, each resolved by a command against what it describes |
+| W12 | E83, in one direction | At least 80% of the false claims assert something as existing, running, published, reachable or current that is not | Fewer than 80% | Direction of each false claim from W11 |
+| W13 | E83's fix, written only in prose | At least one visibility claim in memory is false or carries no check date | Every visibility claim in memory is dated and true | `gh repo view --json visibility` against each |
+| W14 | WHAT-CHANGED and AST-09, rules land in prose | 30% or fewer of the rules that entered the reloaded layer inside the window are backed by a mechanism | More than 30% | Rules dated into the window by modification time or versioned copy, each matched against hooks, checks and scheduled jobs |
+| W15 | §7, oracle independence | Not mechanized outside this repository, and at least 60% of window E detected by someone other than their author | A mechanized independent judge exists outside this repository, or fewer than 60% | Hooks and CI across the estate; detector field |
+| W16 | §7, assumption registers | Not mechanized, and one or more window E in which an unverified load-bearing assumption shipped unpriced | A register exists, or 0 such events | The same |
+| W17 | §7, missing inhabitants | One or more window E or D in which empty and unavailable share a representation | 0 | The same |
+| W18 | §7, guard placement | 0 window events of a guard placed downstream of the failure it targets, a low base rate predicted absent | One or more | The same |
+| W19 | §7, scope against reality | The backup manifest omits at least one path holding state on the machine it backs up, a fourth instance after D2, D2b and D2c | The manifest covers every stateful path found | Read-only listing on the board against the manifest |
+| W20 | §7, a cost model for probes | Every probe this session sends to the 128 MB board is estimated first, and none raises its one-minute load average by more than 1.0 | Any probe raising it by more than 1.0, or any sent without an estimate | Load average read before and after each probe, logged |
+| W21 | §7, a falsification case per check | One or more checks in the estate, outside this repository, ran in the window and could not have failed on the case they aim at | None among the checks enumerated in round 2 | Each enumerated check run against a constructed broken case where read-only allows, otherwise read for whether it can fail |
+| W22 | §7, a residence budget | At least one scheduled job produced fewer than 90% of its expected runs, or identical output on every run, and nothing in the estate reported it | Every scheduled job at 90% or more with varying output, or every shortfall reported | Expected runs are cadence times window length; observed are dated run artifacts |
+| W23 | The denominator, after E80 | The independent scan finds at least 3 project roots active in the window that the memory list does not name, and at least 1 named root with no activity | Fewer than 3 unnamed active roots, or every named root active | Modification-time scan of the home directory, repository listing and transcripts, against the list fixed by digest above |
+| W24 | §8, a third campaign | No artifact dates a change of operating structure inside the window, so it is not a campaign in the sense of §6e | An artifact dates such a change, a new node, loop or protocol, inside the window | Transcripts and commits |
+| W25 | This analyst's instrument, not the thesis | Between 2 and 20 window E are admitted after the refutation round | Outside that range | A count. Scored and excluded from the verdict, and written down so that the incentive a lower bound creates is visible |
+
+**Struck, because they cannot fail.** Self-inclusion bias applies to this analysis: true by construction. Every L6 event found by re-derivation was caught by re-derivation: this audit finds events by re-deriving, so the claim is circular; W4 replaces it with a refutable one. Defects exist in instruments: no denominator; W7 and W8 replace it. The analysis is written by the system it analyses: true of every section here. Rules in prose get broken: no count of rules and no count of violations; W14 replaces it.
+
+**Bias declaration, per 6f.** Shared instruction set applies directly: W11 to W14 grade the instructions this session runs on, and the direction is toward trusting them. Outcome knowledge applies to W11 and W12, which were written knowing E83 found 7 false in 20, all one way. Self-inclusion applies to every prediction about the detector field, since this session will assign it.
+
+### Verdict
+
+Scored in later commits, below this line, without editing anything above it.
+
 ## 7. What would change the picture
 
 Concrete, in rough order of expected value:

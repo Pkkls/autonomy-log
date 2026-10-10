@@ -53,7 +53,7 @@ Coverage is partial and stated as such: this orders the rules the record has tes
 | --- | --- | --- | --- |
 | DRV-01 | tracked files | 14 | `git ls-tree -r --name-only HEAD \| wc -l` |
 | DRV-02 | agent-error entries in ledger | 94 | `git grep -h -c -E '^### E[0-9]+\.' HEAD -- LEDGER.md` |
-| DRV-03 | environment-discovery entries in ledger | 19 | `git grep -h -c -E '^### D[0-9]+\.' HEAD -- LEDGER.md` |
+| DRV-03 | environment-discovery entries in ledger | 20 | `git grep -h -c -E '^### D[0-9]+\.' HEAD -- LEDGER.md` |
 | DRV-04 | lettered ledger entries | 2 | `git grep -h -c -E '^### E[0-9]+[a-z]\.' HEAD -- LEDGER.md` |
 | DRV-06 | licence | MIT License | `git show HEAD:LICENSE \| head -1` |
 | DRV-07 | machine config tracked | 0 | `git ls-tree -r --name-only HEAD -- estate.json \| wc -l` |

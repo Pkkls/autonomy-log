@@ -988,6 +988,21 @@ The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09
 **Fix:** build only in a clean worktree of the tag, and check archive contents after extracting them, with a positive control: the same count must find the marker in a known-bad archive before its 0 on the real one is believed.
 **Class:** E14, E20, E21 and E27, a check that read nothing and reported clean, and E7, a scanner that returned success on an unreadable path. Section 4.1: empty and unavailable in one representation.
 
+### E95. The board's watchdog through the 6i window: one OK from a second cause, two checks that cannot alert, one backup failing in silence
+**Testimony, per AST-05: the evidence is the read-only probe output the 2026-09-25 session took from the board, kept outside the repository.** **Severity: low in consequence, since the watched jobs were switched off on purpose, and recorded because each of the three is a class this record holds several entries of.** The single-board computer runs a daily maintenance script that checks each service, writes OK or DOWN to a log, and sends a message when a service in its alert list is down.
+
+**An OK with a second cause.** One job's scans were switched off on 2026-09-07. Its check does not look for a scan: it looks at whether the job's log file was modified in the last two days. A weekly maintenance step, every Monday, runs the same program in a different mode that writes to the same log. So in the window the check read DOWN on most days and **OK on exactly the two days after each Monday**, 2026-09-15 and 16, then 2026-09-22 and 23, while no scan ran at all. That is E16's shape in a twelve-line shell check: the number moved, and the cause that moved it was not the one measured.
+
+**Two checks that cannot alert.** That check's DOWN branch, and the one for a second service switched off the same day, end in `:`, the shell's no-op, where the others add the service to the alert list. Both were edited on 2026-09-07, when the jobs were turned off. They ran daily through the window and could not have told anyone anything. They are not wrong, since their services are off on purpose; they are checks that look like checks in the log and have no way left to fail.
+
+**A backup that fails identically and tells only a file.** The weekly backup of an account's follow list ran 3 times in the window out of 3 expected, and every run printed the same error and exited 1, as it had on 2026-08-31 before the window. The weekly script records `exit=1` in its own log and calls no alert. Nothing outside the board reads that log.
+
+**Caught by:** reading the board's logs while scoring 6i, not by anything on the board, and not until fifteen days after the window closed.
+**AST-07:** true, from the probe output: the scripts, the crontabs and the logs. Because of this session: no. Inherited: none, since every claim above is read from the board's own files as captured on 2026-09-25.
+**Bias declaration, per 6f:** outcome knowledge applies, toward severity, since the analyst read the logs looking for W21 and W22 and found what they predict. Asymmetric evidence applies: the operator may have known all three and chosen to leave them, which would make two of them decisions rather than defects, and the probe output cannot show that.
+**Fix:** none applied. The jobs and their checks belong to the operator's standing configuration on a machine this record probes read-only. Proposed: a check that looks for the scan's own output line rather than the file's age, alert branches that say "off by decision" instead of doing nothing, and the weekly backup's exit status routed to the same alert as the daily services.
+**Class:** E16, a measurement with a second uncontrolled cause; E14 and D1, a guard placed where it cannot fire; D18 and D12, a monitor whose output reaches no one.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -1327,6 +1342,7 @@ Every row was assigned by the analyst who wrote the entry and reviewed by nobody
 | E92 | estate | L3 | operator | no | yes | no | no |
 | E93 | estate | L2 | operator | no | yes | yes | yes |
 | E94 | estate | L1 | author | no | no | yes | yes |
+| E95 | estate | L5 | peer | no | no | yes | yes |
 | D19 | estate | - | external | no | yes | no | yes |
 | D20 | estate | - | author | no | no | yes | yes |
 

@@ -922,6 +922,20 @@ The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09
 **Fix:** one accent per paragraph of 120 characters or more once quoted English is set aside, and no Cyrillic letter in a Latin-script text. Run against the old listing it names exactly the 32 paragraphs and the Cyrillic letter, and nothing on the corrected one. That second run is the witness the first version lacked: the real broken input, not the imagined one.
 **Class:** E86, a witness built from the author's model of the failure, and section 1.1. Also E77, a public product page that carried text it should not have.
 
+### E90. A permission justified in the repository, refused by a store that reads another register
+**Severity: medium, because a green audit was the reason the release went out, and the store refused it.** Version 3.0.2 of the extension added the `scripting` permission. Its justification was written in the repository's justification file, the listing audit passed, and the release was tagged. The Chrome store accepted the package and refused the submission with `INVALID_ITEM_METADATA`, giving no detail. The store reads justifications from its own dashboard, where nothing had been pasted. The repository's privacy policy did not name the new permission either, and the permission sentence in all eleven store descriptions was now wrong.
+
+**Two more failures sat behind the first.** The release workflow ran the stores in sequence, so the Chrome refusal skipped the add-ons store and the GitHub release, which were then sent by hand. When the justification was finally pasted, it went into the host permission field, and the store kept refusing with the same opaque code until a script read the dashboard's own list of reasons.
+
+**The mechanism.** The audit checked that the fact existed in a file the author controls. The decision was made from a register the author can only write by hand, through a dashboard, and nothing compared the two. A check that passes on the copy and says nothing about the original reads exactly like a check that passes on both, until the consumer of the original answers.
+
+**Caught by:** the store, at submission, after the tag. Then the dashboard's own list of reasons, read by a script, for the misplaced paste.
+**Evidence:** `18836d0` in Pkkls/kick-chat-translator, and the store skill journal's 2026-10-07 section.
+**AST-07:** true, from the commit and the journal. Because of this session: no. Inherited: the order of events from the journal, which its author wrote the same day.
+**Bias declaration, per 6f:** shared instruction set applies, toward leniency, since the analyst would also have trusted a green audit it had not traced to the store. Survivorship applies: this was recorded because the store refused loudly; a copy that drifts from a register nobody refuses on would leave no entry.
+**Fix:** a preflight step, before the tag, that compares with the previous tag and lists what no API can write: the Privacy tab text of each added permission and each changed description, with a copy page. It fails when a shipped permission is missing from the privacy policy or from the justifications. The release workflow now runs each store as its own step, always makes the GitHub release, and ends on a step naming the store that failed and the command that finishes it.
+**Class:** E64 and E66, a check scoped to what was written rather than to what is read, and D18, a fact true in one register and false in the one a reader opens.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -1230,6 +1244,7 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `012f115` | Pkkls/kick-chat-translator | E61 |
 | `01e1908` | Pkkls/autonomy-log | E88 |
 | `1031257` | Pkkls/kick-chat-translator | E54 |
+| `18836d0` | Pkkls/kick-chat-translator | E90 |
 | `22804df` | Pkkls/kick-chat-translator | E89 |
 | `3706131` | Pkkls/autonomy-log | E67 |
 | `3780771` | Pkkls/autonomy-log | E84 |
@@ -1247,4 +1262,4 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `cbdd902` | Pkkls/autonomy-log | E84 |
 | `d724999` | Pkkls/kick-chat-translator | E61 |
 
-Thirteen resolve in the extension repository, six in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.
+Fourteen resolve in the extension repository, six in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.

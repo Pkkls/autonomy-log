@@ -962,6 +962,18 @@ The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09
 **Fix:** the standing goal and the skill rule above. Neither is a mechanism. Nothing outside the agent's own reading of the skill stands between a rendered file and an upload (AST-09).
 **Class:** E24, links shipped without opening one, and E77, outbound text that reached a public page unreviewed. Section 6b: outbound, detected after emission, by someone other than its author.
 
+### E93. Thirty-nine gates green over a build that drew no flag at all
+**Severity: medium, caught one step short of the stores, and present in the light theme since a tagged version.** On 2026-09-26 a build of the extension, about to be released as 2.12.1, showed a grey box where the flag goes on every translated line and on the compose preview: 0 of 43 flags drawn, in both themes. Thirty-nine gates were green. None of them looked at a drawn flag; they checked that the right classes were present. A refactor had moved the flag drawings into a stylesheet imported at the top of the content stylesheet, and the badge's own `background` shorthand, declared later at equal specificity, painted over them. In the light theme the drawing had already been losing since 2.12.0, through a higher-specificity rule. The same work found a second defect behind the first: one bar located its flag by "first child span", which was the direction arrow, so a language change made elsewhere turned the arrow into a flag and left the old flag standing.
+
+**The mechanism.** A gate that asserts an element carries a class tests the author's intention. Whether the class wins the cascade is decided by declaration order and specificity in a sheet the gate never renders. The two answers agree until a refactor moves a sheet, and then the gates stay green on a page that shows nothing.
+
+**Caught by:** the operator, by eye, with two screenshots from a chat: "y'a des flag manquants dans le chat". Not by any gate, and not by the author, who had just called the release blocked on other grounds.
+**Evidence:** `17180e4` in Pkkls/kick-chat-translator, which states the 0 of 43, the cascade cause, the arrow defect and the new gate; `da83b1c`, which says 2.12.1 had been tagged locally and never pushed or published, so the archives were rebuilt; item 3 of the store skill journal's 2026-09-26 section. The operator's message is in a local transcript, testimony per AST-05.
+**AST-07:** true, from the commit. Because of this session: no. Inherited: the count of gates, 39, from the journal.
+**Bias declaration, per 6f:** shared modality applies, toward leniency, since the analyst also reads interfaces through their structure first. Survivorship applies: this was caught because the operator happened to be watching a chat that day; the light-theme half had already survived one tag unseen.
+**Fix:** a gate, `flag-surfaces`, that builds both badges through the real injection path against the real stylesheet, for 43 flags and one language without, in both themes. It was witnessed red on each defect put back: a pill painted behind a flag, and a background shorthand over the drawing. The flag is now an element of its own, appended as a child, so no background on the badge can cover it.
+**Class:** E61, interface defects that crossed every machine check and were caught by eye, and E13, a test that encoded what the author meant rather than what the page did.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -1281,6 +1293,7 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `012f115` | Pkkls/kick-chat-translator | E61 |
 | `01e1908` | Pkkls/autonomy-log | E88 |
 | `1031257` | Pkkls/kick-chat-translator | E54 |
+| `17180e4` | Pkkls/kick-chat-translator | E93 |
 | `18836d0` | Pkkls/kick-chat-translator | E90 |
 | `22804df` | Pkkls/kick-chat-translator | E89 |
 | `3706131` | Pkkls/autonomy-log | E67 |
@@ -1298,5 +1311,6 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `c1fa739` | Pkkls/kick-chat-translator | E89 |
 | `cbdd902` | Pkkls/autonomy-log | E84 |
 | `d724999` | Pkkls/kick-chat-translator | E61 |
+| `da83b1c` | Pkkls/kick-chat-translator | E93 |
 
-Fourteen resolve in the extension repository, six in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.
+Sixteen resolve in the extension repository, six in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.

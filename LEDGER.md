@@ -1029,6 +1029,19 @@ The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09
 **Beyond this record:** any shell loop fed by `printf '%s'`, `"\n".join`, base64 or a heredoc that strips the last newline loses its last item without an error, and a fixture that puts the bad item first or in the middle will never show it. Put the broken case last, and test a list of one.
 **Class:** E37, the space-splitting bug shipped into the checker written against drift, now at the other edge; E86, a witness that passed because it was built where the author expected the fault; section 4.1, an untested entry and a healthy one printing the same OK.
 
+### E98. A blocking guard that passed every command for weeks, and a repair whose comment promised the warning its code never gave
+**Testimony for the dates, per AST-05; the code is quoted from local files.** **Severity: medium, because the guard sits on every shell command an agent runs on the workstation, in the mode that refuses.** A pre-command hook passes each shell command to a checker that recognises shapes of command that have gone wrong before, and refuses the command when one matches. It found the checker by a fixed path. The checker's repository had moved, so the path pointed at nothing, and the hook's code for a missing checker was `return 0`: allow, silently. For up to 54 days, from the move to 2026-09-22, every command passed a guard that checked nothing, and its output was indistinguishable from a guard that had checked and found nothing.
+
+**Found inside the 6i window** by an agent writing a second, self-contained guard on 2026-09-22, which says so in its own docstring. The same day the hook was repaired to try two paths. The repair's comment says that if neither answers, the function "says so once rather than staying silent". The code below the comment still returned 0 without a word. The defect that the comment describes as fixed was the defect the code still had, waiting for the next move.
+
+**The mechanism.** A guard's failure mode is the absence of its output, and absence is what a working guard emits on almost every command. A hook can only reach the model by refusing, so a guard that cannot run and does not refuse has no channel left to say it cannot run. The comment then did what E42 and E56 describe in prose registers: it stated as done what had only been decided.
+
+**Caught by:** the second guard's author, for the first half; this record's steward, reading the hook while scoring W14 and W17, for the second.
+**AST-07:** true, from the hook's source and the second guard's docstring. Because of this session: no. Inherited: the 54 days are an upper bound from the new directory's creation date; when the old path stopped resolving is not established.
+**Bias declaration, per 6f:** outcome knowledge applies, toward finding, since W17 predicted an empty-and-unavailable collapse and the analyst read the hooks looking for one. Self-inclusion applies weakly: the hooks are the operator's configuration, written by agents of the same family.
+**Fix:** applied on 2026-10-10 in the operator's hook, under standing authority. With no checker found, the first command of each day is refused with the reason, and the rest pass. Witnessed: checker present, exit 0; checker absent, first call exit 2 with the message, second call exit 0.
+**Class:** E14 and E18, a gate that failed open; D1, a safeguard that cannot fire; E42 and E56, a claim of done written next to work not done; section 4.1.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -1370,7 +1383,8 @@ Every row was assigned by the analyst who wrote the entry and reviewed by nobody
 | E94 | estate | L1 | author | no | no | yes | yes |
 | E95 | estate | L5 | peer | no | no | yes | yes |
 | E96 | estate | L2 | peer | no | no | yes | yes |
-| E97 | record | L1 | author | no | no | yes | yes |
+| E97 | record | L1 | peer | no | no | yes | yes |
+| E98 | estate | L1 | peer | no | no | yes | yes |
 | D19 | estate | - | external | no | yes | no | yes |
 | D20 | estate | - | author | no | no | yes | yes |
 

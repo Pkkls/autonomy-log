@@ -974,6 +974,18 @@ The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09
 **Fix:** a gate, `flag-surfaces`, that builds both badges through the real injection path against the real stylesheet, for 43 flags and one language without, in both themes. It was witnessed red on each defect put back: a pill painted behind a flag, and a background shorthand over the drawing. The flag is now an element of its own, appended as a child, so no background on the badge can cover it.
 **Class:** E61, interface defects that crossed every machine check and were caught by eye, and E13, a test that encoded what the author meant rather than what the page did.
 
+### E94. A release archive called clean by a count that could not tell clean from unread
+**Severity: low, caught two minutes later by its author, recorded because it is the fourth instance of this record's most repeated defect.** On 2026-09-26, before releasing the extension, an agent checked whether the release archives held another session's uncommitted feature. It streamed the archives' scripts through `unzip -p <zip> '*.js' 2>/dev/null | grep -c <marker>` and got 0 for both archives, twice, with two different markers. The archives held the feature: extracted to disk, the same marker counted 10. They had been built from a working tree that carried someone else's uncommitted work.
+
+**The mechanism.** The count is 0 when the marker is absent and 0 when nothing reached `grep`, and the `2>/dev/null` removed the only output that would have told the two apart. Run against an archive that does not exist, the same command prints 0 and exits cleanly, measured on 2026-10-10. Why the stream was empty on the day is not established; the analyst did not reproduce it. What is established is that the command could not have reported a read failure if there was one.
+
+**Caught by:** the same agent, by extracting the archives and counting again, then recording in the journal that the first check "read nothing and counted 0".
+**Evidence:** item 1 of the store skill journal's 2026-09-26 section in Pkkls/kick-chat-translator, added in `2d6a497`. The two zero counts and the count of 10 are in a local transcript, testimony per AST-05.
+**AST-07:** true. Because of this session: the demonstration on an unreadable archive, yes. Inherited: the account of the day, from the journal and the transcript.
+**Bias declaration, per 6f:** outcome knowledge applies, toward severity, since the record already holds three entries of this shape and the analyst went looking for a fourth. Shared instruction set applies toward leniency: the instruction to suppress noisy stderr is one the analyst also follows.
+**Fix:** build only in a clean worktree of the tag, and check archive contents after extracting them, with a positive control: the same count must find the marker in a known-bad archive before its 0 on the real one is believed.
+**Class:** E14, E20, E21 and E27, a check that read nothing and reported clean, and E7, a scanner that returned success on an unreadable path. Section 4.1: empty and unavailable in one representation.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -1296,6 +1308,7 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `17180e4` | Pkkls/kick-chat-translator | E93 |
 | `18836d0` | Pkkls/kick-chat-translator | E90 |
 | `22804df` | Pkkls/kick-chat-translator | E89 |
+| `2d6a497` | Pkkls/kick-chat-translator | E94 |
 | `3706131` | Pkkls/autonomy-log | E67 |
 | `3780771` | Pkkls/autonomy-log | E84 |
 | `42f16c9` | Pkkls/kick-chat-translator | E51 |
@@ -1313,4 +1326,4 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `d724999` | Pkkls/kick-chat-translator | E61 |
 | `da83b1c` | Pkkls/kick-chat-translator | E93 |
 
-Sixteen resolve in the extension repository, six in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.
+Seventeen resolve in the extension repository, six in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.

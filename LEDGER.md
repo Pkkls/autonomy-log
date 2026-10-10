@@ -1209,6 +1209,7 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `3706131` | Pkkls/autonomy-log | E67 |
 | `3780771` | Pkkls/autonomy-log | E84 |
 | `42f16c9` | Pkkls/kick-chat-translator | E51 |
+| `4cf00bc` | Pkkls/kick-chat-translator | E87 |
 | `59c820f` | Pkkls/kick-chat-translator | E61 |
 | `65ae05e` | Pkkls/kick-chat-translator | E61 |
 | `6db2630` | Pkkls/kick-chat-translator | E57 |
@@ -1219,4 +1220,4 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `cbdd902` | Pkkls/autonomy-log | E84 |
 | `d724999` | Pkkls/kick-chat-translator | E61 |
 
-Ten resolve in the extension repository, four in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.
+Eleven resolve in the extension repository, four in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.

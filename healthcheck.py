@@ -581,7 +581,11 @@ def check_backup_scope(res):
         "| grep -oE '/(usr/local/bin|root)/[A-Za-z0-9._/-]+[.]sh'; done; } "
         # Un chemin cite mais absent n'est pas un oubli de sauvegarde.
         "| sort -u | while IFS= read -r p; do "
-        "[ -f \"$p\" ] && echo \"REF $p\"; done")
+        "[ -f \"$p\" ] && echo \"REF $p\"; done; "
+        # E96: a running service whose directory nothing in the manifest
+        # reaches restores as a binary with no state.
+        "ps | grep -v grep | grep -oE '/root/[A-Za-z0-9._-]+/' | sort -u "
+        "| while IFS= read -r d; do echo \"RUN ${d%/}\"; done")
     code, out = ssh("nano", remote)
     if code is None or code != 0:
         res.add(UNKNOWN, "backup scope", f"non sonde: {out.strip()[:50]}")
@@ -591,6 +595,11 @@ def check_backup_scope(res):
     dead, uncovered = [], []
     for line in out.splitlines():
         line = line.strip()
+        if line.startswith("RUN "):
+            d = line[4:]
+            if not any(c.startswith(d + "/") for c in covered):
+                uncovered.append(d + "/ (service en marche)")
+            continue
         if line.startswith("DEAD "):
             dead.append(line[5:])
         elif line.startswith("REF "):

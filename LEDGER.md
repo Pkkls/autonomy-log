@@ -1003,6 +1003,18 @@ The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09
 **Fix:** none applied. The jobs and their checks belong to the operator's standing configuration on a machine this record probes read-only. Proposed: a check that looks for the scan's own output line rather than the file's age, alert branches that say "off by decision" instead of doing nothing, and the weekly backup's exit status routed to the same alert as the daily services.
 **Class:** E16, a measurement with a second uncontrolled cause; E14 and D1, a guard placed where it cannot fire; D18 and D12, a monitor whose output reaches no one.
 
+### E96. The backup manifest drifted a fifth time, outside the only paths the check credited in E71 can see
+**Severity: medium, because a restore would bring back a scheduled line that calls a script it does not restore.** At the end of the 6i window the board's backup manifest, read from the backup repository's last commit before the receipt, omitted at least three paths that hold state. The crontab it saves calls an hourly script that it does not save, so a restored board would run a cron line pointing at nothing, every hour, and say so to no one. A resident service running on 2026-09-25 has a directory the manifest does not mention, and the service is also missing from the memory list that 6i fixed by digest. A weekly backup job's data directory is not saved either; only its environment file is.
+
+**Why E71's check did not see them.** The estate health tool in this repository compares the manifest against the board, and E71 records it finding the fourth drift. It reads only the scripts under two directories, extracts only paths beginning `/etc/`, and keeps those that exist. It never reads the crontab, never sees a path under `/root`, and never sees a script referenced from somewhere other than another script. All three omissions sit outside that scope by construction. E71 says the transferable part is comparing declared scope against the machine rather than the archive; the comparison was right, and its own scope was the next thing to drift.
+
+**Caught by:** comparing the manifest against the board's process list, crontab and directory listings captured on 2026-09-25, while scoring W19.
+**Evidence:** the manifest is in a private repository and the board output is local, so the specifics are testimony (AST-05). The check's scope is in `healthcheck.py` here, `check_backup_scope`, and any reader can see what it extracts.
+**AST-07:** true, by the comparison above. Because of this session: no. Inherited: E71's description of the check as comparing the manifest "against the board", which is true of the paths it extracts and was read as true of the board.
+**Bias declaration, per 6f:** outcome knowledge applies, toward finding, since 6i predicted a fourth instance and the analyst looked for one. Self-inclusion applies: the check is this record's own instrument.
+**Fix:** the check's scope, in this repository, in a following commit with its witness. The manifest itself belongs to the operator's standing configuration and is left as a proposal: add the three paths.
+**Class:** D2, D2b, D2c and E71, scope drift under a verified pipeline, and E86, an instrument whose author's model of the input became its blind spot.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -1343,6 +1355,7 @@ Every row was assigned by the analyst who wrote the entry and reviewed by nobody
 | E93 | estate | L2 | operator | no | yes | yes | yes |
 | E94 | estate | L1 | author | no | no | yes | yes |
 | E95 | estate | L5 | peer | no | no | yes | yes |
+| E96 | estate | L2 | peer | no | no | yes | yes |
 | D19 | estate | - | external | no | yes | no | yes |
 | D20 | estate | - | author | no | no | yes | yes |
 

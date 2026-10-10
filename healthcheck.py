@@ -553,6 +553,10 @@ def check_backup_scope(res):
 
     scripts = [p for p in manifest
                if p.startswith(("/etc/init.d/", "/usr/local/bin/"))]
+    # E96: a saved crontab that calls an unsaved script restores a cron line
+    # pointing at nothing. Scripts it calls are state; logs and binaries it
+    # touches are not, so only `.sh` under the two script homes is taken.
+    crontabs = [p for p in manifest if p.startswith("/etc/crontabs/")]
 
     # Les deux listes partent en base64, une entree par ligne, et sont relues
     # avec `read -r`. Un `for p in <liste jointe par des espaces>` decoupe
@@ -560,14 +564,21 @@ def check_backup_scope(res):
     # teste, et le controle rapporte une entree morte qui n'existe pas tout en
     # etant aveugle a la disparition de celle qui existe. C'est le meme
     # decoupage par les espaces qui avait casse `02 - Projects` ailleurs.
+    # The trailing newline is not cosmetic: `read` returns false on a last line
+    # that has none, so the loop skipped the last manifest entry and the last
+    # script, and a one-element list entirely, from E71 until E97.
     def _b64(lines):
-        return base64.b64encode("\n".join(lines).encode()).decode()
+        return base64.b64encode(("\n".join(lines) + "\n").encode()).decode()
 
     remote = (
         f"echo {_b64(manifest)} | base64 -d | while IFS= read -r p; do "
         "[ -n \"$p\" ] && { [ -e \"$p\" ] || echo \"DEAD $p\"; }; done; "
+        "{ "
         f"echo {_b64(scripts)} | base64 -d | while IFS= read -r f; do "
-        "[ -f \"$f\" ] && grep -oE '/etc/[A-Za-z0-9._/-]+' \"$f\"; done "
+        "[ -f \"$f\" ] && grep -oE '/etc/[A-Za-z0-9._/-]+' \"$f\"; done; "
+        f"echo {_b64(crontabs)} | base64 -d | while IFS= read -r f; do "
+        "[ -f \"$f\" ] && grep -v '^#' \"$f\" "
+        "| grep -oE '/(usr/local/bin|root)/[A-Za-z0-9._/-]+[.]sh'; done; } "
         # Un chemin cite mais absent n'est pas un oubli de sauvegarde.
         "| sort -u | while IFS= read -r p; do "
         "[ -f \"$p\" ] && echo \"REF $p\"; done")

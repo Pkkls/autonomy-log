@@ -1014,6 +1014,20 @@ The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09
 **Bias declaration, per 6f:** outcome knowledge applies, toward finding, since 6i predicted a fourth instance and the analyst looked for one. Self-inclusion applies: the check is this record's own instrument.
 **Fix:** the check's scope, in this repository, in a following commit with its witness. The manifest itself belongs to the operator's standing configuration and is left as a proposal: add the three paths.
 **Class:** D2, D2b, D2c and E71, scope drift under a verified pipeline, and E86, an instrument whose author's model of the input became its blind spot.
+**Applied the same day** in `healthcheck.py`: the check now also reads the scripts a saved crontab calls. Witnessed on the board, read-only, load read before and after each run: before the change it read OK on the real manifest; after it, FAIL naming the uncalled script; with that script added to a copy of the manifest, OK. The running service's directory and the job's data directory are still outside the check and stay proposals. The witness found E97 on the way.
+
+### E97. The check that compares the manifest with the board never read its last line, for two months
+**Severity: medium for this record, because it is the check E71 credits as the first machine to catch a manifest drift.** `healthcheck.py` sends the manifest to the board as base64, one path per line, and reads it back with `while IFS= read -r p`. The lines were joined with no newline after the last one. `read` returns false on a final line with no newline, so the loop exits before its body runs on it. **The last path in the manifest was never tested for existence, the last script was never scanned for the configs it sources, and a list of one element was skipped entirely.** The encoding dates from `0d276bd`, 2026-08-02, and its own comment explains that it replaced a word-splitting loop that had broken on a path with a space, E37's bug.
+
+**Witnessed on 2026-10-10**, read-only, on a copy of the manifest with one path that does not exist: placed in the middle, the check read FAIL and named it; placed last, it read OK. After the fix both read FAIL. It was found because the one-element list added for E96 produced nothing, and the remote half of the command, run alone, produced the right answer.
+
+**The mechanism.** The repair of one parsing fault introduced another at the opposite edge of the same input. A witness built from a broken entry in the middle of the list, which is where a hand-made fixture puts it, passes both versions. The edge the author did not think about is the only place the second fault exists.
+**Caught by:** the author of the fix that needed the loop to work on a list of one, by testing each half of the command separately.
+**AST-07:** true, by the two constructed manifests above. Because of this session: no, the fault is two months older. Inherited: E71's success, which stands, since the drift it found was not on the last line.
+**Bias declaration, per 6f:** self-inclusion applies, since the check is this record's own instrument and the analyst is its steward. Outcome knowledge applies toward finding: E37 had already shown this loop breaking once.
+**Fix:** a trailing newline, with a comment saying why it is not cosmetic, and the two constructed manifests run against the board before and after.
+**Beyond this record:** any shell loop fed by `printf '%s'`, `"\n".join`, base64 or a heredoc that strips the last newline loses its last item without an error, and a fixture that puts the bad item first or in the middle will never show it. Put the broken case last, and test a list of one.
+**Class:** E37, the space-splitting bug shipped into the checker written against drift, now at the other edge; E86, a witness that passed because it was built where the author expected the fault; section 4.1, an untested entry and a healthy one printing the same OK.
 
 ## Environment discoveries
 
@@ -1356,6 +1370,7 @@ Every row was assigned by the analyst who wrote the entry and reviewed by nobody
 | E94 | estate | L1 | author | no | no | yes | yes |
 | E95 | estate | L5 | peer | no | no | yes | yes |
 | E96 | estate | L2 | peer | no | no | yes | yes |
+| E97 | record | L1 | author | no | no | yes | yes |
 | D19 | estate | - | external | no | yes | no | yes |
 | D20 | estate | - | author | no | no | yes | yes |
 
@@ -1367,6 +1382,7 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | --- | --- | --- |
 | `012f115` | Pkkls/kick-chat-translator | E61 |
 | `01e1908` | Pkkls/autonomy-log | E88 |
+| `0d276bd` | Pkkls/autonomy-log | E97 |
 | `1031257` | Pkkls/kick-chat-translator | E54 |
 | `17180e4` | Pkkls/kick-chat-translator | E93 |
 | `18836d0` | Pkkls/kick-chat-translator | E90 |
@@ -1389,4 +1405,4 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `d724999` | Pkkls/kick-chat-translator | E61 |
 | `da83b1c` | Pkkls/kick-chat-translator | E93 |
 
-Seventeen resolve in the extension repository, six in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.
+Seventeen resolve in the extension repository, seven in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.

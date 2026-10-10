@@ -899,6 +899,17 @@ The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09
 **Fix:** the add-ons store moved to its API. The Privacy tab script now waits for the dashboard's own confirmation and says what it saw. The video address is typed one key event per character, the save button is checked enabled before the click, and every store write ends with a reload and a read from the server.
 **Class:** E40, a stop that stopped nothing and reported success, and D12, a status screen that reads green, moved into a form: the instrument here is the page, and it reports the author's input as the outcome.
 
+### E88. The first entry of the catch-up was pushed red, its push gated on an echo
+**Severity: low in consequence, recorded because the rule it broke is the one this file states most often.** The session that wrote E87 ran the verifier, printed its status, and pushed, in one line: `python check_agents.py; echo EXIT=$?; git push ...`. The push was chained to the echo, whose exit is always 0, so it ran whatever the verifier said. The verifier said 1: E87 cites `4cf00bc` and the Citations table had no row for it. `01e1908` reached `main` red, and the CI run on it failed at 2026-10-10T17:55:31Z. The repair, `5b36a21`, landed 26 seconds later and its run passed.
+
+**The mechanism.** AST-11 says never read an exit code after a pipe. This is the same fault with a semicolon: the status the next step depends on is the status of the step that reported, not of the step that checked. The printed `EXIT=1` was on screen before the push finished, so the information was there and the plumbing ignored it. LOOP step L8 says green, then commit and push; the line encoded commit, check, push.
+
+**Caught by:** the verifier's own output, read after the push had already gone, and confirmed by the failed CI run.
+**AST-07:** true, from the CI record above. Because of this session: yes, entirely. Inherited: the habit of printing a status next to a command, which reads as checking it.
+**Bias declaration, per 6f:** self-inclusion applies, and its direction here is toward severity, since the author is recording its own fault in the round after committing it and has a reason to look scrupulous. Outcome knowledge applies: the cost is known to be 26 seconds of a red `main`.
+**Fix:** a push script, kept outside the repository, that pushes only when the verifier exits 2 (correct, unpublished) and reports the post-push exit. It was witnessed per L7 on a tree made dirty on purpose: verifier exit 1, "NOT PUSHING", script exit 1, and nothing sent.
+**Class:** E18 and E51, a gate whose result never reached the decision it was guarding, and E65, the gate rule broken shortly after it was written. Here it was broken by an agent that had read the rule in full minutes earlier.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -1205,12 +1216,14 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | HASH | REPOSITORY | CITED IN |
 | --- | --- | --- |
 | `012f115` | Pkkls/kick-chat-translator | E61 |
+| `01e1908` | Pkkls/autonomy-log | E88 |
 | `1031257` | Pkkls/kick-chat-translator | E54 |
 | `3706131` | Pkkls/autonomy-log | E67 |
 | `3780771` | Pkkls/autonomy-log | E84 |
 | `42f16c9` | Pkkls/kick-chat-translator | E51 |
 | `4cf00bc` | Pkkls/kick-chat-translator | E87 |
 | `59c820f` | Pkkls/kick-chat-translator | E61 |
+| `5b36a21` | Pkkls/autonomy-log | E88 |
 | `65ae05e` | Pkkls/kick-chat-translator | E61 |
 | `6db2630` | Pkkls/kick-chat-translator | E57 |
 | `8e62f3d` | Pkkls/kick-chat-translator | E58, E61 |
@@ -1220,4 +1233,4 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `cbdd902` | Pkkls/autonomy-log | E84 |
 | `d724999` | Pkkls/kick-chat-translator | E61 |
 
-Eleven resolve in the extension repository, four in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.
+Eleven resolve in the extension repository, six in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.

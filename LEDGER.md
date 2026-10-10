@@ -1297,6 +1297,26 @@ The ratio worth staring at: **zero of the four shipping-grade defects were caugh
 
 E16 sits outside that count and costs more than all of it. Every error above is a belief that met no evidence, or met evidence and was corrected. E16 is a belief that met evidence, was confirmed by it, and was wrong anyway, because the evidence had a second cause nobody had ruled out. No amount of contact with the world fixes that on its own. What fixes it is holding one channel where only your own action can move the number, and checking that it moves when you act and stops when you stop.
 
+## Index
+
+The fields the thesis counts, one row per entry, so that a count is a command and not a reading. Started on 2026-10-10 at E87 and D19. Earlier entries are not retrofitted, for the reason AST-13 gives about format: the record is what it was, and classifying every earlier entry at once from its prose would be one analyst's reading presented as the corpus. Rows for older entries are added only when a measurement needs them, and say so in the commit. Checked by `python check_agents.py --index`: every entry from the start of the index has exactly one row, every row names an entry that exists, every value comes from the vocabulary below.
+
+Vocabulary. SUBJECT: `estate`, the work of agents elsewhere, or `record`, this repository itself. LAYER: `L0` to `L6` as in RESEARCH section 2, or `-` for a discovery. DETECTOR: `author` (the agent whose work it was), `operator`, `peer` (another agent), `external` (a store, a host, a third party), `check` (a hook, a CI job, a verifier that refused without anyone rereading). CONSEQUENTIAL, OUTBOUND, INSTRUMENT, QUIET: `yes` or `no`, in the senses defined in RESEARCH 6i, QUIET meaning indistinguishable at the boundary where it was read.
+
+Every row was assigned by the analyst who wrote the entry and reviewed by nobody. Shared instruction set and self-inclusion apply to the whole table (6f), toward placing defects where the thesis predicts them.
+
+| ID | SUBJECT | LAYER | DETECTOR | CONSEQUENTIAL | OUTBOUND | INSTRUMENT | QUIET |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| E87 | estate | L2 | author | no | yes | yes | yes |
+| E88 | record | L1 | check | no | yes | yes | no |
+| E89 | estate | L1 | author | yes | yes | yes | yes |
+| E90 | estate | L2 | external | no | yes | yes | yes |
+| E91 | estate | L6 | author | no | no | yes | yes |
+| E92 | estate | L3 | operator | no | yes | no | no |
+| E93 | estate | L2 | operator | no | yes | yes | yes |
+| E94 | estate | L1 | author | no | no | yes | yes |
+| D19 | estate | - | external | no | yes | no | yes |
+
 ## Citations
 
 Every commit hash cited above, with the repository it lives in. This record cites two projects and the citing sentences name neither, which cost `AST-20` its count and a reader ten of twelve lookups. Written because a hash without a repository is not a reference, it is a string that happens to be hexadecimal. Checked by `python check_agents.py --citations`, which fails when a hash appears in the prose above and not in this table.

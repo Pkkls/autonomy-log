@@ -105,6 +105,7 @@ DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte size
 | INV-09 | the SECTIONS line lists exactly the sections this file has, in order | `python check_agents.py --sections` | 0 |
 | INV-10 | every supersession between ledger entries is linked in both directions | `python check_agents.py --amend` | 0 |
 | INV-11 | every commit hash cited in the ledger is attributed to a repository | `python check_agents.py --citations` | 0 |
+| INV-12 | every ledger entry from E87 and D19 has one Index row with values from its vocabulary | `python check_agents.py --index` | 0 |
 
 ## OPEN
 

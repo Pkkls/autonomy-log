@@ -20,6 +20,7 @@ Modes:
   --links         relative markdown links resolve, used by INV-06
   --sections      the SECTIONS line matches the file, used by INV-09
   --amend         supersession links are bidirectional, used by INV-10
+  --index         ledger Index rows cover every new entry, used by INV-12
   --extlinks      external links serve real content. Not an INVARIANT: it
                   needs the network, and a transient outage turning the local
                   verifier red would be a false positive, which costs more
@@ -522,6 +523,67 @@ def check_citations():
     return 0
 
 
+INDEX_START = {"E": 87, "D": 19}
+INDEX_VOCAB = [
+    ("SUBJECT", {"estate", "record"}),
+    ("LAYER", {"L0", "L1", "L2", "L3", "L4", "L5", "L6", "-"}),
+    ("DETECTOR", {"author", "operator", "peer", "external", "check"}),
+    ("CONSEQUENTIAL", {"yes", "no"}),
+    ("OUTBOUND", {"yes", "no"}),
+    ("INSTRUMENT", {"yes", "no"}),
+    ("QUIET", {"yes", "no"}),
+]
+
+
+def check_index():
+    """The thesis counts layers, detectors and quiet failures; the prose held
+    them and no command could count them. The Index holds them as values.
+
+    Coverage starts at INDEX_START and runs forward: an entry written after the
+    index existed and left out of it is a count that silently shrinks, which is
+    the defect E84 found in the front page. Rows for older entries are allowed,
+    never required.
+    """
+    text = committed("LEDGER.md")
+    head, sep, rest = text.partition("## Index")
+    if not sep:
+        print("FAIL index: the ledger has no Index section")
+        return 1
+    body = rest.split("\n## ", 1)[0]
+    headings = set(re.findall(r"^###[ \t]+([ED]\d+[a-z]?)\.", head, re.M))
+    rows = re.findall(r"^\|\s*([ED]\d+[a-z]?)\s*\|(.*)\|\s*$", body, re.M)
+    bad, seen = 0, {}
+    for rid, cells_ in rows:
+        seen[rid] = seen.get(rid, 0) + 1
+        vals = [c.strip() for c in cells_.split("|")]
+        if rid not in headings:
+            print("FAIL index: %s has a row and no entry" % rid)
+            bad += 1
+        if len(vals) != len(INDEX_VOCAB):
+            print("FAIL index: %s has %d fields, expected %d" % (rid, len(vals), len(INDEX_VOCAB)))
+            bad += 1
+            continue
+        for (name, allowed), v in zip(INDEX_VOCAB, vals):
+            if v not in allowed:
+                print("FAIL index: %s %s is '%s', not one of %s" % (rid, name, v, sorted(allowed)))
+                bad += 1
+    for rid, n in seen.items():
+        if n > 1:
+            print("FAIL index: %s has %d rows" % (rid, n))
+            bad += 1
+    for h in sorted(headings):
+        m = re.match(r"([ED])(\d+)", h)
+        if int(m.group(2)) >= INDEX_START[m.group(1)] and h not in seen:
+            print("FAIL index: %s is past the start of the index and has no row" % h)
+            bad += 1
+    if bad:
+        print("FAIL index: %d problem(s)" % bad)
+        return 1
+    print("ok   index: %d row(s), every entry from E%d and D%d covered"
+          % (len(rows), INDEX_START["E"], INDEX_START["D"]))
+    return 0
+
+
 # --- full run ---------------------------------------------------------------
 
 def run_all():
@@ -585,6 +647,8 @@ def main(argv):
         return check_citations()
     if "--links" in argv:
         return check_links()
+    if "--index" in argv:
+        return check_index()
     if "--extlinks" in argv:
         return check_extlinks()
     return run_all()

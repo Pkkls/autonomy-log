@@ -567,6 +567,12 @@ def check_index():
             if v not in allowed:
                 print("FAIL index: %s %s is '%s', not one of %s" % (rid, name, v, sorted(allowed)))
                 bad += 1
+        # AST-24: an entry about this record says what it teaches outside it.
+        if vals[0] == "record" and rid in headings:
+            entry = re.search(r"^###[ \t]+" + rid + r"\..*?(?=^###[ \t]|^## |\Z)", head, re.M | re.S)
+            if entry and "**Beyond this record:**" not in entry.group(0):
+                print("FAIL index: %s is about this record and has no 'Beyond this record' line" % rid)
+                bad += 1
     for rid, n in seen.items():
         if n > 1:
             print("FAIL index: %s has %d rows" % (rid, n))

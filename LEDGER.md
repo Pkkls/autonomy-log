@@ -908,6 +908,7 @@ The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09
 **AST-07:** true, from the CI record above. Because of this session: yes, entirely. Inherited: the habit of printing a status next to a command, which reads as checking it.
 **Bias declaration, per 6f:** self-inclusion applies, and its direction here is toward severity, since the author is recording its own fault in the round after committing it and has a reason to look scrupulous. Outcome knowledge applies: the cost is known to be 26 seconds of a red `main`.
 **Fix:** a push script, kept outside the repository, that pushes only when the verifier exits 2 (correct, unpublished) and reports the post-push exit. It was witnessed per L7 on a tree made dirty on purpose: verifier exit 1, "NOT PUSHING", script exit 1, and nothing sent.
+**Beyond this record:** printing a status next to a command reads, to its author and to anyone watching, as having checked it. In any script or pipeline the step that decides must read the status of the step that checked, by name, and the cheapest test of that is to break the check once and watch the decision refuse.
 **Class:** E18 and E51, a gate whose result never reached the decision it was guarding, and E65, the gate rule broken shortly after it was written. Here it was broken by an agent that had read the rule in full minutes earlier.
 
 ### E89. An accent check satisfied by one letter per text let 32 stripped paragraphs reach both stores

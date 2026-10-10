@@ -1042,6 +1042,19 @@ The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09
 **Fix:** applied on 2026-10-10 in the operator's hook, under standing authority. With no checker found, the first command of each day is refused with the reason, and the rest pass. Witnessed: checker present, exit 0; checker absent, first call exit 2 with the message, second call exit 0.
 **Class:** E14 and E18, a gate that failed open; D1, a safeguard that cannot fire; E42 and E56, a claim of done written next to work not done; section 4.1.
 
+### E99. The script scoring the verdict wrote into the receipt it was forbidden to touch, twice in five minutes
+**Severity: low, nothing was committed, and recorded because the receipt is the one object in this record whose value is that it never changes.** On 2026-10-10 the session scoring RESEARCH 6i inserted its rows with a script that located each place by searching for `| W13 |`, `| W19 |` and `| W24 |`. Those strings occur first in 6i's own prediction table, above the Verdict heading, which 6i says is never edited after its receipt. The script reported success and wrote 28 lines into the prediction table. The session read the diff's line numbers against the heading's, saw the insertions sat above it, and restored the file.
+
+**Then it did it again.** The repair to the script was applied by a second command, and the next line ran the unrepaired script whatever the repair's outcome. The repair failed on an assertion; the old script ran anyway and wrote the same 28 lines in the same place. This is E88's fault, a step not gated on the step before it, made by the same session a few hours after recording E88.
+
+**The mechanism.** A document that quotes its own identifiers in two places, once as a prediction and once as a score, gives a text search two answers, and the first one is the one that must not move. 6i's promise not to edit above the Verdict was prose. Nothing would have refused a commit that broke it, and only the session's habit of reading a diff before committing caught it.
+**Caught by:** the author, reading the diff's line numbers before committing, both times.
+**AST-07:** true, by the two diffs. Because of this session: yes, entirely.
+**Bias declaration, per 6f:** self-inclusion applies, toward severity, as in E88.
+**Beyond this record:** an edit located by searching for an identifier lands on its first occurrence, and in any document that both declares and reports the same ids, a spec and its results, a test plan and its run, the first occurrence is the declaration. Anchor the search below a heading that only the results have, and assert that everything above the anchor is unchanged.
+**Fix:** the script now cuts the file at the Verdict heading, edits only below it, and asserts the part above is unchanged. INV-13 makes the promise a check: the digest of 6i from its heading through the Verdict heading must equal the one pushed in `b18dc92`, and the check was seen red on a copy with one word changed above the heading.
+**Class:** E88, a step that runs regardless of the step it depends on; E54 and E46, identifiers that collide inside one register.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -1385,6 +1398,7 @@ Every row was assigned by the analyst who wrote the entry and reviewed by nobody
 | E96 | estate | L2 | peer | no | no | yes | yes |
 | E97 | record | L1 | peer | no | no | yes | yes |
 | E98 | estate | L1 | peer | no | no | yes | yes |
+| E99 | record | L1 | author | no | no | no | yes |
 | D19 | estate | - | external | no | yes | no | yes |
 | D20 | estate | - | author | no | no | yes | yes |
 
@@ -1413,10 +1427,11 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `8e62f3d` | Pkkls/kick-chat-translator | E58, E61 |
 | `9541cbb` | Pkkls/autonomy-log | E67 |
 | `9ce0f28` | Pkkls/kick-chat-translator | E57 |
+| `b18dc92` | Pkkls/autonomy-log | E99 |
 | `ae65813` | Pkkls/kick-chat-translator | E54 |
 | `c1fa739` | Pkkls/kick-chat-translator | E89 |
 | `cbdd902` | Pkkls/autonomy-log | E84 |
 | `d724999` | Pkkls/kick-chat-translator | E61 |
 | `da83b1c` | Pkkls/kick-chat-translator | E93 |
 
-Seventeen resolve in the extension repository, seven in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.
+Seventeen resolve in the extension repository, eight in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.

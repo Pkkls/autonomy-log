@@ -52,7 +52,7 @@ Coverage is partial and stated as such: this orders the rules the record has tes
 | ID | FACT | VALUE | COMMAND |
 | --- | --- | --- | --- |
 | DRV-01 | tracked files | 14 | `git ls-tree -r --name-only HEAD \| wc -l` |
-| DRV-02 | agent-error entries in ledger | 98 | `git grep -h -c -E '^### E[0-9]+\.' HEAD -- LEDGER.md` |
+| DRV-02 | agent-error entries in ledger | 99 | `git grep -h -c -E '^### E[0-9]+\.' HEAD -- LEDGER.md` |
 | DRV-03 | environment-discovery entries in ledger | 20 | `git grep -h -c -E '^### D[0-9]+\.' HEAD -- LEDGER.md` |
 | DRV-04 | lettered ledger entries | 2 | `git grep -h -c -E '^### E[0-9]+[a-z]\.' HEAD -- LEDGER.md` |
 | DRV-06 | licence | MIT License | `git show HEAD:LICENSE \| head -1` |
@@ -107,6 +107,7 @@ DRV-05, DRV-10, DRV-11 and DRV-12 were retired: commit counts and file byte size
 | INV-10 | every supersession between ledger entries is linked in both directions | `python check_agents.py --amend` | 0 |
 | INV-11 | every commit hash cited in the ledger is attributed to a repository | `python check_agents.py --citations` | 0 |
 | INV-12 | every ledger entry from E87 and D19 has one Index row with values from its vocabulary | `python check_agents.py --index` | 0 |
+| INV-13 | RESEARCH 6i above its Verdict heading is byte for byte as pushed in b18dc92 | `python check_agents.py --receipt` | 0 |
 
 ## OPEN
 

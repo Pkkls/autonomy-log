@@ -21,6 +21,7 @@ Modes:
   --sections      the SECTIONS line matches the file, used by INV-09
   --amend         supersession links are bidirectional, used by INV-10
   --index         ledger Index rows cover every new entry, used by INV-12
+  --receipt       RESEARCH 6i above its Verdict is as pre-registered, INV-13
   --extlinks      external links serve real content. Not an INVARIANT: it
                   needs the network, and a transient outage turning the local
                   verifier red would be a false positive, which costs more
@@ -523,6 +524,32 @@ def check_citations():
     return 0
 
 
+# RESEARCH 6i promised that nothing above its Verdict heading is edited after
+# the push that fixed it, b18dc92. A promise in prose has no runtime (AST-09),
+# and on 2026-10-10 a script scoring the verdict wrote into the prediction
+# table twice before its diff was read (E99). The digest is of section 6i from
+# its heading through the Verdict heading, LF-joined, as pushed in b18dc92.
+RECEIPT_6I = "de6a3d037374e3dee2a1f41042496bb3252ae9f6b9eff1613ca7ee8e18db4609"
+
+
+def check_receipt():
+    out, on = [], False
+    for line in committed("RESEARCH.md").split("\n"):
+        if line.startswith("## 6i."):
+            on = True
+        if on:
+            out.append(line)
+        if on and line.startswith("### Verdict"):
+            break
+    got = hashlib.sha256("\n".join(out).encode("utf-8")).hexdigest()
+    if got != RECEIPT_6I:
+        print("FAIL receipt: RESEARCH 6i above its Verdict differs from b18dc92 "
+              "(%d lines, sha256 %s)" % (len(out), got[:16]))
+        return 1
+    print("ok   receipt: RESEARCH 6i above its Verdict is as pushed in b18dc92")
+    return 0
+
+
 INDEX_START = {"E": 87, "D": 19}
 INDEX_VOCAB = [
     ("SUBJECT", {"estate", "record"}),
@@ -655,6 +682,8 @@ def main(argv):
         return check_links()
     if "--index" in argv:
         return check_index()
+    if "--receipt" in argv:
+        return check_receipt()
     if "--extlinks" in argv:
         return check_extlinks()
     return run_all()

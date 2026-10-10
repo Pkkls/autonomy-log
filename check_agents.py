@@ -63,6 +63,7 @@ protocol, which is not worth it yet. Revisit if the tree passes roughly fifty
 files, where the same pattern would cost several seconds.
 """
 
+import hashlib
 import os
 import re
 import subprocess

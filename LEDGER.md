@@ -910,6 +910,18 @@ The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09
 **Fix:** a push script, kept outside the repository, that pushes only when the verifier exits 2 (correct, unpublished) and reports the post-push exit. It was witnessed per L7 on a tree made dirty on purpose: verifier exit 1, "NOT PUSHING", script exit 1, and nothing sent.
 **Class:** E18 and E51, a gate whose result never reached the decision it was guarding, and E65, the gate rule broken shortly after it was written. Here it was broken by an agent that had read the rule in full minutes earlier.
 
+### E89. An accent check satisfied by one letter per text let 32 stripped paragraphs reach both stores
+**Severity: medium, shipping-grade and outbound: the text was on two public store listings in five languages.** On 2026-09-26 the extension's release tooling gained a check that refused a Latin-script store text with no diacritics, written after release notes were found in plain ASCII. It asked for one accented letter per text. A single accented header satisfied it, so six ASCII paragraphs in each of five Chrome descriptions, French, Spanish, Brazilian Portuguese, Turkish and Czech, and two in the French description on the add-ons store, passed it and were published. The Czech text also carried a Cyrillic letter inside a Latin word, which no part of the check looked for.
+
+**The mechanism.** The check was written against the case that prompted it, a text with no accent at all, and its witness was that case. It went red on the broken text its author had seen and green on the one that actually shipped, where the accents were missing paragraph by paragraph rather than everywhere. The unit of the check was the file; the unit of the defect was the paragraph.
+
+**Caught by:** the author, about two hours after the check was written, while preparing the same texts for a later paste, and after both stores already served them. Not by the check, and not by a reader.
+**Evidence:** `c1fa739` in Pkkls/kick-chat-translator restores the accents and states the counts; `22804df` records the weak check in the store skill journal, item 16 of the 2026-09-26 section. Every corrected paragraph was compared with the old one with accents and case stripped, to show only accents changed.
+**AST-07:** true, from the commit. Because of this session: no. Inherited: the counts from the commit message, not recounted against the store pages of that day, which no longer serve the old text.
+**Bias declaration, per 6f:** shared instruction set applies, toward leniency, since the analyst runs on the same instructions that ask for a witness and would have accepted this one. Asymmetric evidence applies: the corrected listing is public and the stripped one survives only in history and in the commit's own description. Outcome knowledge applies.
+**Fix:** one accent per paragraph of 120 characters or more once quoted English is set aside, and no Cyrillic letter in a Latin-script text. Run against the old listing it names exactly the 32 paragraphs and the Cyrillic letter, and nothing on the corrected one. That second run is the witness the first version lacked: the real broken input, not the imagined one.
+**Class:** E86, a witness built from the author's model of the failure, and section 1.1. Also E77, a public product page that carried text it should not have.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -1218,6 +1230,7 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `012f115` | Pkkls/kick-chat-translator | E61 |
 | `01e1908` | Pkkls/autonomy-log | E88 |
 | `1031257` | Pkkls/kick-chat-translator | E54 |
+| `22804df` | Pkkls/kick-chat-translator | E89 |
 | `3706131` | Pkkls/autonomy-log | E67 |
 | `3780771` | Pkkls/autonomy-log | E84 |
 | `42f16c9` | Pkkls/kick-chat-translator | E51 |
@@ -1230,7 +1243,8 @@ Every commit hash cited above, with the repository it lives in. This record cite
 | `9541cbb` | Pkkls/autonomy-log | E67 |
 | `9ce0f28` | Pkkls/kick-chat-translator | E57 |
 | `ae65813` | Pkkls/kick-chat-translator | E54 |
+| `c1fa739` | Pkkls/kick-chat-translator | E89 |
 | `cbdd902` | Pkkls/autonomy-log | E84 |
 | `d724999` | Pkkls/kick-chat-translator | E61 |
 
-Eleven resolve in the extension repository, six in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.
+Thirteen resolve in the extension repository, six in this one, none in both. Verified through the public API rather than a local checkout, because a local checkout is the author's path and the API is the reader's.

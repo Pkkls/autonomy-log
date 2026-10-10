@@ -114,4 +114,4 @@ Since September the reloaded layer has a second form: skills, files an agent loa
 
 **The instrument that feeds this layer has a blind channel.** The skill that turns errors into rules starts from an extractor that misses every operator message typed mid-turn (E91). Rules drawn from it are drawn from the corrections given between turns. That gap was in place for the whole window and nothing in the output showed it.
 
-**What deliberately did not change.** The extractor and the listing's privacy address (D19) belong to the operator's standing configuration and its public listing. Both fixes are recorded as proposals in their entries and were not applied.
+**What deliberately did not change, and what changed after.** The listing's privacy address (D19) is a public listing change and stays a proposal. The extractor fix was applied the same evening, once the operator gave this steward authority over the estate's tooling, and E91 records the witness. That is a rule turned into a program inside the window it was found in, which this file has rarely been able to say.

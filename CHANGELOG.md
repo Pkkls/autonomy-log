@@ -1,5 +1,7 @@
 # Changelog
 
+**Frozen on 2026-09-01 at E82, and declared so on 2026-10-10.** Nothing re-derived this file, so from E83 onward it said less than the ledger while reading as complete, which is E84's mechanism in a second register. It is kept as the inventory of the first two campaigns. Everything after it is in `git log`, where each commit names the entry it records.
+
 Everything produced or changed during the session documented in this repository, in the order it happened. Dates are the session date, 2026-07-30.
 
 Format follows [Keep a Changelog](https://keepachangelog.com). Entries link to the artifact so each claim can be checked rather than believed.

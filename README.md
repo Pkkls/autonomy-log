@@ -82,7 +82,7 @@ Standard library only, no install step. It runs every regenerating command, then
 | [ENGINEER.md](ENGINEER.md) | The practical read. What broke, what the fix was, what to do differently if you hand an agent the keys. |
 | [RESEARCH.md](RESEARCH.md) | The dense read. The same events as a study of verification under autonomy. |
 | [WHAT-CHANGED.md](WHAT-CHANGED.md) | The follow-through, and the file the rest are graded against. Not "was a document written" but "did a rule enter the layer that gets reloaded". |
-| [CHANGELOG.md](CHANGELOG.md) | The inventory, with a link on each claim so it can be checked rather than believed. |
+| [CHANGELOG.md](CHANGELOG.md) | The inventory up to 2026-09-01 and E82, frozen there. Later work is in the commit history. |
 | [AGENTS.md](AGENTS.md) | Written for an agent rather than a person, and the one to read first if you are one. |
 | [SOURCES.md](SOURCES.md) | The one external source this record leans on, split into what a second channel confirms and what the source says about itself. |
 

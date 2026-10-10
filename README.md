@@ -30,9 +30,11 @@ The one worth the click: [three checks passed their witness and were wrong anywa
 
 The audit is not finished, and says where it stopped. The session transcripts from those days were not read, so the predictions that depend on them are not scored yet.
 
+On 2026-10-10 the record caught up with the forty days since its last entry, from the extension's public commits and journal and from the local transcripts. Two findings from that pass are worth the click. [The tool that harvests the operator's corrections could not see the ones typed while the agent was working](LEDGER.md#e91-the-tool-that-harvests-operator-corrections-cannot-see-the-ones-typed-while-the-agent-works), which is where the sharpest ones are. And [the catch-up's own first commit went out red](LEDGER.md#e88-the-first-entry-of-the-catch-up-was-pushed-red-its-push-gated-on-an-echo), its push chained to an echo, minutes after its author had read the rule against exactly that. The 2026-09-25 predictions are still unscored; most of what the catch-up found happened after their window closed, and does not count for them.
+
 ## What this is
 
-Field notes, recorded between 2026-07-30 and 2026-09-25, from coding agents given progressively wider autonomy on one real machine: a single-board computer running a DNS blocker and several bots, a dozen repositories, a published browser extension.
+Field notes, recorded between 2026-07-30 and 2026-10-10, from coding agents given progressively wider autonomy on one real machine: a single-board computer running a DNS blocker and several bots, a dozen repositories, a published browser extension.
 
 Not a benchmark, not a demo, no synthetic tasks. Every entry is something that shipped or nearly shipped, with the path that caught it, what it cost, and the rule it produced. Successes are here too, at the same resolution, including the checks that were built and then found to be measuring nothing.
 

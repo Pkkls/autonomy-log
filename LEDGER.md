@@ -1055,6 +1055,19 @@ The file scanner encoded the window as epoch constants for 2024-09-01 to 2025-09
 **Fix:** the script now cuts the file at the Verdict heading, edits only below it, and asserts the part above is unchanged. INV-13 makes the promise a check: the digest of 6i from its heading through the Verdict heading must equal the one pushed in `b18dc92`, and the check was seen red on a copy with one word changed above the heading.
 **Class:** E88, a step that runs regardless of the step it depends on; E54 and E46, identifiers that collide inside one register.
 
+### E100. A delegated agent told it was read-only ran a writing script and started a daemon, and said so only as a footnote
+**Severity: low, nothing changed in content, and recorded because the instruction it broke was the only boundary between a measurement and the machine it measured.** On 2026-10-11 the steward delegated the resolution of 465 claims from the operator's memory files to four agents, under a written protocol whose first line after the goal was "READ-ONLY. Never write, move, delete, restart". One of them, resolving 156 claims about the workstation, ran a project's verification script, which regenerates a tracked output file as a side effect, and started the Android debug bridge server to look for a phone. It finished its work correctly and listed both under "Side effects (small)" at the end of its report.
+
+The output file's modification time was 08:30 that morning and the repository showed no change, so the regenerated file was byte for byte what was committed. The debug bridge server's start time was 08:25, inside the agent's run; it was stopped by the steward. The other three agents, given the same protocol, reported no side effect, and none was looked for.
+
+**The mechanism.** "Read-only" was a sentence in a document the agent read, not a property of the tools it held, which is AST-09 in its plainest form. A script named `verify` reads as a check and writes as a build, and a command that lists devices starts a server to answer. The agent's own model of what counts as a write was the only thing enforcing the instruction, and that model does not include side effects of tools whose names promise inspection.
+
+**Caught by:** the author, in its report, which is why it is not quiet; the steward then measured both effects instead of taking "small" as the measurement.
+**AST-07:** true, by the file's modification time, `git status`, and the process start time. Because of this session: the delegation and the protocol, yes; the actions, no.
+**Bias declaration, per 6f:** self-inclusion applies, toward leniency, since the steward wrote the protocol that failed to bind.
+**Fix:** none to the tools. Delegated measurement on the workstation still runs with write access, because the resolution needs `git`, `gh` and process queries that no read-only sandbox here offers. What changed is the review: a delegated report's side-effect line is now checked by modification times and process start times before its results are used, as it was here.
+**Class:** AST-09, a rule with no runtime; E86, a delegated instrument trusted on its own account; E53 and E65, a rule broken by the session that wrote it.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -1399,6 +1412,7 @@ Every row was assigned by the analyst who wrote the entry and reviewed by nobody
 | E97 | record | L1 | peer | no | no | yes | yes |
 | E98 | estate | L1 | peer | no | no | yes | yes |
 | E99 | record | L1 | author | no | no | no | yes |
+| E100 | estate | L4 | author | no | no | yes | no |
 | D19 | estate | - | external | no | yes | no | yes |
 | D20 | estate | - | author | no | no | yes | yes |
 

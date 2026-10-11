@@ -1068,6 +1068,34 @@ The output file's modification time was 08:30 that morning and the repository sh
 **Fix:** none to the tools. Delegated measurement on the workstation still runs with write access, because the resolution needs `git`, `gh` and process queries that no read-only sandbox here offers. What changed is the review: a delegated report's side-effect line is now checked by modification times and process start times before its results are used, as it was here.
 **Class:** AST-09, a rule with no runtime; E86, a delegated instrument trusted on its own account; E53 and E65, a rule broken by the session that wrote it.
 
+### E101. A probe sent to the production host without an estimate read the channel's video store for nineteen minutes after the client gave up
+**Severity: low in effect, the stream stayed up; recorded because the rule it skipped was written for exactly this and applied two hours earlier to the two smaller machines.** On 2026-10-11, resolving memory claims about the cloud host that runs the 24/7 channel, the steward sent one read-only probe script over ssh. Every probe to the two boards that morning was preceded by a written estimate and bracketed by load readings. This one was not, because the rule in the steward's skill names "the board" and the host is not a board.
+
+The script held one recursive search, for a string in the channel's directory and in the service definitions. The channel's directory is where its video files live, up to a 38 GB budget, on a host with 1 GB of memory and 2 virtual processors. The ssh client stopped at its 120-second limit and the steward's shell reported a timeout, which reads as the probe having ended. The search kept running on the host. The steward found it by listing processes, about two minutes in. Stopping it was refused by the session's permission classifier, as a kill on a production host, and was not worked around. A loop polling the process table saw it exit about nineteen minutes after it started, with the one-minute load between 1.3 and 1.9 against 0.2 before; the stream's push unit read active when checked.
+
+The same script ran `crontab -l`, which printed a DNS update token into the probe's local output file. Nothing left the machine, and the value was redacted in that file within minutes. The bounded second probe filters the crontab and holds no recursive read.
+
+**The mechanism.** A remote command's lifetime is not its client's. A timeout on the near side kills the near side, and the near side is the only one that reports. The estimate that would have caught this asks "what does each command read", and a search whose target holds video answers "everything". The rule existed, and its wording tied it to one class of machine.
+
+**Caught by:** the author, listing the host's processes after the timeout; the token, by a scan of the output file for assignments before reading it.
+**AST-07:** true, by the process table with elapsed times, load readings, the poll log, and the output file. Because of this session: yes, entirely.
+**Bias declaration, per 6f:** self-inclusion applies, toward severity.
+**Fix:** the steward's skill now says every remote probe, whatever the host, carries a written estimate of what each command reads; that recursive reads are bounded by depth or a file list; that a remote command is wrapped in the host's own `timeout`, so the far side ends when the near side does; and that `crontab -l` and environment files are filtered before they reach disk. Witnessed on the second probe: estimate written, no recursive read, 90 seconds, load 0.65 after.
+**Class:** E100, a session's side effect on a machine it was only measuring; E9, E10 and E11, an operational cost the author never modelled; E64, an identifier reaching a file it was never meant to reach.
+
+### E102. A repository was made public in the same command as the checks that were meant to clear it
+**Severity: none in effect, nothing private was published; recorded because publication is the one step this record treats as irreversible, and this is E88's fault a third time.** On 2026-10-11 the operator asked for the skills repository to be made public. The steward measured what that would expose, the operator chose a fresh single-commit history with local values replaced, and the steward built it, witnessed the redaction and its guard red and green, and then ran one shell command: count the private values left in the commit, count local network addresses, list files naming the private event table, then create the public repository and push. The creation was joined to the checks by `&&`, and every check exits 0 whatever it counts.
+
+Two of the three counts were not zero. Read afterwards, both were benign: the address count was the README quoting the address prefix as an example, and the two files named the excluded table without containing it. The repository was public before either was read.
+
+**The mechanism.** A check that reports by printing a number succeeds as a process whatever the number is, so `&&` gates on the check having run, not on what it found. E88 was a push chained after an echo of an exit code, E99 a script run on the line after its repair; this is the same shape with publication at the end of it, the step whose cost cannot be taken back.
+
+**Caught by:** the author, reading the output after the repository already existed.
+**AST-07:** true, by the command and its output. Because of this session: yes, entirely.
+**Bias declaration, per 6f:** self-inclusion applies, toward severity.
+**Fix:** the steward's skill now says that an irreversible step runs alone, in its own command, after the checks' output has been read; a check that gates it must exit non-zero on a finding, as the sync script's guard does. The sync script itself, which pushes to the public repository from now on, refuses on any remaining value.
+**Class:** E88 and E99, a step that runs regardless of the step before it; E64 and E82, exposure counted before publication, here counted and not read.
+
 ## Environment discoveries
 
 These were found, not caused. They are the reason the session was worth running.
@@ -1413,6 +1441,8 @@ Every row was assigned by the analyst who wrote the entry and reviewed by nobody
 | E98 | estate | L1 | peer | no | no | yes | yes |
 | E99 | record | L1 | author | no | no | no | yes |
 | E100 | estate | L4 | author | no | no | yes | no |
+| E101 | estate | L4 | author | no | no | yes | yes |
+| E102 | estate | L1 | author | no | yes | no | no |
 | D19 | estate | - | external | no | yes | no | yes |
 | D20 | estate | - | author | no | no | yes | yes |
 
